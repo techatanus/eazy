@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RFP Module | eazyProcure</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .milestone {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .milestone .step {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: #6c757d;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 10px;
+      font-size: 14px;
+    }
+    .milestone.active .step {
+      background: #0d6efd;
+    }
+    .milestone.done .step {
+      background: #198754;
+    }
+  </style>
+  <style>
+    :root{
+      --sidebar-width: 260px;
+      --navbar-height: 64px;
+      --accent: #0d6efd;
+      --muted: #6c757d;
+    }
+
+    html,body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial; background: #f8f9fa; }
+
+    /* NAVBAR (light green) */
+
+    .topbar {
+      height: var(--navbar-height);
+      background: #7dd170; /* light green */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: fixed;
+      left: var(--sidebar-width);
+      right: 0;
+      top: 0;
+      z-index: 1100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: left .25s ease;
+    
+    }
+
+     
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+    .nav-icon { cursor: pointer; font-size: 1.2rem; position: relative; }
+    .icon-badge::after { content: attr(data-count); position: absolute; top: -6px; right: -8px; background: red; color: white; font-size: 0.7rem; padding: 2px 5px; border-radius: 50%; display: none; }
+    .icon-badge[data-count]:not([data-count="0"])::after { display: inline-block; }
+    /* brand */
+    .brand {
+      font-weight: 700;
+      color: #134611;
+    }
+
+    /* navbar right icons spacing & style */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      margin-left: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #13340f;
+      transition: background .2s, transform .12s;
+    }
+    .nav-icon:hover { background: rgba(0,0,0,0.06); transform: translateY(-1px); }
+    .nav-icon .bi { font-size: 1.15rem; }
+
+    /* small badge for counts (optional style) */
+    .icon-badge {
+      position: relative;
+    }
+    .icon-badge .badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      font-size: 0.6rem;
+    }
+
+    /* layout: sidebar + content */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar (light) */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: #f1f5f2;
+      padding: 18px 12px;
+      padding-top: calc(var(--navbar-height) + 14px); /* start under navbar */
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+      transition: transform .28s ease;
+      z-index: 1050;
+    }
+    .sidebar.collapsed { transform: translateX(-110%); }
+
+    .sidebar .nav-section { margin-bottom: 6px; }
+    .sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 10px;
+      color: #213426;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-bottom: 4px;
+      transition: background .18s;
+    }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: #0d6efd; }
+
+    .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
+    .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
+
+    /* submenu slide (animated) */
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .32s ease, padding .2s ease;
+      padding-left: 36px;
+    }
+    .submenu.show {
+      max-height: 420px; /* enough room */
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .submenu a {
+      display:block;
+      padding:8px 12px;
+      text-decoration:none;
+      color:#183f28;
+      border-radius:6px;
+      margin-bottom:4px;
+    }
+    .submenu a:hover { background:#e6f0e6; color:var(--accent); }
+
+    /* main content area */
+    .content {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--navbar-height);
+      padding: 22px;
+      flex: 1;
+      transition: margin-left .28s ease;
+    }
+    .sidebar.collapsed ~ .content {
+      margin-left: 0;
+    }
+    .sidebar.collapsed ~ .topbar { left: 0; }
+
+    /* cards grid: 3 on top, 4 on next row */
+    .cards-top {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .cards-bottom {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+     
+    }
+
+    .stat-card {
+     
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      cursor:pointer;
+      transition: transform .16s ease, box-shadow .16s;
+       color: white;
+    }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.06); }
+    .stat-icon {
+      width:56px;height:56px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:white;
+      flex-shrink:0;
+    }
+    .stat-body { flex:1; }
+    .stat-title { font-size:0.85rem;color:var(--muted); margin:0; }
+    .stat-value { font-size:1.55rem;font-weight:700;margin:4px 0 0;color:#222; }
+
+    /* colored icon backgrounds */
+    .c-admin{background: linear-gradient(135deg,#3b82f6,#2563eb);}  /* blue */
+    .c-client{background: linear-gradient(135deg,#10b981,#059669);} /* green */
+    .c-supplier{background: linear-gradient(135deg,#fb923c,#f97316);}/* orange */
+    .c-open{background: linear-gradient(135deg,#06b6d4,#0891b2);}    /* teal */
+    .c-closed{background: linear-gradient(135deg,#94a3b8,#6b7280);}  /* gray */
+    .c-applied{background: linear-gradient(135deg,#f59e0b,#d97706);} /* amber */
+    .c-approved{background: linear-gradient(135deg,#7c3aed,#6d28d9);} /* purple */
+
+    /* Open tenders table */
+    .table-card {
+      margin-top: 8px;
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+    }
+
+    /* popups anchored to icons */
+    .floating-popup {
+      position: absolute;
+      width: 260px;
+      max-width: 40vw;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 10px;
+      z-index: 1200;
+      display: none;
+    }
+    .floating-popup .item {
+      display:flex; gap:10px; align-items:center; padding:8px 6px; border-bottom:1px solid #f0f0f0;
+    }
+    .floating-popup .item:last-child{border-bottom:none;}
+    .floating-popup .item .bi { font-size:1.05rem; color:var(--accent); width:28px; text-align:center; }
+    .floating-popup h6{margin:0 0 8px 0;font-size:0.95rem;color:var(--accent);}
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .cards-top { grid-template-columns: repeat(2,1fr); }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 768px) {
+      .topbar { left: 0; padding: 0 10px; }
+      .sidebar { transform: translateX(-110%); position: fixed; z-index:1300; }
+      .sidebar.visible { transform: translateX(0); }
+      .content { margin-left: 0; padding: 14px; margin-top: var(--navbar-height); }
+      .cards-top { grid-template-columns: 1fr; }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    /* --- Top Navbar Styling --- */
+.navbar-custom {
+  margin-left: 260px; /* keeps space for sidebar */
+  background: #90ee90; /* light green */
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-custom .left span {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1e1e2f;
+}
+
+.navbar-custom .right {
+  display: flex;
+  align-items: center;
+  gap: 25px; /* spacing between icons */
+}
+
+.icon-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.icon-wrapper i {
+  font-size: 1.4rem;
+  color: #1e1e2f;
+}
+
+.icon-wrapper .badge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background: red;
+  color: #fff;
+  font-size: 0.7rem;
+  border-radius: 50%;
+  padding: 3px 6px;
+}
+
+/* Dropdown menus for email, sms, notification */
+.navbar-custom .dropdown-menu {
+  min-width: 250px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  border: none;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item i {
+  font-size: 1rem;
+  color: #0d6efd;
+}
+
+/* Profile dropdown */
+.navbar-custom .dropdown-menu .dropdown-item.text-danger {
+  color: #dc3545 !important;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item.text-danger:hover {
+  background: #f8d7da;
+  color: #a71d2a !important;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .navbar-custom {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+  .navbar-custom .left {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .navbar-custom .right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+  </style>
+</head>
+<body>
+   <!-- Sidebar (light) -->
+   <%- include('partials/sidebar') %>
+
+    <!-- Top Navbar (light green) -->
+     <%- include('partials/topbar') %>
+<div class="content">
+  <h2 class="text-center text-primary mb-4">Request for Proposal (RFP)</h2>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs" id="rfpTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#createRFP" type="button">Create RFP</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#vendorSubmissions" type="button">Vendor Submissions</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#evaluation" type="button">Evaluation</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bidderPortal" type="button">Bidder Portal</button>
+    </li>
+  </ul>
+
+  <div class="tab-content bg-white border border-top-0 p-4">
+    <!-- Create RFP -->
+    <div class="tab-pane fade show active" id="createRFP">
+      <h5 class="text-success mb-3">Create New RFP</h5>
+      <form>
+        <div class="mb-3">
+          <label class="form-label">Project Title</label>
+          <input type="text" class="form-control" placeholder="Enter project title">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Project Requirements</label>
+          <textarea class="form-control" rows="4" placeholder="Outline project needs, deliverables, technical specifications, etc."></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Evaluation Criteria</label>
+          <textarea class="form-control" rows="3" placeholder="Define criteria e.g. price, quality, delivery timeline"></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Submission Deadline</label>
+            <input type="date" class="form-control">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Budget Estimate</label>
+            <input type="text" class="form-control" placeholder="Enter budget amount">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Publish RFP</button>
+      </form>
+    </div>
+
+    <!-- Vendor Submissions -->
+    <div class="tab-pane fade" id="vendorSubmissions">
+      <h5 class="text-success mb-3">Vendor Submissions</h5>
+      <table class="table table-borderless">
+        <thead class="table-light">
+          <tr>
+            <th>Vendor</th>
+            <th>Technical Proposal</th>
+            <th>Financial Proposal</th>
+            <th>Submission Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ABC Solutions Ltd</td>
+            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+            <td>2025-09-20</td>
+            <td><span class="badge bg-warning">Under Review</span></td>
+          </tr>
+          <tr>
+            <td>XYZ Tech</td>
+            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
+            <td>2025-09-21</td>
+            <td><span class="badge bg-success">Accepted</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Evaluation -->
+    <div class="tab-pane fade" id="evaluation">
+      <h5 class="text-success mb-3">Evaluation Progress</h5>
+      <div class="milestone active">
+        <div class="step">1</div> RFP Created
+      </div>
+      <div class="milestone done">
+        <div class="step">2</div> Submissions Received
+      </div>
+      <div class="milestone active">
+        <div class="step">3</div> Technical Evaluation
+      </div>
+      <div class="milestone">
+        <div class="step">4</div> Financial Evaluation
+      </div>
+      <div class="milestone">
+        <div class="step">5</div> Final Selection & Award
+      </div>
+    </div>
+
+    <!-- Bidder Portal -->
+    <div class="tab-pane fade" id="bidderPortal">
+      <h5 class="text-success mb-3">Bidder Portal – Track Proposal</h5>
+      <form>
+        <div class="mb-3">
+          <label class="form-label">Enter Proposal Reference ID</label>
+          <input type="text" class="form-control" placeholder="e.g. RFP-2025-001">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="showStatus()">Check Status</button>
+      </form>
+      <div id="bidStatus" class="mt-4" style="display:none;">
+        <h6>Status for <span class="text-primary">RFP-2025-001</span></h6>
+        <ul class="list-group">
+          <li class="list-group-item">Submission Received ✅</li>
+          <li class="list-group-item">Technical Evaluation ⏳</li>
+          <li class="list-group-item">Financial Evaluation ❌ (Not Yet)</li>
+          <li class="list-group-item">Final Decision ❌ (Pending)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function showStatus() {
+    document.getElementById('bidStatus').style.display = 'block';
+  }
+</script>
+ <script>
+    // Sidebar submenu toggles (preserve initial markup, only enhance)
+    document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        const target = this.getAttribute('data-target');
+        const el = document.getElementById(target);
+        if (!el) return;
+        el.classList.toggle('show');
+        // rotate plus icon visual: toggle caret or plus (optional)
+        const icon = this.querySelector('.bi');
+        if (icon) icon.classList.toggle('bi-rotate-90');
+      });
+    });
+
+    // Mobile hamburger toggles the sidebar visibility
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const topbar = document.getElementById('topbar');
+    const content = document.getElementById('content');
+
+    hamburger && hamburger.addEventListener('click', ()=> {
+      sidebar.classList.toggle('visible'); // CSS handles transform for small screens
+    });
+
+    // Global: close any open popup
+    function closeAllFloating(){
+      document.querySelectorAll('.floating-popup, .floating-popup').forEach(el => el.style.display = 'none');
+      document.getElementById('profileMenu').style.display = 'none';
+    }
+
+    // Position and show a floating popup next to the clicked icon
+    function showPopup(popupEl, triggerEl){
+      closeAllFloating();
+      const rect = triggerEl.getBoundingClientRect();
+      const popup = popupEl;
+      // place above or below depending on available space
+      const scrollY = window.scrollY || window.pageYOffset;
+      let top = rect.bottom + scrollY + 8;
+      let left = Math.min(window.innerWidth - popup.offsetWidth - 12, rect.left + window.scrollX - popup.offsetWidth/2 + rect.width/2);
+      popup.style.top = top + 'px';
+      popup.style.left = left + 'px';
+      popup.style.display = 'block';
+    }
+
+    // tidy helper to find elements
+    const emailIcon = document.getElementById('emailIcon');
+    const smsIcon = document.getElementById('smsIcon');
+    const notifIcon = document.getElementById('notifIcon');
+    const emailPopup = document.getElementById('emailPopup');
+    const smsPopup = document.getElementById('smsPopup');
+    const notifPopup = document.getElementById('notifPopup');
+    const profileIcon = document.getElementById('profileIcon');
+    const profileMenu = document.getElementById('profileMenu');
+
+    // toggle handlers
+    emailIcon && emailIcon.addEventListener('click', (e)=> {
+      showPopup(emailPopup, emailIcon);
+      e.stopPropagation();
+    });
+    smsIcon && smsIcon.addEventListener('click', (e)=> {
+      showPopup(smsPopup, smsIcon);
+      e.stopPropagation();
+    });
+    notifIcon && notifIcon.addEventListener('click', (e)=> {
+      showPopup(notifPopup, notifIcon);
+      e.stopPropagation();
+    });
+
+    profileIcon && profileIcon.addEventListener('click', (e)=>{
+      // position profile menu under the icon (right corner)
+      closeAllFloating();
+      const rect = profileIcon.getBoundingClientRect();
+      const scrollY = window.scrollY || window.pageYOffset;
+      profileMenu.style.top = rect.bottom + scrollY + 8 + 'px';
+      profileMenu.style.left = (rect.left + rect.width/2 - profileMenu.offsetWidth/2) + 'px';
+      profileMenu.style.display = 'block';
+      e.stopPropagation();
+    });
+
+    // click outside closes popups
+    document.addEventListener('click', function(e){
+      // if click inside any floating popup or icon, ignore
+      const targets = [emailPopup, smsPopup, notifPopup, profileMenu];
+      if (!e.target.closest('.nav-icon') && !targets.some(t => t && t.contains(e.target))) {
+        closeAllFloating();
+      }
+    });
+
+    // Card modal: show appropriate content when a card is clicked
+    document.querySelectorAll('.stat-card').forEach(card=>{
+      card.addEventListener('click', function(){
+        const title = this.getAttribute('data-card') || 'Details';
+        const titleEl = document.getElementById('detailModalTitle');
+        const bodyEl = document.getElementById('detailModalBody');
+        titleEl.textContent = title;
+        bodyEl.innerHTML = `<strong>${title}</strong><br/>This is demo content for <em>${title}</em>. You can wire this to real data or link the 'View All' to the relevant page.`;
+        // open bootstrap modal programmatically
+        const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+        modal.show();
+      });
+    });
+
+    // close popups on resize to avoid misplaced popup
+    window.addEventListener('resize', closeAllFloating);
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Managetender | eazyProcure</title>
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --sidebar-width: 260px;
+      --navbar-height: 64px;
+      --accent: #0d6efd;
+      --muted: #6c757d;
+    }
+
+    html,body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial; background: #f8f9fa; }
+
+    /* NAVBAR (light green) */
+    .topbar {
+      height: var(--navbar-height);
+      background: #bfe8b9; /* light green */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: fixed;
+      left: var(--sidebar-width);
+      right: 0;
+      top: 0;
+      z-index: 1100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: left .25s ease;
+    }
+
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+    .nav-icon { cursor: pointer; font-size: 1.2rem; position: relative; }
+    .icon-badge::after { content: attr(data-count); position: absolute; top: -6px; right: -8px; background: red; color: white; font-size: 0.7rem; padding: 2px 5px; border-radius: 50%; display: none; }
+    .icon-badge[data-count]:not([data-count="0"])::after { display: inline-block; }
+    .brand { font-weight: 700; color: #134611; }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      margin-left: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #13340f;
+      transition: background .2s, transform .12s;
+    }
+    .nav-icon:hover { background: rgba(0,0,0,0.06); transform: translateY(-1px); }
+    .nav-icon .bi { font-size: 1.15rem; }
+
+    .icon-badge { position: relative; }
+    .icon-badge .badge { position: absolute; top: -6px; right: -6px; font-size: 0.6rem; }
+
+    /* layout: sidebar + content */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar (light) */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: #f1f5f2;
+      padding: 18px 12px;
+      padding-top: calc(var(--navbar-height) + 14px); /* start under navbar */
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+      transition: transform .28s ease;
+      z-index: 1050;
+    }
+    .sidebar.visible { transform: translateX(0); }
+    .sidebar.collapsed { transform: translateX(-110%); }
+
+    .sidebar .nav-section { margin-bottom: 6px; }
+    .sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 10px;
+      color: #213426;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-bottom: 4px;
+      transition: background .18s;
+    }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: #0d6efd; }
+
+    .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
+    .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
+
+    /* submenu slide (animated) */
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .32s ease, padding .2s ease;
+      padding-left: 36px;
+    }
+    .submenu.show {
+      max-height: 420px; /* enough room */
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .submenu a {
+      display:block;
+      padding:8px 12px;
+      text-decoration:none;
+      color:#183f28;
+      border-radius:6px;
+      margin-bottom:4px;
+    }
+    .submenu a:hover { background:#e6f0e6; color:var(--accent); }
+
+    /* main content area */
+    .content {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--navbar-height);
+      padding: 22px;
+      flex: 1;
+      transition: margin-left .28s ease;
+    }
+    .sidebar.collapsed ~ .content {
+      margin-left: 0;
+    }
+    .sidebar.collapsed ~ .topbar { left: 0; }
+
+    .cards-top { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 18px; }
+    .cards-bottom { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 20px; }
+
+    .stat-card {
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      cursor:pointer;
+      transition: transform .16s ease, box-shadow .16s;
+      color: white;
+    }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.06); }
+    .stat-icon { width:56px;height:56px;border-radius:10px; display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:white; flex-shrink:0; }
+    .stat-body { flex:1; }
+    .stat-title { font-size:0.85rem;color:var(--muted); margin:0; }
+    .stat-value { font-size:1.55rem;font-weight:700;margin:4px 0 0;color:#222; }
+
+    .c-admin{background: linear-gradient(135deg,#3b82f6,#2563eb);}  .c-client{background: linear-gradient(135deg,#10b981,#059669);} .c-supplier{background: linear-gradient(135deg,#fb923c,#f97316);} .c-open{background: linear-gradient(135deg,#06b6d4,#0891b2);} .c-closed{background: linear-gradient(135deg,#94a3b8,#6b7280);} .c-applied{background: linear-gradient(135deg,#f59e0b,#d97706);} .c-approved{background: linear-gradient(135deg,#7c3aed,#6d28d9); }
+
+    /* Open tenders table */
+    .table-card { margin-top: 8px; background: white; padding: 14px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.03); }
+
+    /* popups anchored to icons */
+    .floating-popup {
+      position: absolute;
+      width: 260px;
+      max-width: 40vw;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 10px;
+      z-index: 1200;
+      display: none;
+    }
+    .floating-popup .item { display:flex; gap:10px; align-items:center; padding:8px 6px; border-bottom:1px solid #f0f0f0; }
+    .floating-popup .item:last-child{border-bottom:none;}
+    .floating-popup .item .bi { font-size:1.05rem; color:var(--accent); width:28px; text-align:center; }
+    .floating-popup h6{margin:0 0 8px 0;font-size:0.95rem;color:var(--accent);}
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .cards-top { grid-template-columns: repeat(2,1fr); }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 768px) {
+      .topbar { left: 0; padding: 0 10px; }
+      .sidebar { transform: translateX(-110%); position: fixed; z-index:1300; }
+      .sidebar.visible { transform: translateX(0); }
+      .content { margin-left: 0; padding: 14px; margin-top: var(--navbar-height); }
+      .cards-top { grid-template-columns: 1fr; }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+
+    /* --- Top Navbar Styling (extra) --- */
+    .navbar-custom { margin-left: 260px; background: #90ee90; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+    .navbar-custom .left span { font-size: 1.3rem; font-weight: bold; color: #1e1e2f; }
+    .navbar-custom .right { display: flex; align-items: center; gap: 25px; }
+    .icon-wrapper { position: relative; cursor: pointer; }
+    .icon-wrapper i { font-size: 1.4rem; color: #1e1e2f; }
+    .icon-wrapper .badge { position: absolute; top: -5px; right: -10px; background: red; color: #fff; font-size: 0.7rem; border-radius: 50%; padding: 3px 6px; }
+
+    .navbar-custom .dropdown-menu { min-width: 250px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; border: none; }
+    .navbar-custom .dropdown-menu .dropdown-item { font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+    .navbar-custom .dropdown-menu .dropdown-item i { font-size: 1rem; color: #0d6efd; }
+    .navbar-custom .dropdown-menu .dropdown-item.text-danger { color: #dc3545 !important; }
+    .navbar-custom .dropdown-menu .dropdown-item.text-danger:hover { background: #f8d7da; color: #a71d2a !important; }
+
+    /* small utility */
+    .muted-small{color:var(--muted);font-size:.9rem}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- Sidebar (light) -->
+   <%- include('partials/sidebar') %>
+
+    <!-- Top Navbar (light green) -->
+     <%- include('partials/topbar') %>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <h3 class="mb-0">Manage tender</h3>
+          <small class="muted-small">Create, manage and QA</small>
+        </div>
+
+        <div class="d-flex gap-2 align-items-center">
+          <input id="searchInput" class="form-control form-control-sm" placeholder="Search code, title..." style="width:260px">
+          <select id="statusFilter" class="form-select form-select-sm" style="width:160px">
+            <option value="">All Status</option>
+            <option>Draft</option>
+            <option>open</option>
+            <option>Closed</option>
+          </select>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRfxModal">
+            <i class="bi bi-plus-lg"></i> Createtender
+          </button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="table table-striped align-middle" id="rfxTable">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Closing Date</th>
+                <th>Status</th>
+                <th>Created By</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- static sample rows (no backend required yet) -->
+              <tr data-id="1" data-code="RFx-2025-001" data-title="Office Computers" data-type="Goods" data-closing-date="2025-10-05" data-status="open" data-created-by="ProcOfficer" data-desc="Supply desktops and laptops">
+                <td>Tnd-2025-001</td>
+                <td>Office Computers</td>
+                <td>Goods</td>
+                <td>2025-10-05</td>
+                <td><span class="badge bg-success">open</span></td>
+                <td>ProcOfficer</td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
+                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
+                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button>
+                </td>
+              </tr>
+
+              <tr data-id="2" data-code="RFx-2025-002" data-title="Office Cleaning" data-type="Services" data-closing-date="2025-10-20" data-status="Draft" data-created-by="Manager" data-desc="Monthly office cleaning">
+                <td>Tnd-2025-002</td>
+                <td>Office Cleaning</td>
+                <td>Services</td>
+                <td>2025-10-20</td>
+                <td><span class="badge bg-secondary">Draft</span></td>
+                <td>Manager</td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
+                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
+                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button>
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- QA area (summary or quick checks) -->
+      <div class="mt-4">
+        <h5>QA Notes / Summary</h5>
+        <p class="text-muted">Quick QA summary or bulk QA actions will appear here.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- CREATE Modal -->
+  <div class="modal fade" id="createRfxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form id="createForm" class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Create tender</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Code</label>
+              <input name="code" class="form-control" placeholder="RFx-YYYY-XXX" required>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Title</label>
+              <input name="title" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Type</label>
+              <select name="type" class="form-select">
+                <option>Goods</option><option>Works</option><option>Services</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Closing Date</label>
+              <input name="closingDate" class="form-control" type="date" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select name="status" class="form-select">
+                <option>Draft</option><option>open</option><option>Closed</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Createtender</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- VIEW Modal -->
+  <div class="modal fade" id="viewRfxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Viewtender</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <dl class="row">
+            <dt class="col-sm-3">Code</dt><dd class="col-sm-9" id="v-code"></dd>
+            <dt class="col-sm-3">Title</dt><dd class="col-sm-9" id="v-title"></dd>
+            <dt class="col-sm-3">Type</dt><dd class="col-sm-9" id="v-type"></dd>
+            <dt class="col-sm-3">Closing</dt><dd class="col-sm-9" id="v-closing"></dd>
+            <dt class="col-sm-3">Status</dt><dd class="col-sm-9" id="v-status"></dd>
+            <dt class="col-sm-3">Created By</dt><dd class="col-sm-9" id="v-created"></dd>
+            <dt class="col-sm-3">Description</dt><dd class="col-sm-9" id="v-desc"></dd>
+          </dl>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-success" data-bs-dismiss="modal"> <a href="#">more</a> </button>
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT Modal -->
+  <div class="modal fade" id="editRfxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form id="editForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edittender</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="rowId" id="edit-rowId">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Code</label>
+              <input id="edit-code" name="code" class="form-control" required>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label">Title</label>
+              <input id="edit-title" name="title" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Type</label>
+              <select id="edit-type" name="type" class="form-select">
+                <option>Goods</option><option>Works</option><option>Services</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Closing Date</label>
+              <input id="edit-closing" name="closingDate" class="form-control" type="date" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Status</label>
+              <select id="edit-status" name="status" class="form-select">
+                <option>Draft</option><option>open</option><option>Closed</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea id="edit-desc" name="description" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- QA Modal -->
+  <div class="modal fade" id="qaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="qaForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">QA Checklist</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="qa-rowId">
+          <h6 id="qa-title"></h6>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="qaScope">
+            <label class="form-check-label" for="qaScope">Scope is clear and measurable</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="qaCriteria">
+            <label class="form-check-label" for="qaCriteria">Evaluation criteria defined</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="qaBudget">
+            <label class="form-check-label" for="qaBudget">Budget/estimate attached</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="qaDocs">
+            <label class="form-check-label" for="qaDocs">Documents attached & accessible</label>
+          </div>
+          <div class="mt-3">
+            <label class="form-label">Notes</label>
+            <textarea id="qaNotes" class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-warning" onclick="submitQa('request')">Request Changes</button>
+          <button type="button" class="btn btn-success" onclick="submitQa('approve')">Approve & Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Submenu toggles
+    document.querySelectorAll('[data-toggle="submenu"]').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const targetId = link.getAttribute('data-target');
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        el.classList.toggle('show');
+      });
+    });
+
+    // Mobile hamburger
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    hamburger && hamburger.addEventListener('click', () => {
+      sidebar.classList.toggle('visible');
+    });
+
+    // Popups: show/hide with click, close outside
+    const popups = {
+      emailIcon: 'emailPopup',
+      smsIcon: 'smsPopup',
+      notifIcon: 'notifPopup',
+      profileIcon: 'profileMenu'
+    };
+    Object.entries(popups).forEach(([iconId, popupId]) => {
+      const icon = document.getElementById(iconId);
+      const popup = document.getElementById(popupId);
+      if (!icon || !popup) return;
+      icon.addEventListener('click', (e) => {
+        // hide other popups
+        Object.values(popups).forEach(pid => { if (pid !== popupId) document.getElementById(pid).style.display = 'none'; });
+        popup.style.display = (popup.style.display === 'block') ? 'none' : 'block';
+        // adjust position (right aligned inside topbar)
+        const rect = icon.getBoundingClientRect();
+        const topbarRect = document.getElementById('topbar').getBoundingClientRect();
+        // place popup under icon
+        popup.style.top = (rect.bottom - topbarRect.top + 8) + 'px';
+        // align right edge to icon
+        const rightPos = (document.documentElement.clientWidth - rect.right) + 8;
+        popup.style.right = rightPos + 'px';
+      });
+    });
+
+    // close popups on outside click
+    document.addEventListener('click', (e) => {
+      const isIcon = e.target.closest('.nav-icon');
+      const isPopup = e.target.closest('.floating-popup');
+      if (!isIcon && !isPopup) {
+        document.querySelectorAll('.floating-popup').forEach(p => p.style.display = 'none');
+      }
+    });
+
+    // Helpers to find row data
+    function rowFromButton(btn) {
+      return btn.closest('tr');
+    }
+    function getRowData(tr) {
+      return {
+        id: tr.dataset.id,
+        code: tr.dataset.code,
+        title: tr.dataset.title,
+        type: tr.dataset.type,
+        closingDate: tr.dataset.closingDate,
+        status: tr.dataset.status,
+        createdBy: tr.dataset.createdBy,
+        description: tr.dataset.desc
+      };
+    }
+
+    // View modal
+    function openViewModal(btn) {
+      const tr = rowFromButton(btn);
+      const d = getRowData(tr);
+      document.getElementById('v-code').innerText = d.code || '';
+      document.getElementById('v-title').innerText = d.title || '';
+      document.getElementById('v-type').innerText = d.type || '';
+      document.getElementById('v-closing').innerText = d.closingDate || '';
+      document.getElementById('v-status').innerText = d.status || '';
+      document.getElementById('v-created').innerText = d.createdBy || '';
+      document.getElementById('v-desc').innerText = d.description || '';
+      const m = new bootstrap.Modal(document.getElementById('viewRfxModal'));
+      m.show();
+    }
+
+    // Edit modal
+    function openEditModal(btn) {
+      const tr = rowFromButton(btn);
+      const d = getRowData(tr);
+      document.getElementById('edit-rowId').value = d.id || '';
+      document.getElementById('edit-code').value = d.code || '';
+      document.getElementById('edit-title').value = d.title || '';
+      document.getElementById('edit-type').value = d.type || '';
+      document.getElementById('edit-closing').value = d.closingDate || '';
+      document.getElementById('edit-status').value = d.status || '';
+      document.getElementById('edit-desc').value = d.description || '';
+      const m = new bootstrap.Modal(document.getElementById('editRfxModal'));
+      m.show();
+    }
+
+    // Delete row (frontend demo)
+    function deleteRfx(btn) {
+      if (!confirm('Delete thistender?')) return;
+      const tr = rowFromButton(btn);
+      tr.remove();
+    }
+
+    // QA modal
+    function openQaModal(btn) {
+      const tr = rowFromButton(btn);
+      const d = getRowData(tr);
+      document.getElementById('qa-rowId').value = d.id || '';
+      document.getElementById('qa-title').innerText = (d.code ? d.code + ' — ' : '') + (d.title || '');
+      document.getElementById('qaScope').checked = false;
+      document.getElementById('qaCriteria').checked = false;
+      document.getElementById('qaBudget').checked = false;
+      document.getElementById('qaDocs').checked = false;
+      document.getElementById('qaNotes').value = '';
+      const m = new bootstrap.Modal(document.getElementById('qaModal'));
+      m.show();
+    }
+
+    function submitQa(action) {
+      const id = document.getElementById('qa-rowId').value;
+      const payload = {
+        scope: document.getElementById('qaScope').checked,
+        criteria: document.getElementById('qaCriteria').checked,
+        budget: document.getElementById('qaBudget').checked,
+        docs: document.getElementById('qaDocs').checked,
+        notes: document.getElementById('qaNotes').value,
+        action
+      };
+      // Demo: just log and close modal. Replace with fetch POST to backend later.
+      console.log('QA submit for', id, payload);
+      bootstrap.Modal.getInstance(document.getElementById('qaModal')).hide();
+      alert('QA submitted (' + action + ') — integrate backend endpoint to persist.');
+    }
+
+    // CREATE form: add row to table (demo)
+    document.getElementById('createForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const form = e.target;
+      const code = form.code.value.trim();
+      const title = form.title.value.trim();
+      const type = form.type.value;
+      const closingDate = form.closingDate.value;
+      const status = form.status.value;
+      const desc = form.description.value;
+
+      // generate a simple id
+      const newId = Date.now();
+
+      const tbody = document.querySelector('#rfxTable tbody');
+      const tr = document.createElement('tr');
+      tr.dataset.id = newId;
+      tr.dataset.code = code;
+      tr.dataset.title = title;
+      tr.dataset.type = type;
+      tr.dataset.closingDate = closingDate;
+      tr.dataset.status = status;
+      tr.dataset.createdBy = 'You';
+      tr.dataset.desc = desc;
+
+      tr.innerHTML = `
+        <td>${code}</td>
+        <td>${title}</td>
+        <td>${type}</td>
+        <td>${closingDate}</td>
+        <td><span class="badge ${status==='open'?'bg-success':status==='Draft'?'bg-secondary':'bg-warning'}">${status}</span></td>
+        <td>You</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
+          <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
+          <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button>
+        </td>`;
+
+      tbody.prepend(tr);
+      bootstrap.Modal.getInstance(document.getElementById('createRfxModal')).hide();
+      form.reset();
+    });
+
+    // EDIT form: update row (frontend demo)
+    document.getElementById('editForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const id = document.getElementById('edit-rowId').value;
+      const code = document.getElementById('edit-code').value.trim();
+      const title = document.getElementById('edit-title').value.trim();
+      const type = document.getElementById('edit-type').value;
+      const closingDate = document.getElementById('edit-closing').value;
+      const status = document.getElementById('edit-status').value;
+      const desc = document.getElementById('edit-desc').value;
+
+      const tr = [...document.querySelectorAll('#rfxTable tbody tr')].find(r => r.dataset.id === id);
+      if (!tr) {
+        alert('Row not found (frontend demo).');
+        bootstrap.Modal.getInstance(document.getElementById('editRfxModal')).hide();
+        return;
+      }
+      tr.dataset.code = code;
+      tr.dataset.title = title;
+      tr.dataset.type = type;
+      tr.dataset.closingDate = closingDate;
+      tr.dataset.status = status;
+      tr.dataset.desc = desc;
+
+      tr.cells[0].innerText = code;
+      tr.cells[1].innerText = title;
+      tr.cells[2].innerText = type;
+      tr.cells[3].innerText = closingDate;
+      tr.cells[4].innerHTML = `<span class="badge ${status==='open'?'bg-success':status==='Draft'?'bg-secondary':'bg-warning'}">${status}</span>`;
+      tr.cells[5].innerText = tr.dataset.createdBy || 'You';
+
+      bootstrap.Modal.getInstance(document.getElementById('editRfxModal')).hide();
+    });
+
+    // Search / filter
+    document.getElementById('searchInput').addEventListener('input', function () {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('#rfxTable tbody tr').forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+    document.getElementById('statusFilter').addEventListener('change', function () {
+      const val = this.value;
+      document.querySelectorAll('#rfxTable tbody tr').forEach(row => {
+        if (!val) { row.style.display = ''; return; }
+        const s = row.dataset.status || (row.querySelector('td span.badge')?.innerText || '');
+        row.style.display = (s.trim() === val) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

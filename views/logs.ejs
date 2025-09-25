@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>eazyProcure — Audit Logs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background:#f8f9fa; }
+    .sidebar { min-height:100vh; background:#0d6efd; color:#fff; }
+    .sidebar a { color:#fff; text-decoration:none; display:block; padding:.5rem 1rem; }
+    .sidebar a:hover { background:rgba(255,255,255,0.2); border-radius:6px; }
+    .navbar { background:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.1); }
+    .card-compact { border-radius:12px; }
+    .status-success { color:green; font-weight:500; }
+    .status-fail { color:red; font-weight:500; }
+  </style>
+
+  <style>
+    :root{
+      --sidebar-width: 260px;
+      --navbar-height: 64px;
+      --accent: #0d6efd;
+      --muted: #6c757d;
+    }
+
+    html,body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial; background: #f8f9fa; }
+
+    /* NAVBAR (light green) */
+
+    .topbar {
+      height: var(--navbar-height);
+      background: #bfe8b9; /* light green */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: fixed;
+      left: var(--sidebar-width);
+      right: 0;
+      top: 0;
+      z-index: 1100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: left .25s ease;
+    
+    }
+
+     
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+    .nav-icon { cursor: pointer; font-size: 1.2rem; position: relative; }
+    .icon-badge::after { content: attr(data-count); position: absolute; top: -6px; right: -8px; background: red; color: white; font-size: 0.7rem; padding: 2px 5px; border-radius: 50%; display: none; }
+    .icon-badge[data-count]:not([data-count="0"])::after { display: inline-block; }
+    /* brand */
+    .brand {
+      font-weight: 700;
+      color: #134611;
+    }
+
+    /* navbar right icons spacing & style */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      margin-left: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #13340f;
+      transition: background .2s, transform .12s;
+    }
+    .nav-icon:hover { background: rgba(0,0,0,0.06); transform: translateY(-1px); }
+    .nav-icon .bi { font-size: 1.15rem; }
+
+    /* small badge for counts (optional style) */
+    .icon-badge {
+      position: relative;
+    }
+    .icon-badge .badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      font-size: 0.6rem;
+    }
+
+    /* layout: sidebar + content */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar (light) */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: #f1f5f2;
+      padding: 18px 12px;
+      padding-top: calc(var(--navbar-height) + 14px); /* start under navbar */
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+      transition: transform .28s ease;
+      z-index: 1050;
+    }
+    .sidebar.collapsed { transform: translateX(-110%); }
+
+    .sidebar .nav-section { margin-bottom: 6px; }
+    .sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 10px;
+      color: #213426;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-bottom: 4px;
+      transition: background .18s;
+    }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: #0d6efd; }
+
+    .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
+    .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
+
+    /* submenu slide (animated) */
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .32s ease, padding .2s ease;
+      padding-left: 36px;
+    }
+    .submenu.show {
+      max-height: 420px; /* enough room */
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .submenu a {
+      display:block;
+      padding:8px 12px;
+      text-decoration:none;
+      color:#183f28;
+      border-radius:6px;
+      margin-bottom:4px;
+    }
+    .submenu a:hover { background:#e6f0e6; color:var(--accent); }
+
+    /* main content area */
+    .content {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--navbar-height);
+      padding: 22px;
+      flex: 1;
+      transition: margin-left .28s ease;
+    }
+    .sidebar.collapsed ~ .content {
+      margin-left: 0;
+    }
+    .sidebar.collapsed ~ .topbar { left: 0; }
+
+    /* cards grid: 3 on top, 4 on next row */
+    .cards-top {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .cards-bottom {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+     
+    }
+
+    .stat-card {
+     
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      cursor:pointer;
+      transition: transform .16s ease, box-shadow .16s;
+       color: white;
+    }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.06); }
+    .stat-icon {
+      width:56px;height:56px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:white;
+      flex-shrink:0;
+    }
+    .stat-body { flex:1; }
+    .stat-title { font-size:0.85rem;color:var(--muted); margin:0; }
+    .stat-value { font-size:1.55rem;font-weight:700;margin:4px 0 0;color:#222; }
+
+    /* colored icon backgrounds */
+    .c-admin{background: linear-gradient(135deg,#3b82f6,#2563eb);}  /* blue */
+    .c-client{background: linear-gradient(135deg,#10b981,#059669);} /* green */
+    .c-supplier{background: linear-gradient(135deg,#fb923c,#f97316);}/* orange */
+    .c-open{background: linear-gradient(135deg,#06b6d4,#0891b2);}    /* teal */
+    .c-closed{background: linear-gradient(135deg,#94a3b8,#6b7280);}  /* gray */
+    .c-applied{background: linear-gradient(135deg,#f59e0b,#d97706);} /* amber */
+    .c-approved{background: linear-gradient(135deg,#7c3aed,#6d28d9);} /* purple */
+
+    /* Open tenders table */
+    .table-card {
+      margin-top: 8px;
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+    }
+
+    /* popups anchored to icons */
+    .floating-popup {
+      position: absolute;
+      width: 260px;
+      max-width: 40vw;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 10px;
+      z-index: 1200;
+      display: none;
+    }
+    .floating-popup .item {
+      display:flex; gap:10px; align-items:center; padding:8px 6px; border-bottom:1px solid #f0f0f0;
+    }
+    .floating-popup .item:last-child{border-bottom:none;}
+    .floating-popup .item .bi { font-size:1.05rem; color:var(--accent); width:28px; text-align:center; }
+    .floating-popup h6{margin:0 0 8px 0;font-size:0.95rem;color:var(--accent);}
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .cards-top { grid-template-columns: repeat(2,1fr); }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 768px) {
+      .topbar { left: 0; padding: 0 10px; }
+      .sidebar { transform: translateX(-110%); position: fixed; z-index:1300; }
+      .sidebar.visible { transform: translateX(0); }
+      .content { margin-left: 0; padding: 14px; margin-top: var(--navbar-height); }
+      .cards-top { grid-template-columns: 1fr; }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    /* --- Top Navbar Styling --- */
+.navbar-custom {
+  margin-left: 260px; /* keeps space for sidebar */
+  background: #90ee90; /* light green */
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-custom .left span {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1e1e2f;
+}
+
+.navbar-custom .right {
+  display: flex;
+  align-items: center;
+  gap: 25px; /* spacing between icons */
+}
+
+.icon-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.icon-wrapper i {
+  font-size: 1.4rem;
+  color: #1e1e2f;
+}
+
+.icon-wrapper .badge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background: red;
+  color: #fff;
+  font-size: 0.7rem;
+  border-radius: 50%;
+  padding: 3px 6px;
+}
+
+/* Dropdown menus for email, sms, notification */
+.navbar-custom .dropdown-menu {
+  min-width: 250px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  border: none;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item i {
+  font-size: 1rem;
+  color: #0d6efd;
+}
+
+/* Profile dropdown */
+.navbar-custom .dropdown-menu .dropdown-item.text-danger {
+  color: #dc3545 !important;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item.text-danger:hover {
+  background: #f8d7da;
+  color: #a71d2a !important;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .navbar-custom {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+  .navbar-custom .left {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .navbar-custom .right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<div class="container-fluid">
+  <div class="row">
+  <!-- Sidebar (light) -->
+   <%- include('partials/sidebar') %>
+
+    <!-- Top Navbar (light green) -->
+     <%- include('partials/topbar') %>
+
+    <!-- Main -->
+    <main class="col-md-10 ms-sm-auto px-md-4">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-light mb-4">
+        <div class="container-fluid">
+          <span class="navbar-brand">Audit Logs</span>
+          <div class="d-flex">
+            <button class="btn btn-outline-secondary me-2" id="exportCsv"><i class="bi bi-filetype-csv"></i> Export CSV</button>
+            <button class="btn btn-outline-secondary" id="exportPdf"><i class="bi bi-filetype-pdf"></i> Export PDF</button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Filters -->
+      <div class="card mb-3 p-3">
+        <form class="row g-2">
+          <div class="col-md-3">
+            <input class="form-control" placeholder="Filter by user">
+          </div>
+          <div class="col-md-2">
+            <select class="form-select">
+              <option>Role</option>
+              <option>Admin</option>
+              <option>Manager</option>
+              <option>Bidder</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <input type="date" class="form-control">
+          </div>
+          <div class="col-md-2">
+            <select class="form-select">
+              <option>Action Type</option>
+              <option>Login</option>
+              <option>Logout</option>
+              <option>Submit</option>
+              <option>Approve</option>
+              <option>Reject</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3" id="logTabs">
+        <li class="nav-item">
+          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#actionLogs">Action Logs</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#navigationLogs">Navigation Logs</button>
+        </li>
+      </ul>
+
+      <div class="tab-content">
+        <!-- Action Logs -->
+        <div class="tab-pane fade show active" id="actionLogs">
+          <div class="card p-3">
+            <h5>Action Logs</h5>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>User</th><th>Role</th><th>Action</th><th>IP/Device</th><th>Timestamp</th><th>Outcome</th>
+                </tr>
+              </thead>
+              <tbody id="actionBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Navigation Logs -->
+        <div class="tab-pane fade" id="navigationLogs">
+          <div class="card p-3">
+            <h5>Navigation Logs</h5>
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>User</th><th>Role</th><th>Page/Module</th><th>Duration</th><th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody id="navBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts placeholder -->
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h6>Actions Summary</h6>
+            <canvas id="actionChart" height="150"></canvas>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h6>Navigation Summary</h6>
+            <canvas id="navChart" height="150"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Demo Action Logs
+  const actionLogs = [
+    {user:'Alice', role:'Admin', action:'Login', ip:'192.168.1.10', ts:'2025-09-21 08:10', outcome:'Success'},
+    {user:'Bob', role:'Manager', action:'Approve Tender', ip:'192.168.1.15', ts:'2025-09-21 09:00', outcome:'Success'},
+    {user:'Eve', role:'Bidder', action:'Login', ip:'192.168.1.23', ts:'2025-09-21 09:15', outcome:'Failed'},
+  ];
+  const navLogs = [
+    {user:'Alice', role:'Admin', page:'Dashboard', duration:'5m', ts:'2025-09-21 08:12'},
+    {user:'Bob', role:'Manager', page:'Tender Module', duration:'12m', ts:'2025-09-21 09:05'},
+    {user:'Eve', role:'Bidder', page:'Supplier Directory', duration:'2m', ts:'2025-09-21 09:16'},
+  ];
+
+  // Render tables
+  const actionBody = document.getElementById('actionBody');
+  actionLogs.forEach(l=>{
+    actionBody.innerHTML += `<tr>
+      <td>${l.user}</td><td>${l.role}</td><td>${l.action}</td>
+      <td>${l.ip}</td><td>${l.ts}</td>
+      <td class="${l.outcome==='Success'?'status-success':'status-fail'}">${l.outcome}</td>
+    </tr>`;
+  });
+
+  const navBody = document.getElementById('navBody');
+  navLogs.forEach(l=>{
+    navBody.innerHTML += `<tr>
+      <td>${l.user}</td><td>${l.role}</td><td>${l.page}</td>
+      <td>${l.duration}</td><td>${l.ts}</td>
+    </tr>`;
+  });
+
+  // Charts
+  new Chart(document.getElementById('actionChart'), {
+    type:'doughnut',
+    data:{ labels:['Success','Failed'],
+      datasets:[{ data:[
+        actionLogs.filter(l=>l.outcome==='Success').length,
+        actionLogs.filter(l=>l.outcome==='Failed').length
+      ]}]
+    }
+  });
+  new Chart(document.getElementById('navChart'), {
+    type:'bar',
+    data:{ labels:navLogs.map(l=>l.page),
+      datasets:[{ label:'Visits', data:navLogs.map(()=>1)}]
+    }
+  });
+
+  // Export CSV (demo)
+  document.getElementById('exportCsv').onclick = ()=>{
+    let csv = 'User,Role,Action/Page,Timestamp\\n';
+    actionLogs.forEach(l=> csv+=`${l.user},${l.role},${l.action},${l.ts}\\n`);
+    const blob = new Blob([csv],{type:'text/csv'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='audit-logs.csv'; a.click();
+  };
+
+  // Export PDF placeholder
+  document.getElementById('exportPdf').onclick = ()=>{
+    alert('Export to PDF requires server-side or jsPDF integration.');
+  };
+</script>
+ <script>
+    // Sidebar submenu toggles (preserve initial markup, only enhance)
+    document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        const target = this.getAttribute('data-target');
+        const el = document.getElementById(target);
+        if (!el) return;
+        el.classList.toggle('show');
+        // rotate plus icon visual: toggle caret or plus (optional)
+        const icon = this.querySelector('.bi');
+        if (icon) icon.classList.toggle('bi-rotate-90');
+      });
+    });
+
+    // Mobile hamburger toggles the sidebar visibility
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const topbar = document.getElementById('topbar');
+    const content = document.getElementById('content');
+
+    hamburger && hamburger.addEventListener('click', ()=> {
+      sidebar.classList.toggle('visible'); // CSS handles transform for small screens
+    });
+
+    // Global: close any open popup
+    function closeAllFloating(){
+      document.querySelectorAll('.floating-popup, .floating-popup').forEach(el => el.style.display = 'none');
+      document.getElementById('profileMenu').style.display = 'none';
+    }
+
+    // Position and show a floating popup next to the clicked icon
+    function showPopup(popupEl, triggerEl){
+      closeAllFloating();
+      const rect = triggerEl.getBoundingClientRect();
+      const popup = popupEl;
+      // place above or below depending on available space
+      const scrollY = window.scrollY || window.pageYOffset;
+      let top = rect.bottom + scrollY + 8;
+      let left = Math.min(window.innerWidth - popup.offsetWidth - 12, rect.left + window.scrollX - popup.offsetWidth/2 + rect.width/2);
+      popup.style.top = top + 'px';
+      popup.style.left = left + 'px';
+      popup.style.display = 'block';
+    }
+
+    // tidy helper to find elements
+    const emailIcon = document.getElementById('emailIcon');
+    const smsIcon = document.getElementById('smsIcon');
+    const notifIcon = document.getElementById('notifIcon');
+    const emailPopup = document.getElementById('emailPopup');
+    const smsPopup = document.getElementById('smsPopup');
+    const notifPopup = document.getElementById('notifPopup');
+    const profileIcon = document.getElementById('profileIcon');
+    const profileMenu = document.getElementById('profileMenu');
+
+    // toggle handlers
+    emailIcon && emailIcon.addEventListener('click', (e)=> {
+      showPopup(emailPopup, emailIcon);
+      e.stopPropagation();
+    });
+    smsIcon && smsIcon.addEventListener('click', (e)=> {
+      showPopup(smsPopup, smsIcon);
+      e.stopPropagation();
+    });
+    notifIcon && notifIcon.addEventListener('click', (e)=> {
+      showPopup(notifPopup, notifIcon);
+      e.stopPropagation();
+    });
+
+    profileIcon && profileIcon.addEventListener('click', (e)=>{
+      // position profile menu under the icon (right corner)
+      closeAllFloating();
+      const rect = profileIcon.getBoundingClientRect();
+      const scrollY = window.scrollY || window.pageYOffset;
+      profileMenu.style.top = rect.bottom + scrollY + 8 + 'px';
+      profileMenu.style.left = (rect.left + rect.width/2 - profileMenu.offsetWidth/2) + 'px';
+      profileMenu.style.display = 'block';
+      e.stopPropagation();
+    });
+
+    // click outside closes popups
+    document.addEventListener('click', function(e){
+      // if click inside any floating popup or icon, ignore
+      const targets = [emailPopup, smsPopup, notifPopup, profileMenu];
+      if (!e.target.closest('.nav-icon') && !targets.some(t => t && t.contains(e.target))) {
+        closeAllFloating();
+      }
+    });
+
+    // Card modal: show appropriate content when a card is clicked
+    document.querySelectorAll('.stat-card').forEach(card=>{
+      card.addEventListener('click', function(){
+        const title = this.getAttribute('data-card') || 'Details';
+        const titleEl = document.getElementById('detailModalTitle');
+        const bodyEl = document.getElementById('detailModalBody');
+        titleEl.textContent = title;
+        bodyEl.innerHTML = `<strong>${title}</strong><br/>This is demo content for <em>${title}</em>. You can wire this to real data or link the 'View All' to the relevant page.`;
+        // open bootstrap modal programmatically
+        const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+        modal.show();
+      });
+    });
+
+    // close popups on resize to avoid misplaced popup
+    window.addEventListener('resize', closeAllFloating);
+
+  </script>
+</body>
+</html>
