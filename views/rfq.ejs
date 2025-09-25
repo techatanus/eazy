@@ -382,10 +382,50 @@
             <textarea class="form-control" rows="3" placeholder="Enter product/service specifications"></textarea>
           </div>
           <div class="row">
-            <div class="col-md-4 mb-3">
-              <label class="form-label">Quantity</label>
-              <input type="number" class="form-control" placeholder="Enter quantity">
-            </div>
+           <div class="row">
+  <div class="col-md-4 mb-3">
+    <label class="form-label">Quantity</label>
+    <input type="number" id="quantity" class="form-control" placeholder="Enter quantity">
+  </div>
+
+  <div class="col-md-4 mb-3">
+    <label class="form-label">Unit price</label>
+    <input type="number" id="unitPrice" class="form-control" placeholder="Enter unit price">
+  </div>
+
+  <div class="col-md-4 mb-3">
+    <label class="form-label">V.A.T (%)</label>
+    <input type="number" id="vat" class="form-control" placeholder="Enter VAT Value">
+  </div>
+
+  <div class="col-md-4 mb-3">
+    <label class="form-label">Total price</label>
+    <input type="number" id="totalPrice" class="form-control" placeholder="Total Price" readonly>
+  </div>
+</div>
+
+<script>
+  function calculateTotal() {
+    let quantity = parseFloat(document.getElementById("quantity").value) || 0;
+    let unitPrice = parseFloat(document.getElementById("unitPrice").value) || 0;
+    let vat = parseFloat(document.getElementById("vat").value) || 0;
+
+    // base price
+    let baseTotal = quantity * unitPrice;
+
+    // VAT applied
+    let totalWithVAT = (baseTotal * vat / 100);
+
+    // set value
+    document.getElementById("totalPrice").value = totalWithVAT.toFixed(2);
+  }
+
+  // Attach listeners
+  document.getElementById("quantity").addEventListener("input", calculateTotal);
+  document.getElementById("unitPrice").addEventListener("input", calculateTotal);
+  document.getElementById("vat").addEventListener("input", calculateTotal);
+</script>
+
             <div class="col-md-4 mb-3">
               <label class="form-label">Delivery Timeline</label>
               <input type="date" class="form-control">
@@ -442,6 +482,7 @@
           <thead class="table-light">
             <tr>
               <th>Vendor</th>
+              <th>Item</th>
               <th>Bid Amount</th>
               <th>Documents</th>
               <th>Status</th>
@@ -450,12 +491,14 @@
           <tbody>
             <tr>
               <td>ABC Suppliers Ltd</td>
+              <td>Office supplies</td>
               <td>$10,000</td>
               <td><button class="btn btn-sm btn-outline-secondary">View</button></td>
               <td><span class="badge bg-warning">Under Review</span></td>
             </tr>
             <tr>
               <td>XYZ Traders</td>
+              <td>Computer supplies</td>
               <td>$9,500</td>
               <td><button class="btn btn-sm btn-outline-secondary">View</button></td>
               <td><span class="badge bg-success">Accepted</span></td>

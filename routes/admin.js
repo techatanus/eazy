@@ -85,4 +85,9 @@ router.get('/rfi',(req,res)=>{
   res.render('rfi');
 })
 
+// reverse auction
+router.get('/auction',(req,res)=>{
+  res.render('rev_auction');
+})
+
 module.exports = router;

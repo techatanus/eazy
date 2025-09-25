@@ -3,38 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RFP Module | eazyProcure</title>
+  <title>Reverse Auction Module</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body {
       background-color: #f8f9fa;
     }
-    .milestone {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
+    .card {
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
     }
-    .milestone .step {
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      background: #6c757d;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 10px;
-      font-size: 14px;
+    .nav-tabs .nav-link.active {
+      background-color: #0d6efd;
+      color: #fff !important;
+      border-radius: 8px 8px 0 0;
     }
-    .milestone.active .step {
-      background: #0d6efd;
+    .auction-table th {
+      background-color: #0d6efd;
+      color: white;
     }
-    .milestone.done .step {
-      background: #198754;
+    .status-badge {
+      font-size: 0.85rem;
+      padding: 0.35em 0.65em;
+      border-radius: 8px;
     }
   </style>
-  <style>
+   <style>
     :root{
       --sidebar-width: 260px;
       --navbar-height: 64px;
@@ -363,144 +358,143 @@
   </style>
 </head>
 <body>
-   <!-- Sidebar (light) -->
+        <!-- Sidebar (light) -->
    <%- include('partials/sidebar') %>
 
     <!-- Top Navbar (light green) -->
      <%- include('partials/topbar') %>
-<div class="content">
-  <h2 class="text-center text-primary mb-4">Request for Proposal (RFP)</h2>
 
-  <!-- Tabs -->
-  <ul class="nav nav-tabs" id="rfpTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#createRFP" type="button">Create RFP</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#vendorSubmissions" type="button">Vendor Submissions</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#evaluation" type="button">Evaluation</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bidderPortal" type="button">Bidder Portal</button>
-    </li>
-  </ul>
+  <div class="content">
+    <h2 class="text-center mb-4">Reverse Auction Module</h2>
+    
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="auctionTabs" role="tablist">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#opportunities">Opportunities</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#bids">My Bids</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#suppliers">Suppliers</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#analysis">Post-Bid Analysis</button></li>
+    </ul>
 
-  <div class="tab-content bg-white border border-top-0 p-4">
-    <!-- Create RFP -->
-    <div class="tab-pane fade show active" id="createRFP">
-      <h5 class="text-success mb-3">Create New RFP</h5>
-      <form>
-        <div class="mb-3">
-          <label class="form-label">Project Title</label>
-          <input type="text" class="form-control" placeholder="Enter project title">
+    <div class="tab-content">
+      <!-- Opportunities -->
+      <div class="tab-pane fade show active" id="opportunities">
+        <div class="card p-3">
+          <h5>Available Auctions</h5>
+          <table class="table table-bordered auction-table">
+            <thead>
+              <tr>
+                <th>Auction ID</th>
+                <th>Item</th>
+                <th>Start Price</th>
+                <th>Current Lowest</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="auctionList">
+              <tr>
+                <td>AUC001</td>
+                <td>Laptops</td>
+                <td>$10,000</td>
+                <td class="lowest-bid">$8,500</td>
+                <td><button class="btn btn-sm btn-primary" onclick="registerBid('AUC001')">Register</button></td>
+              </tr>
+              <tr>
+                <td>AUC002</td>
+                <td>Office Chairs</td>
+                <td>$5,000</td>
+                <td class="lowest-bid">$4,100</td>
+                <td><button class="btn btn-sm btn-primary" onclick="registerBid('AUC002')">Register</button></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Technical proposal</label>
-         <input type="file" class="form-control" accept=".pdf,.doc,.docx.xlsx">
+      </div>
 
+      <!-- My Bids -->
+      <div class="tab-pane fade" id="bids">
+        <div class="card p-3">
+          <h5>My Submitted Bids</h5>
+          <table class="table table-bordered auction-table">
+            <thead>
+              <tr>
+                <th>Auction ID</th>
+                <th>Item</th>
+                <th>My Bid</th>
+                <th>Current Lowest</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="myBidsTable">
+              <tr>
+                <td>AUC001</td>
+                <td>Laptops</td>
+                <td>$9,000</td>
+                <td>$8,500</td>
+                <td><span class="badge bg-warning status-badge">Outbid</span></td>
+              </tr>
+              <tr>
+                <td>AUC002</td>
+                <td>Office Chairs</td>
+                <td>$4,200</td>
+                <td>$4,100</td>
+                <td><span class="badge bg-success status-badge">Winning</span></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="mb-3">
-          <label class="form-label">financial proposal</label>
-           <input type="file" class="form-control" accept=".pdf,.doc,.docx,.xlsx">
-        </div>
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Submission Deadline</label>
-            <input type="date" class="form-control">
-          </div>
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Budget Estimate</label>
-            <input type="text" class="form-control" placeholder="Enter budget amount">
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Publish RFP</button>
-      </form>
-    </div>
+      </div>
 
-    <!-- Vendor Submissions -->
-    <div class="tab-pane fade" id="vendorSubmissions">
-      <h5 class="text-success mb-3">Vendor Submissions</h5>
-      <table class="table table-borderless">
-        <thead class="table-light">
-          <tr>
-            <th>Vendor</th>
-            <th>Technical Proposal</th>
-            <th>Financial Proposal</th>
-            <th>Submission Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>ABC Solutions Ltd</td>
-            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-            <td>2025-09-20</td>
-            <td><span class="badge bg-warning">Under Review</span></td>
-          </tr>
-          <tr>
-            <td>XYZ Tech</td>
-            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-            <td><button class="btn btn-sm btn-outline-primary">View</button></td>
-            <td>2025-09-21</td>
-            <td><span class="badge bg-success">Accepted</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Evaluation -->
-    <div class="tab-pane fade" id="evaluation">
-      <h5 class="text-success mb-3">Evaluation Progress</h5>
-      <div class="milestone active">
-        <div class="step">1</div> RFP Created
-      </div>
-      <div class="milestone done">
-        <div class="step">2</div> Submissions Received
-      </div>
-      <div class="milestone active">
-        <div class="step">3</div> Technical Evaluation
-      </div>
-      <div class="milestone">
-        <div class="step">4</div> Financial Evaluation
-      </div>
-      <div class="milestone">
-        <div class="step">5</div> Final Selection & Award
-      </div>
-    </div>
-
-    <!-- Bidder Portal -->
-    <div class="tab-pane fade" id="bidderPortal">
-      <h5 class="text-success mb-3">Bidder Portal – Track Proposal</h5>
-      <form>
-        <div class="mb-3">
-          <label class="form-label">Enter Proposal Reference ID</label>
-          <input type="text" class="form-control" placeholder="e.g. RFP-2025-001">
+      <!-- Suppliers -->
+      <div class="tab-pane fade" id="suppliers">
+        <div class="card p-3">
+          <h5>Supplier Information</h5>
+          <p>Suppliers can add details to differentiate their bids (delivery times, warranties, certifications, etc.)</p>
+          <form>
+            <div class="mb-3">
+              <label class="form-label">Supplier Name</label>
+              <input type="text" class="form-control" placeholder="Enter supplier name">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Additional Info</label>
+              <textarea class="form-control" rows="3" placeholder="Enter details like warranty, certifications, etc."></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">Save Info</button>
+          </form>
         </div>
-        <button type="button" class="btn btn-primary" onclick="showStatus()">Check Status</button>
-      </form>
-      <div id="bidStatus" class="mt-4" style="display:none;">
-        <h6>Status for <span class="text-primary">RFP-2025-001</span></h6>
-        <ul class="list-group">
-          <li class="list-group-item">Submission Received ✅</li>
-          <li class="list-group-item">Technical Evaluation ⏳</li>
-          <li class="list-group-item">Financial Evaluation ❌ (Not Yet)</li>
-          <li class="list-group-item">Final Decision ❌ (Pending)</li>
-        </ul>
+      </div>
+
+      <!-- Post-Bid Analysis -->
+      <div class="tab-pane fade" id="analysis">
+        <div class="card p-3">
+          <h5>Post-Bid Analysis</h5>
+          <ul>
+            <li>Average winning price: <strong>$8,300</strong></li>
+            <li>Most competitive category: <strong>IT Equipment</strong></li>
+            <li>Supplier success rate: <strong>72%</strong></li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  function showStatus() {
-    document.getElementById('bidStatus').style.display = 'block';
-  }
-</script>
- <script>
+  <!-- Bootstrap & JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function registerBid(auctionId) {
+      alert("Registered for auction: " + auctionId);
+      // In a real system, this would be an AJAX request to backend
+    }
+
+    // Simulate real-time lowest bid updates
+    setInterval(() => {
+      document.querySelectorAll(".lowest-bid").forEach(cell => {
+        let price = parseInt(cell.textContent.replace(/[^0-9]/g, ''));
+        let change = Math.random() < 0.5 ? 0 : Math.floor(Math.random() * 200);
+        cell.textContent = "$" + (price - change);
+      });
+    }, 5000);
+  </script>
+    <script>
     // Sidebar submenu toggles (preserve initial markup, only enhance)
     document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{
       btn.addEventListener('click', function(e){

@@ -334,7 +334,6 @@
     justify-content: flex-end;
   }
 }
-
   </style>
 </head>
 <body>
@@ -349,66 +348,90 @@
 
     <!-- Main content -->
     <main class="content" id="content">
-      <h5 class="mb-3">Hello Admin?   Welcome Back</h5>
+      <h5 class="mb-3" id="greeting" style="padding: 25px; position: fixed;"> Admin? Welcome Back</h5>
+
+<script>
+  // Get greeting element
+  const greetingEl = document.getElementById("greeting");
+
+  // Replace with actual username dynamically if available
+  const username = "Admin";  
+
+  // Get current hour
+  const hour = new Date().getHours();
+  let greeting;
+
+  if (hour < 12) {
+    greeting = "Good Morning";
+  } else if (hour < 18) {
+    greeting = "Good Afternoon";
+  } else {
+    greeting = "Good Evening";
+  }
+
+  // Update greeting
+  greetingEl.textContent = `${greeting}, ${username}! Welcome Back`;
+</script>
+
 
       <!-- Top 3 cards -->
       <div class="cards-top">
-        <div class="stat-card" data-card="Total Admin" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #22ac18 !important;"> 
+        <div class="stat-card" data-card="Total Admin" data-bs-toggle="modal" data-bs-target="#detailModal"  style="background-color: rgb(17, 49, 17); color: white;"> 
           <div class="stat-icon c-admin"><i class="bi bi-person-gear"></i></div>
           <div class="stat-body">
-            <p class="stat-title">Total Admin</p>
-            <p class="stat-value"><%= totals && totals.admins ? totals.admins : 0 %></p>
+            <p class="stat-title" style="color: white;">Total Admin</p>
+            <p class="stat-value" style="color: white;"><%= totals && totals.admins ? totals.admins : 0 %></p>
           </div>
         </div>
 
-        <div class="stat-card" data-card="Total Clients" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #22ac18 !important;">
+        <div class="stat-card" data-card="Total Clients" data-bs-toggle="modal" data-bs-target="#detailModal"  style="background-color: rgb(17, 49, 17)">
           <div class="stat-icon c-client"><i class="bi bi-building"></i></div>
           <div class="stat-body">
-            <p class="stat-title">Total Clients</p>
-            <p class="stat-value"><%= totals && totals.clients ? totals.clients : 0 %></p>
+            <p class="stat-title" style="color: white;">Total Clients</p>
+            <p class="stat-value" style="color: white;"><%= totals && totals.clients ? totals.clients : 0 %></p>
           </div>
         </div>
 
-        <div class="stat-card" data-card="Total Suppliers" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #22ac18 !important;">
+        <div class="stat-card" data-card="Total Suppliers" data-bs-toggle="modal" data-bs-target="#detailModal"  style="background-color: rgb(17, 49, 17)">
           <div class="stat-icon c-supplier"><i class="bi bi-truck"></i></div>
           <div class="stat-body">
-            <p class="stat-title">Total Suppliers</p>
-            <p class="stat-value"><%= totals && totals.suppliers ? totals.suppliers : 0 %></p>
+            <p class="stat-title" style="color: white;">Total Suppliers</p>
+            <p class="stat-value" style="color: white;"><%= totals && totals.suppliers ? totals.suppliers : 0 %></p>
           </div>
         </div>
       </div>
 
       <!-- Bottom 4 cards -->
       <div class="cards-bottom">
-        <div class="stat-card" data-card="Open Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #2196F3 !important">
+        <div class="stat-card" data-card="Open Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #012441 !important">
           <div class="stat-icon c-open"><i class="bi bi-folder2-open"></i></div>
           <div class="stat-body">
-            <p class="stat-title">Open Tenders</p>
-            <p class="stat-value"><%= (totals && totals.openTenders) || (openTenders && openTenders.length) || 0 %></p>
+            <p class="stat-title" style="color: white;">Open Tenders</p>
+            <p class="stat-value" style="color: white;"><%= (totals && totals.openTenders) || (openTenders && openTenders.length) || 0 %></p>
           </div>
         </div>
 
-        <div class="stat-card" data-card="Closed Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #2196F3 !important">
+        <div class="stat-card" data-card="Closed Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #550b86 !important">
           <div class="stat-icon c-closed"><i class="bi bi-lock-fill"></i></div>
           <div class="stat-body">
-            <p class="stat-title">Closed Tenders</p>
-            <p class="stat-value"><%= totals && totals.closedTenders ? totals.closedTenders : 0 %></p>
+            <p class="stat-title" style="color: white;">Closed Tenders</p>
+            <p class="stat-value" style="color: white;"><%= totals && totals.closedTenders ? totals.closedTenders : 0 %></p>
           </div>
         </div>
 
-        <div class="stat-card" data-card="Applied Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #2196F3 !important">
+        <div class="stat-card" data-card="Applied Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #e79f18 !important">
           <div class="stat-icon c-applied"><i class="bi bi-send-check"></i></div>
           <div class="stat-body">
-            <p class="stat-title">Applied Tenders</p>
-            <p class="stat-value"><%= totals && totals.appliedTenders ? totals.appliedTenders : 0 %></p>
+            <p class="stat-title" style="color: white;">Applied Tenders</p>
+            <p class="stat-value" style="color: white;"><%= totals && totals.appliedTenders ? totals.appliedTenders : 0 %></p>
           </div>
         </div>
 
         <div class="stat-card" data-card="Approved Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #2196F3 !important">
           <div class="stat-icon c-approved"><i class="bi bi-patch-check-fill"></i></div>
           <div class="stat-body">
-            <p class="stat-title">Approved Tenders</p>
-            <p class="stat-value"><%= totals && totals.approvedTenders ? totals.approvedTenders : 0 %></p>
+            <p class="stat-title" style="color: white;">Approved Tenders</p>
+            <p class="stat-value" style="color: white;"><%= totals && totals.approvedTenders ? totals.approvedTenders : 0 %></p>
           </div>
         </div>
       </div>
