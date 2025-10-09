@@ -207,7 +207,7 @@
     /* colored icon backgrounds */
     .c-admin{background: linear-gradient(135deg,#3b82f6,#2563eb);}  /* blue */
     .c-client{background: linear-gradient(135deg,#10b981,#059669);} /* green */
-    .c-supplier{background: linear-gradient(135deg,#fb923c,#f97316);}/* orange */
+    .c-client{background: linear-gradient(135deg,#fb923c,#f97316);}/* orange */
     .c-open{background: linear-gradient(135deg,#06b6d4,#0891b2);}    /* teal */
     .c-closed{background: linear-gradient(135deg,#94a3b8,#6b7280);}  /* gray */
     .c-applied{background: linear-gradient(135deg,#f59e0b,#d97706);} /* amber */
@@ -360,7 +360,7 @@
     <!-- Main Content -->
    
 <div class="col-md-10 ms-sm-auto px-4">
-  <h2 class="mb-4">Clients</h2>
+  <h2 class="mb-4" style="margin-top: 40px;">Clients</h2>
 
   <!-- Button to trigger form -->
   <div class="text-end mb-3">
@@ -376,23 +376,38 @@
       <thead>
         <tr>
           <th>Logo</th>
-          <th>Contact Name</th>
-          <th>Company Reg. No</th>
-          <th>Mobile Number</th>
+          <th>Company Name</th>
+          <th>Contact Person</th>
           <th>Email Address</th>
           <th>Is Enabled?</th>
         </tr>
       </thead>
       <tbody>
         <!-- Example row -->
-        <tr>
-          <td><img src="https://via.placeholder.com/40" class="rounded-circle" alt="logo"></td>
-          <td>John Doe</td>
-          <td>CRN12345</td>
-          <td>+254700123456</td>
-          <td>john@example.com</td>
-          <td><span class="badge bg-success">Yes</span></td>
-        </tr>
+   <% if (typeof clients !== "undefined" && clients.length > 0) { %>
+    <% clients.forEach(client => { %>
+      <tr>
+        <td>
+          <img src="https://via.placeholder.com/40" class="rounded-circle" alt="logo">
+        </td>
+        <td><%= client.name %></td>
+        <td><%= client.person %></td>
+        <td><%= client.email %></td>
+       <td>
+  <!-- shows the raw value -->
+  <% if (client.verified == 1) { %>
+    <span class="badge bg-success">Yes</span>
+  <% } else { %>
+    <span class="badge bg-success">No</span>
+  <% } %>
+</td>
+      </tr>
+    <% }) %>
+  <% } else { %>
+    <tr>
+      <td colspan="5" class="text-center text-muted">No clients found</td>
+    </tr>
+  <% } %>
         <!-- More rows dynamically -->
       </tbody>
     </table>

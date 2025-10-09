@@ -352,26 +352,26 @@
       <div class="col-lg-6">
         <div class="card p-4">
           <h5 class="section-title">EOI Submission Form</h5>
-          <form>
+          <form action="/create_eoi" method="post">
             <div class="mb-3">
               <label class="form-label">Company Name</label>
-              <input type="text" class="form-control" placeholder="Enter your company name">
+              <input type="text" name="name" class="form-control" placeholder="Enter your company name">
             </div>
             <div class="mb-3">
               <label class="form-label">Company Experience</label>
-              <textarea class="form-control" rows="3" placeholder="Summarize your past projects and expertise"></textarea>
+              <textarea class="form-control" name="experience" rows="3" placeholder="Summarize your past projects and expertise"></textarea>
             </div>
             <div class="mb-3">
               <label class="form-label">Capabilities & Services</label>
-              <textarea class="form-control" rows="3" placeholder="Describe your key services or technologies"></textarea>
+              <textarea class="form-control" name="services" rows="3" placeholder="Describe your key services or technologies"></textarea>
             </div>
             <div class="mb-3">
               <label class="form-label">Upload Supporting Documents</label>
-              <input type="file" class="form-control" multiple accept=".pdf,.doc,.docx,.jpg,.xlsx">
+              <input type="file" class="form-control" name="s_doc" multiple accept=".pdf,.doc,.docx,.jpg,.xlsx">
             </div>
             <div class="mb-3">
               <label class="form-label">Scope of Interest</label>
-              <select class="form-select">
+              <select class="form-select" name="interest">
                 <option selected disabled>Select area of interest</option>
                 <option>Construction</option>
                 <option>ICT & Software</option>
@@ -379,7 +379,8 @@
                 <option>Supplies</option>
               </select>
             </div>
-            <button type="button" class="btn btn-success w-100">Submit EOI</button>
+          <button type="submit" class="btn btn-success">Submit EOI</button>
+
           </form>
         </div>
       </div>

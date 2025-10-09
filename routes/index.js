@@ -1,20 +1,143 @@
 const express = require('express');
 const router = express.Router();
+const multer = require("multer");
 const adminCtrl = require('../controllers/adminController');
 
-// Dashboard
-router.get('/dashboard', adminCtrl.dashboard);
+
+
+router.use(express.json()); // handles JSON body
+router.use(express.urlencoded({ extended: true })); // handles form data
+
+
+
+// 🔹 Configure Multer storage
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Folder to save images
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+// 🔹 Initialize upload
+const upload = multer({ storage });
 
 // Permissions
 router.get('/permissions', adminCtrl.permissionsList);
 router.post('/permissions', adminCtrl.createPermission);
 
+router.get("/dashboard", adminCtrl.dashboard);
 // Roles
-router.get('/roles', adminCtrl.rolesList);
-router.post('/roles', adminCtrl.createRole);
+// router.get('/roles', adminCtrl.rolesList);
+// router.post('/roles', adminCtrl.createRole);
 
 router.get('/', (req, res) => {
-  res.send('Admin Dashboard');
+  res.render('home');
 });
 
-module.exports = router;   // ✅ this is correct
+
+
+
+// Dashboard
+exports.dashboard = async (req, res) => {
+  try {
+    const [adminsRows] = await db.query("SELECT COUNT(*) as c FROM admins");
+    const [clientsRows] = await db.query("SELECT COUNT(*) as c FROM clients");
+    const [suppliersRows] = await db.query("SELECT COUNT(*) as c FROM suppliers");
+    const [openTendersRows] = await db.query(
+      "SELECT t.*, c.name as name FROM tenders t LEFT JOIN clients c ON t.client_id=c.id WHERE status='open' ORDER BY closing_date ASC LIMIT 10"
+    );
+
+    const user = req.session.user || { person: "Guest" };
+
+    res.render("dashboard", {
+      totals: {
+        admins: adminsRows[0].c,
+        clients: clientsRows[0].c,
+        suppliers: suppliersRows[0].c,
+      },
+      openTenders: openTendersRows,
+      user: user, // 👈 outside totals
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error in Dashboard");
+  }
+};
+
+
+//logout
+// exports.logoutUser = (req, res) => {
+//   req.session.destroy((err) => {
+//     if (err) console.error(err);
+//     res.redirect("/");
+//   });
+// };
+
+// post user account info
+router.post('/sign',adminCtrl.createUser);
+
+// verify login
+router.get('/verify/:token',adminCtrl.verifyUser);
+
+// login
+router.post('/login',adminCtrl.loginUser);
+
+// create single category
+router.post('/add_category',adminCtrl.create_category);
+
+// rfqs
+router.post('/create_rfq',adminCtrl.createRFQ);
+
+//create admin
+router.post("/sups", upload.single("profilePicture"), adminCtrl.createAdmin);
+
+// post rfps
+router.post('/create_rfp',adminCtrl.createRFP)
+// create eoi
+router.post('/create_eoi',adminCtrl.createEOI);
+// create rfi buyer
+router.post('/create_rfib',adminCtrl.createRFIB);
+// create rfi supplier
+router.post('/create_rfis',adminCtrl.createRFIS);
+// create tender
+router.post('/create_tender',adminCtrl.createTender);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports = router;   
+

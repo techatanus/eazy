@@ -391,31 +391,31 @@
     <!-- Create RFP -->
     <div class="tab-pane fade show active" id="createRFP">
       <h5 class="text-success mb-3">Create New RFP</h5>
-      <form>
+      <form action="/create_rfp" method="post">
         <div class="mb-3">
           <label class="form-label">Project Title</label>
-          <input type="text" class="form-control" placeholder="Enter project title">
+          <input type="text" class="form-control" name="p_title" placeholder="Enter project title">
         </div>
         <div class="mb-3">
           <label class="form-label">Technical proposal</label>
-         <input type="file" class="form-control" accept=".pdf,.doc,.docx.xlsx">
+         <input type="file" class="form-control" name="t_prop" accept=".pdf,.doc,.docx.xlsx">
 
         </div>
         <div class="mb-3">
           <label class="form-label">financial proposal</label>
-           <input type="file" class="form-control" accept=".pdf,.doc,.docx,.xlsx">
+           <input type="file" class="form-control" name="f_prop" accept=".pdf">
         </div>
         <div class="row">
           <div class="col-md-6 mb-3">
             <label class="form-label">Submission Deadline</label>
-            <input type="date" class="form-control">
+            <input type="date" name="duration" class="form-control">
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label">Budget Estimate</label>
-            <input type="text" class="form-control" placeholder="Enter budget amount">
+            <input type="text" class="form-control" name="budget" placeholder="Enter budget amount">
           </div>
         </div>
-        <button type="submit" class="btn btn-primary">Publish RFP</button>
+        <button type="submit" class="btn btn-primary">Submeet RFP</button>
       </form>
     </div>
 

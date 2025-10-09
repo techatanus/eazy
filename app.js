@@ -21,6 +21,19 @@ app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false,
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
 
+app.use(
+  session({
+    secret:process.env.SESSION_SECRET, // put in .env
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }, // set to true if using HTTPS
+  })
+);
+
+
+
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server listening on ${PORT}`));

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const adminCtrl = require('../controllers/adminController');
-
+const db = require('../config/db');
 
 // Dashboard
 router.get('/dashboard', adminCtrl.dashboard);
@@ -11,14 +11,13 @@ router.get('/dashboard', adminCtrl.dashboard);
 router.get('/permissions', adminCtrl.permissionsList);
 router.post('/permissions', adminCtrl.createPermission);
 
-
+router.get('/suplier',adminCtrl.suppliers);
+router.get('/client',adminCtrl.clients);
+router.get('/super',adminCtrl.admins);
 // Roles
-router.get('/roles', adminCtrl.rolesList);
-router.post('/roles', adminCtrl.createRole);
-
-router.get('/', (req, res) => {
-  res.send('Admin Dashboard');
-});
+// router.get('/roles', adminCtrl.rolesList);
+// router.post('/roles', adminCtrl.createRole);
+// create single categories
 
 router.get('/perms', (req, res) => {
   res.render('permissions'); // assuming your file is permissions.ejs
@@ -40,9 +39,21 @@ router.get('/bids',(req,res)=>{
   res.render('rfx')
 })
 
-router.get('/tender',(req,res)=>{
-  res.render('tender')
-})
+// tenders
+
+router.get('/tender', async (req, res) => {
+  try {
+    const [tenders] = await db.query("SELECT * FROM tenders");
+    console.log("✅ Retrieved tenders:", tenders); // Debugging log
+
+    res.render('tender', { tenders });
+  } catch (err) {
+    console.error("❌ Error loading closed tenders:", err.message);
+    res.status(500).send("Error loading tenders: " + err.message);
+  }
+});
+
+
 
 router.get('/preq',(req,res)=>{
   res.render('preq')
@@ -88,6 +99,10 @@ router.get('/rfi',(req,res)=>{
 // reverse auction
 router.get('/auction',(req,res)=>{
   res.render('rev_auction');
-})
+});
+
+
+
+
 
 module.exports = router;

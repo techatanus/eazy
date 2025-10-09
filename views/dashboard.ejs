@@ -116,7 +116,7 @@
       margin-bottom: 4px;
       transition: background .18s;
     }
-    .sidebar .nav-link:hover { background: #e6f0e6; color: #0d6efd; }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: orange; }
 
     .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
     .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
@@ -141,7 +141,7 @@
       border-radius:6px;
       margin-bottom:4px;
     }
-    .submenu a:hover { background:#e6f0e6; color:var(--accent); }
+    .submenu a:hover { background:#e6f0e6; color:orange; }
 
     /* main content area */
     .content {
@@ -168,7 +168,7 @@
       grid-template-columns: repeat(4,1fr);
       gap: 16px;
       margin-bottom: 20px;
-     
+       
     }
 
     .stat-card {
@@ -348,14 +348,17 @@
 
     <!-- Main content -->
     <main class="content" id="content">
-      <h5 class="mb-3" id="greeting" style="padding: 25px; position: fixed;"> Admin? Welcome Back</h5>
+    
+<h5 class="mb-3" id="greeting"></h5>
+
+
 
 <script>
   // Get greeting element
   const greetingEl = document.getElementById("greeting");
 
-  // Replace with actual username dynamically if available
-  const username = "Admin";  
+  // Replace with actual username dynamically (injected from server)
+  const username = "<%= user.person %>";  
 
   // Get current hour
   const hour = new Date().getHours();
@@ -370,68 +373,40 @@
   }
 
   // Update greeting
-  greetingEl.textContent = `${greeting}, ${username}! Welcome Back`;
+  greetingEl.textContent = `${greeting}! ${username}, Welcome Back `;
 </script>
 
-
-      <!-- Top 3 cards -->
-      <div class="cards-top">
-        <div class="stat-card" data-card="Total Admin" data-bs-toggle="modal" data-bs-target="#detailModal"  style="background-color: rgb(17, 49, 17); color: white;"> 
-          <div class="stat-icon c-admin"><i class="bi bi-person-gear"></i></div>
-          <div class="stat-body">
-            <p class="stat-title" style="color: white;">Total Admin</p>
-            <p class="stat-value" style="color: white;"><%= totals && totals.admins ? totals.admins : 0 %></p>
-          </div>
-        </div>
-
-        <div class="stat-card" data-card="Total Clients" data-bs-toggle="modal" data-bs-target="#detailModal"  style="background-color: rgb(17, 49, 17)">
-          <div class="stat-icon c-client"><i class="bi bi-building"></i></div>
-          <div class="stat-body">
-            <p class="stat-title" style="color: white;">Total Clients</p>
-            <p class="stat-value" style="color: white;"><%= totals && totals.clients ? totals.clients : 0 %></p>
-          </div>
-        </div>
-
-        <div class="stat-card" data-card="Total Suppliers" data-bs-toggle="modal" data-bs-target="#detailModal"  style="background-color: rgb(17, 49, 17)">
-          <div class="stat-icon c-supplier"><i class="bi bi-truck"></i></div>
-          <div class="stat-body">
-            <p class="stat-title" style="color: white;">Total Suppliers</p>
-            <p class="stat-value" style="color: white;"><%= totals && totals.suppliers ? totals.suppliers : 0 %></p>
-          </div>
-        </div>
-      </div>
-
       <!-- Bottom 4 cards -->
-      <div class="cards-bottom">
+    <div class="cards-bottom">
         <div class="stat-card" data-card="Open Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #012441 !important">
           <div class="stat-icon c-open"><i class="bi bi-folder2-open"></i></div>
           <div class="stat-body">
             <p class="stat-title" style="color: white;">Open Tenders</p>
-            <p class="stat-value" style="color: white;"><%= (totals && totals.openTenders) || (openTenders && openTenders.length) || 0 %></p>
+            <p class="stat-value" style="color: white;"></p>
           </div>
-        </div>
+        </div> 
 
         <div class="stat-card" data-card="Closed Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #550b86 !important">
           <div class="stat-icon c-closed"><i class="bi bi-lock-fill"></i></div>
           <div class="stat-body">
             <p class="stat-title" style="color: white;">Closed Tenders</p>
-            <p class="stat-value" style="color: white;"><%= totals && totals.closedTenders ? totals.closedTenders : 0 %></p>
+            <p class="stat-value" style="color: white;"></p>
           </div>
         </div>
 
         <div class="stat-card" data-card="Applied Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #e79f18 !important">
           <div class="stat-icon c-applied"><i class="bi bi-send-check"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Applied Tenders</p>
-            <p class="stat-value" style="color: white;"><%= totals && totals.appliedTenders ? totals.appliedTenders : 0 %></p>
+            <p class="stat-title" style="color: white;">Total SUpliers</p>
+            <p class="stat-value" style="color: white;"> <%= totals.suppliers %> </p>
           </div>
         </div>
 
         <div class="stat-card" data-card="Approved Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #2196F3 !important">
           <div class="stat-icon c-approved"><i class="bi bi-patch-check-fill"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Approved Tenders</p>
-            <p class="stat-value" style="color: white;"><%= totals && totals.approvedTenders ? totals.approvedTenders : 0 %></p>
+            <p class="stat-title" style="color: white;">Total CLient</p>
+            <p class="stat-value" style="color: white;"> <%= totals.clients %></p>
           </div>
         </div>
       </div>
@@ -452,22 +427,68 @@
 
   <!-- Tab Content -->
   <div class="tab-content" id="supplierTabContent">
-    <!-- Pending -->
+    <!-- OPEN BIDS-->
     <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
       <div class="table-responsive table-custom">
-        <table class="table table-borderedless table-hover mb-0">
-          <thead>
-            <tr>
-                <th>Bid Title</th>
-              <th>Company</th>
-              <th>Status</th>
-              <th>Closing Date</th>
-            </tr>
-          </thead>
-          <tbody id="supplierTablePending">
-            <!-- Pending data will load here -->
-          </tbody>
-        </table>
+      <table class="table table-borderless table-hover mb-0">
+  <thead class="table-light">
+    <tr>
+      <th>Code</th>
+      <th>Bid Title</th>
+      <th>Category</th>
+       <th>Description</th>
+      <th>Status</th>
+      <th>Closing Date</th>
+     
+    </tr>
+  </thead>
+
+<tbody id="supplierTablePending">
+  <% if (openTenders && openTenders.length > 0) { %>
+    <% 
+      // Filter tenders to include only open or draft
+      const visibleTenders = openTenders.filter(t => 
+        t.status === 'open' || t.status === 'draft'
+      ); 
+    %>
+
+    <% if (visibleTenders.length > 0) { %>
+      <% visibleTenders.forEach(tender => { %>
+        <tr>
+          <!-- <td>
+            <img src="<%= tender.logo || '/images/default-logo.png' %>" 
+                 alt="Logo" width="40" height="40" class="rounded-circle">
+          </td> -->
+          <td><%= tender.code || 'N/A' %></td>
+          <td><%= tender.title %></td>
+          <td><%= tender.type%></td>
+          <td><%= tender.description %></td>
+          <td>
+            <span class="badge bg-<%= tender.status === 'open' ? 'success' : 'warning' %>">
+              <%= tender.status.charAt(0).toUpperCase() + tender.status.slice(1) %>
+            </span>
+          </td>
+          <td><%= tender.closing_date ? tender.closing_date.toISOString().split('T')[0] : 'N/A' %></td>
+        </tr>
+      <% }); %>
+    <% } else { %>
+      <tr>
+        <td colspan="5" class="text-center text-muted py-4">
+          No open or drafted tenders available
+        </td>
+      </tr>
+    <% } %>
+  <% } else { %>
+    <tr>
+      <td colspan="5" class="text-center text-muted py-4">
+        No tenders available
+      </td>
+    </tr>
+  <% } %>
+</tbody>
+
+</table>
+
       </div>
     </div>
 
@@ -477,9 +498,10 @@
         <table class="table table-borderedless table-hover mb-0">
           <thead>
             <tr>
+              <th>Logo</th>
+              <th>Company Name</th>
                <th>Bid Title</th>
-              <th>Company</th>
-              <th>Status</th>
+                <th>Status</th>
               <th>Closing Date</th>
             </tr>
           </thead>
@@ -497,10 +519,10 @@
     <thead class="table-light">
       <tr>
         <th>Logo</th>
-        <th>Company</th>
+        <th>Company Name</th>
         <th>Bid Title</th>
         <th>Status</th>
-        <th>Closing Date</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody id="supplierTableClosed">

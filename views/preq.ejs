@@ -2,23 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | Supplier Prequalification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Category Management</title>
+  
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body { background: #f8f9fa; }
-    .nav-pills .nav-link.active { background-color: #0d6efd; }
-    .card {
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    }
-    .section-title {
-      font-weight: 600;
-      color: #0d6efd;
-      margin-bottom: 15px;
-    }
-  </style>
-   <style>
+    <style>
     :root{
       --sidebar-width: 260px;
       --navbar-height: 64px;
@@ -32,7 +21,7 @@
 
     .topbar {
       height: var(--navbar-height);
-      background: #bfe8b9; /* light green */
+      background: #7dd170; /* light green */
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -125,7 +114,7 @@
       margin-bottom: 4px;
       transition: background .18s;
     }
-    .sidebar .nav-link:hover { background: #e6f0e6; color: #0d6efd; }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: orange; }
 
     .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
     .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
@@ -150,7 +139,7 @@
       border-radius:6px;
       margin-bottom:4px;
     }
-    .submenu a:hover { background:#e6f0e6; color:var(--accent); }
+    .submenu a:hover { background:#e6f0e6; color:orange; }
 
     /* main content area */
     .content {
@@ -177,7 +166,7 @@
       grid-template-columns: repeat(4,1fr);
       gap: 16px;
       margin-bottom: 20px;
-     
+       
     }
 
     .stat-card {
@@ -343,287 +332,271 @@
     justify-content: flex-end;
   }
 }
-
   </style>
 </head>
-<body>
-    <div class="layout">
+<body class="bg-light">
 
-  <!-- Sidebar (light) -->
+
+<div class="content">
+       <!-- Sidebar (light) -->
    <%- include('partials/sidebar') %>
 
     <!-- Top Navbar (light green) -->
      <%- include('partials/topbar') %>
-<div class="content">
-  <h2 class="text-primary mb-4">Administrator Dashboard – Supplier Prequalification</h2>
+  <h2 class="mb-4 text-center text-success">Category Management</h2>
 
   <!-- Main Navigation Tabs -->
-  <ul class="nav nav-pills mb-3" id="adminTabs" role="tablist">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#form">Form Setup</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#management">Upload document</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#communication">QA</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#reporting">Reporting</button></li>
+  <ul class="nav nav-pills mb-3 justify-content-center" id="adminTabs" role="tablist">
+    <li class="nav-item">
+      <button class="nav-link active" id="form-tab" data-bs-toggle="pill" data-bs-target="#form" type="button" role="tab">Create Category</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload" type="button" role="tab">Multiple Upload</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" id="communication-tab" data-bs-toggle="pill" data-bs-target="#communication" type="button" role="tab">Questionnaire</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" id="management-tab" data-bs-toggle="pill" data-bs-target="#management" type="button" role="tab">View Category List</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" id="reporting-tab" data-bs-toggle="pill" data-bs-target="#reporting" type="button" role="tab">Reporting</button>
+    </li>
   </ul>
 
-  <div class="tab-content">
+  <!-- Tab Content -->
+  <div class="tab-content" id="adminTabsContent">
 
- <!-- Form Setup -->
-<div class="tab-pane fade show active" id="form">
-  <div class="card p-4">
-    <h5 class="section-title">Form Creation & Setup</h5>
-    <form id="formSetup">
-      <!-- Form Name -->
-      <div class="mb-3">
-        <label class="form-label">Category Name</label>
-        <input type="text" id="formName" class="form-control" placeholder="e.g., Supplier Prequalification Form" required>
-      </div>
-
-      <!-- Dynamic Fields Area -->
-      <div id="fieldsArea"></div>
-
-      <!-- Add Field Button -->
-      <button type="button" class="btn btn-outline-primary mb-3" onclick="addField()">+ Add Field</button>
-
-      <!-- Save Button -->
-      <button type="submit" class="btn btn-primary">Save Form</button>
-    </form>
-  </div>
-</div>
-
-<script>
-  let fieldCount = 0;
-
-  // Function to dynamically add fields
-  function addField() {
-    fieldCount++;
-    const fieldHTML = `
-      <div class="card p-3 mb-2" id="field-${fieldCount}">
-        <div class="mb-2">
-          <label class="form-label">Field Label</label>
-          <input type="text" class="form-control" placeholder="e.g., Company Name" required>
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Field Type</label>
-          <select class="form-control">
-            <option value="text">Text</option>
-            <option value="textarea">Textarea</option>
-            <option value="number">Number</option>
-            <option value="file">File Upload</option>
-            <option value="email">Email</option>
-          </select>
-        </div>
-        <div class="mb-2">
-          <label class="form-label">Required?</label>
-          <select class="form-control">
-            <option value="true">Yes</option>
-            <option value="false">No</option>
-          </select>
-        </div>
-        <button type="button" class="btn btn-sm btn-danger" onclick="removeField(${fieldCount})">Remove</button>
-      </div>
-    `;
-    document.getElementById("fieldsArea").insertAdjacentHTML("beforeend", fieldHTML);
-  }
-
-  // Function to remove field
-  function removeField(id) {
-    document.getElementById(`field-${id}`).remove();
-  }
-
-  // Save form structure as JSON
-  document.getElementById("formSetup").addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    const formName = document.getElementById("formName").value.trim();
-    if (!formName) {
-      alert("Form name is required!");
-      return;
-    }
-
-    const fields = [];
-    document.querySelectorAll("#fieldsArea .card").forEach(card => {
-      const label = card.querySelector("input").value;
-      const type = card.querySelector("select:nth-of-type(1)").value;
-      const required = card.querySelector("select:nth-of-type(2)").value === "true";
-      fields.push({ label, type, required });
-    });
-
-    const formData = {
-      formName,
-      fields
-    };
-
-    // Save JSON as file
-    const blob = new Blob([JSON.stringify(formData, null, 2)], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `${formName.replace(/\s+/g, "_")}.json`;
-    link.click();
-  });
-</script>
-
-
-    <!-- Supplier Management -->
-    <div class="tab-pane fade" id="management">
-      <div class="card p-4">
-        <h5 class="section-title">Supplier Management</h5>
-        <div class="table-responsive">
-          <table class="table table-bordered align-middle">
-            <thead class="table-primary">
-              <tr>
-                <th>Supplier</th>
-                <th>Category</th>
-                <th>Status</th>
-                <th>Assigned To</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>ABC Ltd</td>
-                <td>ICT</td>
-                <td><span class="badge bg-warning">Pending</span></td>
-                <td>-</td>
-                <td>
-                  <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">Approve</button>
-                  <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">Reject</button>
-                  <button class="btn btn-sm btn-secondary" data-bs-toggle="modal" data-bs-target="#assignModal">Assign</button>
-                </td>
-              </tr>
-              <tr>
-                <td>XYZ Builders</td>
-                <td>Construction</td>
-                <td><span class="badge bg-success">Approved</span></td>
-                <td>Committee A</td>
-                <td>
-                  <button class="btn btn-sm btn-danger">Suspend</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Communication -->
-    <div class="tab-pane fade" id="communication">
-      <div class="card p-4">
-        <h5 class="section-title">Communication</h5>
-        <form>
+    <!-- Create Category -->
+    <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="form-tab">
+      <div class="card p-4 shadow-sm">
+        <h5 class="section-title mb-3">Create Category</h5>
+        <form method="post" action="/add_category">
           <div class="mb-3">
-            <label class="form-label">Select Supplier</label>
-            <select class="form-select">
-              <option>ABC Ltd</option>
-              <option>XYZ Builders</option>
-            </select>
+            <label class="form-label">Category Number</label>
+            <input type="text" class="form-control" name="category_no" placeholder="Enter category number">
+          </div>
+           <div class="mb-3">
+            <label class="form-label">Category Name</label>
+            <input type="text" class="form-control" name="category_name" placeholder="Enter category name">
+          </div>
+           <div class="mb-3">
+            <label class="form-label">Price</label>
+            <input type="number" class="form-control" name="price" placeholder="Enter category name">
           </div>
           <div class="mb-3">
-            <label class="form-label">Message</label>
-            <textarea class="form-control" rows="3" placeholder="Type notification..."></textarea>
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" placeholder="Enter category description"></textarea>
           </div>
-          <button type="button" class="btn btn-primary">Send Notification</button>
+          <button type="submit" class="btn btn-success">Save</button>
         </form>
       </div>
     </div>
 
+    <!-- Multiple Upload -->
+    <div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+      <div class="card p-4 shadow-sm">
+        <h5 class="section-title mb-3">Multiple Category Upload</h5>
+        <form>
+          <div class="mb-3">
+            <label class="form-label">Upload File</label>
+            <input type="file" class="form-control">
+          </div>
+          <button type="submit" class="btn btn-success">Upload</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Questionnaire -->
+    <div class="tab-pane fade" id="communication" role="tabpanel" aria-labelledby="communication-tab">
+      <div class="card p-4 shadow-sm">
+        <h5 class="section-title mb-3">Questionnaire</h5>
+          <h2>Upload File (CSV)</h2>
+  <input type="file" id="fileInput" accept=".xlsx" />
+
+  <h3>Generated Questionnaire</h3>
+  <form id="questionnaire"></form>
+
+  <button id="previewBtn">Preview</button>
+
+  <div id="previewArea"></div>
+   
+      </div>
+    </div>
+
+    <!-- View Category List -->
+    <div class="tab-pane fade" id="management" role="tabpanel" aria-labelledby="management-tab">
+      <div class="card p-4 shadow-sm">
+        <h5 class="section-title mb-3">View Category List</h5>
+        <p>Here will be the list of categories.</p>
+      </div>
+    </div>
+
     <!-- Reporting -->
-    <div class="tab-pane fade" id="reporting">
-      <div class="card p-4">
-        <h5 class="section-title">Reports & Exports</h5>
-        <button class="btn btn-outline-primary mb-3">Generate Compliance Report</button>
-        <button class="btn btn-outline-success mb-3">Export Qualified Suppliers (CSV)</button>
-        <div class="table-responsive">
-          <table class="table table-bordered">
-            <thead class="table-primary">
-              <tr>
-                <th>Category</th>
-                <th>Total Suppliers</th>
-                <th>Approved</th>
-                <th>Rejected</th>
-                <th>Pending</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>ICT</td>
-                <td>25</td>
-                <td>15</td>
-                <td>5</td>
-                <td>5</td>
-              </tr>
-              <tr>
-                <td>Construction</td>
-                <td>40</td>
-                <td>30</td>
-                <td>6</td>
-                <td>4</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <div class="tab-pane fade" id="reporting" role="tabpanel" aria-labelledby="reporting-tab">
+      <div class="card p-4 shadow-sm">
+        <h5 class="section-title mb-3">Reporting</h5>
+        <p>Reports and analytics related to categories will appear here.</p>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- Approve Modal -->
-<div class="modal fade" id="approveModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Approve Supplier</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <p>Are you sure you want to approve this supplier?</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-success">Approve</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Bootstrap Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Reject Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Reject Supplier</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <label class="form-label">Reason for Rejection</label>
-        <textarea class="form-control" rows="3"></textarea>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-danger">Reject</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Optional: Remember last active tab -->
+<script>
+  const adminTabs = document.querySelectorAll('#adminTabs button');
+  adminTabs.forEach(tab => {
+    tab.addEventListener('shown.bs.tab', e => {
+      localStorage.setItem('activeTab', e.target.getAttribute('data-bs-target'));
+    });
+  });
 
-<!-- Assign Modal -->
-<div class="modal fade" id="assignModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header"><h5 class="modal-title">Assign to Committee</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-      <div class="modal-body">
-        <label class="form-label">Select Committee</label>
-        <select class="form-select">
-          <option>Committee A</option>
-          <option>Committee B</option>
-          <option>Committee C</option>
-        </select>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button class="btn btn-primary">Assign</button>
-      </div>
-    </div>
-  </div>
-</div>
-  <script>
+  const activeTab = localStorage.getItem('activeTab');
+  if (activeTab) {
+    const someTab = document.querySelector(`#adminTabs button[data-bs-target="${activeTab}"]`);
+    const tabInstance = new bootstrap.Tab(someTab);
+    tabInstance.show();
+  }
+</script>
+<!-- questionnair script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+  document.getElementById("fileInput").addEventListener("change", handleFile);
+
+  function handleFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      let rows = [];
+
+      if (file.name.endsWith(".csv")) {
+        // Parse CSV
+        const text = e.target.result;
+        rows = text.replace(/\r\n/g, "\n").split("\n").map(r => r.split(","));
+      } else {
+        // Parse Excel
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+      }
+
+      // Remove header row
+      rows.shift();
+
+      const questionnaire = document.getElementById("questionnaire");
+      questionnaire.innerHTML = "";
+
+      rows.forEach((row, index) => {
+        if (row.length < 8) return;
+
+        const [
+          section,
+          questionId,
+          questionText,
+          answerType,
+          mandatory,
+          optionsOrRule,
+          weight,
+          attachmentRequired
+        ] = row.map(v => String(v || "").trim());
+
+        let field = "";
+
+        // Generate field based on Answer Type
+        switch (answerType.toLowerCase()) {
+          case "text":
+            field = `<textarea name="q${index}" class="form-control mb-2" placeholder="Enter answer"></textarea>`;
+            break;
+
+          case "number":
+            field = `<input type="number" name="q${index}" class="form-control mb-2" />`;
+            break;
+
+          case "date":
+            field = `<input type="date" name="q${index}" class="form-control mb-2" />`;
+            break;
+
+          case "pass/fail":
+            field = `
+              <select name="q${index}" class="form-control mb-2">
+                <option value="">-- Select --</option>
+                <option value="Pass">Pass</option>
+                <option value="Fail">Fail</option>
+              </select>
+            `;
+            break;
+
+          case "file":
+            field = `<input type="file" name="q${index}" accept="application/pdf" class="form-control mb-2" /> 
+                     <small>FileType=PDF, MaxSize=1MB</small>`;
+            break;
+
+          default:
+            // Handle rules like "Staffing ≥ 20 employees = 8 points..."
+            if (optionsOrRule && optionsOrRule.includes("=")) {
+              field = `<select name="q${index}" class="form-control mb-2">
+                ${optionsOrRule.split(",").map(opt => {
+                  const [label, val] = opt.split("=");
+                  return `<option value="${val.trim()}">${label.trim()} (${val.trim()} pts)</option>`;
+                }).join("")}
+              </select>`;
+            } else {
+              // fallback text
+              field = `<input type="text" name="q${index}" class="form-control mb-2" />`;
+            }
+        }
+
+        // Mark mandatory
+        const requiredMark = mandatory.toLowerCase() === "y" ? " <span style='color:red'>*</span>" : "";
+
+        // File attachment if required
+        let attachmentField = "";
+        if (attachmentRequired.toLowerCase() === "y") {
+          attachmentField = `<input type="file" name="attach${index}" accept="application/pdf" class="form-control mb-2" /> 
+                             <small>FileType=PDF, MaxSize=1MB</small>`;
+        }
+
+        questionnaire.innerHTML += `
+          <div class="quiz-card mb-3 p-2 border rounded">
+            <h5>${section} - ${questionId}</h5>
+            <p><strong>${questionText}</strong>${requiredMark}</p>
+            ${field}
+            ${attachmentField}
+            <small><em>Weight: ${weight}</em></small>
+          </div>
+        `;
+      });
+    };
+
+    // Use correct reader mode
+    if (file.name.endsWith(".csv")) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsArrayBuffer(file);
+    }
+  }
+
+  // Preview entered answers
+  document.getElementById("previewBtn").addEventListener("click", function(e) {
+    e.preventDefault();
+    const formData = new FormData(document.getElementById("questionnaire"));
+    let preview = "<h3>Preview Responses</h3><ul>";
+    for (let [key, value] of formData.entries()) {
+      preview += `<li>${key}: ${value instanceof File ? value.name : value}</li>`;
+    }
+    preview += "</ul>";
+    document.getElementById("previewArea").innerHTML = preview;
+  });
+</script>
+
+ <script>
     // Sidebar submenu toggles (preserve initial markup, only enhance)
     document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{
       btn.addEventListener('click', function(e){
@@ -730,6 +703,84 @@
     window.addEventListener('resize', closeAllFloating);
 
   </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- <script>
+  document.getElementById("fileInput").addEventListener("change", handleFile);
+
+  function handleFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      let rows = [];
+
+      if (file.name.endsWith(".csv")) {
+        // Parse CSV
+        const text = e.target.result;
+        rows = text.replace(/\r\n/g, "\n").split("\n").map(r => r.split(","));
+      } else {
+        // Parse Excel
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+      }
+
+      // Remove header row
+      rows.shift();
+
+      const questionnaire = document.getElementById("questionnaire");
+      questionnaire.innerHTML = "";
+
+      rows.forEach((row, index) => {
+        if (row.length < 4) return;
+        const [section, quiz, points, fileTypeRaw] = row.map(v => String(v).trim());
+        const fileType = fileTypeRaw.toLowerCase();
+
+        let field = "";
+        if (fileType === "text") {
+          field = `<textarea name="q${index}" placeholder="Answer here" class="form-control mb-2"></textarea>`;
+        } else if (fileType === "file") {
+          field = `<input type="file" name="q${index}" class="form-control mb-2" />`;
+        } else if (fileType === "number") {
+          field = `<input type="number" name="q${index}" class="form-control mb-2" />`;
+        } else if (fileType === "date") {
+          field = `<input type="date" name="q${index}" class="form-control mb-2" />`;
+        } else if (fileType === "email") {
+          field = `<input type="email" name="q${index}" class="form-control mb-2" />`;
+        } else {
+          // fallback
+          field = `<input type="text" name="q${index}" class="form-control mb-2" />`;
+        }
+
+        questionnaire.innerHTML += `
+          <div class="quiz-card mb-3 p-2 border rounded">
+            <h4>${section} - ${quiz} (${points} points)</h4>
+            ${field}
+          </div>
+        `;
+      });
+    };
+
+    // Use correct reader mode
+    if (file.name.endsWith(".csv")) {
+      reader.readAsText(file);
+    } else {
+      reader.readAsArrayBuffer(file);
+    }
+  }
+
+  // Preview entered answers
+  document.getElementById("previewBtn").addEventListener("click", function(e) {
+    e.preventDefault();
+    const formData = new FormData(document.getElementById("questionnaire"));
+    let preview = "<h3>Preview Responses</h3><ul>";
+    for (let [key, value] of formData.entries()) {
+      preview += `<li>${key}: ${value instanceof File ? value.name : value}</li>`;
+    }
+    preview += "</ul>";
+    document.getElementById("previewArea").innerHTML = preview;
+  });
+</script> -->
 </body>
 </html>

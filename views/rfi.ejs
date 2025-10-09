@@ -368,24 +368,24 @@
       <div class="col-lg-6">
         <div class="card p-4">
           <h5 class="section-title">For Buyers (Create RFI)</h5>
-          <form>
+          <form method="post" action="/create_rfib">
             <div class="mb-3">
               <label class="form-label">RFI Title</label>
-              <input type="text" class="form-control" placeholder="Enter RFI title">
+              <input type="text" name="title" class="form-control" placeholder="Enter RFI title">
             </div>
             <div class="mb-3">
               <label class="form-label">Project Requirements / Questions</label>
-              <textarea class="form-control" rows="4" placeholder="List questions or details you need from suppliers"></textarea>
+              <textarea class="form-control" name="details" rows="4" placeholder="List questions or details you need from suppliers"></textarea>
             </div>
             <div class="mb-3">
               <label class="form-label">Target Suppliers</label>
-              <input type="text" class="form-control" placeholder="Enter supplier names or categories">
+              <input type="text" name="supplier" class="form-control" placeholder="Enter supplier names or categories">
             </div>
             <div class="mb-3">
               <label class="form-label">Deadline</label>
-              <input type="date" class="form-control">
+              <input type="date" name="deadline" class="form-control">
             </div>
-            <button type="button" class="btn btn-primary w-100">Send RFI</button>
+            <button type="submit" class="btn btn-primary w-100">Send RFI</button>
           </form>
         </div>
       </div>
@@ -394,24 +394,24 @@
       <div class="col-lg-6">
         <div class="card p-4">
           <h5 class="section-title">For Suppliers (Respond to RFI)</h5>
-          <form>
+          <form method="post" action="/create_rfis">
             <div class="mb-3">
               <label class="form-label">Company Name</label>
-              <input type="text" class="form-control" placeholder="Enter company name">
+              <input type="text" name="cname" class="form-control" placeholder="Enter company name">
             </div>
             <div class="mb-3">
               <label class="form-label">Capabilities & Offerings</label>
-              <textarea class="form-control" rows="3" placeholder="Describe products, services, or solutions"></textarea>
+              <textarea class="form-control" name="details" rows="3" placeholder="Describe products, services, or solutions"></textarea>
             </div>
             <div class="mb-3">
               <label class="form-label">Financial / Technical Information</label>
-              <textarea class="form-control" rows="3" placeholder="Provide key technical and financial details"></textarea>
+              <textarea class="form-control" name="info" rows="3" placeholder="Provide key technical and financial details"></textarea>
             </div>
             <div class="mb-3">
               <label class="form-label">Upload Documents</label>
-              <input type="file" class="form-control" multiple accept=".pdf,.doc,.docx,.xlsx">
+              <input type="file" class="form-control" name="docs" multiple accept=".pdf,.doc,.docx,.xlsx">
             </div>
-            <button type="button" class="btn btn-success w-100">Submit Response</button>
+            <button type="submit" class="btn btn-success w-100">Submit Response</button>
           </form>
         </div>
       </div>

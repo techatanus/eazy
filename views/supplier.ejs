@@ -359,7 +359,7 @@
     <!-- Main Content -->
    
 <div class="col-md-10 ms-sm-auto px-4">
-  <h2 class="mb-4">Clients</h2>
+  <h2 class="mb-4" style="margin-top: 40px;">Suppliers</h2>
 
   <!-- Button to trigger form -->
   <div class="text-end mb-3">
@@ -375,23 +375,38 @@
       <thead>
         <tr>
           <th>Logo</th>
-          <th>Contact Name</th>
-          <th>Company Reg. No</th>
-          <th>Mobile Number</th>
+          <th>Company Name</th>
+          <!-- <th>Company Reg. No</th> -->
+          <th>Contact Person</th>
           <th>Email Address</th>
           <th>Is Enabled?</th>
         </tr>
       </thead>
       <tbody>
         <!-- Example row -->
-        <tr>
-          <td><img src="https://via.placeholder.com/40" class="rounded-circle" alt="logo"></td>
-          <td>John Doe</td>
-          <td>CRN12345</td>
-          <td>+254700123456</td>
-          <td>john@example.com</td>
-          <td><span class="badge bg-success">Yes</span></td>
-        </tr>
+       <tbody>
+<% suppliers.forEach(supplier => { %>
+  <tr>
+      <td>
+          <img src="https://via.placeholder.com/40" class="rounded-circle" alt="logo">
+        </td>
+    <td><%= supplier.name %></td>
+    <td><%= supplier.person %></td>
+    <td><%= supplier.email %></td>
+<td>
+ <!-- shows the raw value -->
+  <% if (supplier.verified == 1) { %>
+    <span class="badge bg-success"> Yes</span>
+  <% } else { %>
+    <span class="badge bg-success">No</span>
+  <% } %>
+</td>
+
+  </tr>
+<% }) %>
+
+</tbody>
+
         <!-- More rows dynamically -->
       </tbody>
     </table>

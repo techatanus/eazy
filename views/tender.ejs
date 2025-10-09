@@ -223,8 +223,8 @@
     <main class="content">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
-          <h3 class="mb-0">Manage tender</h3>
-          <small class="muted-small">Create, manage and QA</small>
+          <h3 class="mb-0" style="color:#008000;">Manage tender</h3>
+          <small class="muted-small" style="color:#008000;">Create, manage and QA</small>
         </div>
 
         <div class="d-flex gap-2 align-items-center">
@@ -244,48 +244,63 @@
       <div class="table-card">
         <div class="table-responsive">
           <table class="table table-striped align-middle" id="rfxTable">
-            <thead>
+            <thead >
               <tr>
-                <th>Code</th>
-                <th>Title</th>
-                <th>Type</th>
-                <th>Closing Date</th>
-                <th>Status</th>
-                <th>Created By</th>
-                <th class="text-end">Actions</th>
+                <th style="color:#008000;">Code</th>
+                <th style="color:#008000;">Title</th>
+                <th style="color:#008000;">Type</th>
+                <th style="color:#008000;">Closing Date</th>
+                <th style="color:#008000;">Status</th>
+             
+                <th class="text-end" style="color:#008000;" colspan="3">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <!-- static sample rows (no backend required yet) -->
-              <tr data-id="1" data-code="RFx-2025-001" data-title="Office Computers" data-type="Goods" data-closing-date="2025-10-05" data-status="open" data-created-by="ProcOfficer" data-desc="Supply desktops and laptops">
-                <td>Tnd-2025-001</td>
-                <td>Office Computers</td>
-                <td>Goods</td>
-                <td>2025-10-05</td>
-                <td><span class="badge bg-success">open</span></td>
-                <td>ProcOfficer</td>
-                <td class="text-end">
-                  <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
-                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
-                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button>
-                  <button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button>
-                </td>
-              </tr>
+      
+<tbody>
+  <% if (tenders && tenders.length > 0) { %>
+    <% tenders.forEach(tender => { %>
+      <tr>
+        <td><%= tender.code %></td>
+        <td><%= tender.title %></td>
+        <td><%= tender.type %></td>
+       <td>
+  <% if (tender.closing_date) { %>
+    <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
+          dateStyle: 'medium', 
+          timeStyle: 'short' 
+        }) %>
+  <% } else { %>
+    N/A
+  <% } %>
+</td>
 
-              <tr data-id="2" data-code="RFx-2025-002" data-title="Office Cleaning" data-type="Services" data-closing-date="2025-10-20" data-status="Draft" data-created-by="Manager" data-desc="Monthly office cleaning">
-                <td>Tnd-2025-002</td>
-                <td>Office Cleaning</td>
-                <td>Services</td>
-                <td>2025-10-20</td>
-                <td><span class="badge bg-secondary">Draft</span></td>
-                <td>Manager</td>
-                <td class="text-end">
-                  <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
+       <td>
+  <span class="badge 
+    <% if (tender.status === 'open') { %> bg-success 
+    <% } else if (tender.status === 'Draft') { %> bg-warning text-dark 
+    <% } else if (tender.status === 'closed') { %> bg-danger 
+    <% } else { %> bg-secondary <% } %>">
+    <%= tender.status %>
+  </span>
+</td>
+
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
                   <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
                   <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button>
                   <button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button>
-                </td>
-              </tr>
+        </td>
+      </tr>
+    <% }) %>
+  <% } else { %>
+    <tr>
+      <td colspan="6" class="text-center text-muted">No closed tenders found</td>
+    </tr>
+  <% } %>
+</tbody>
+
+           
 
             </tbody>
           </table>
@@ -294,20 +309,23 @@
 
       <!-- QA area (summary or quick checks) -->
       <div class="mt-4">
-        <h5>QA Notes / Summary</h5>
-        <p class="text-muted">Quick QA summary or bulk QA actions will appear here.</p>
+        <h5 style="color:#008000;">QA Notes / Summary</h5>
+        <p class="text-muted" style="color:#008000;">Quick QA summary or bulk QA actions will appear here.</p>
       </div>
     </main>
   </div>
 
   <!-- CREATE Modal -->
-  <div class="modal fade" id="createRfxModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <form id="createForm" class="modal-content">
+<div class="modal fade" id="createRfxModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      
+      <form action="/create_tender" method="POST" id="createForm" >
         <div class="modal-header bg-success text-white">
-          <h5 class="modal-title">Create tender</h5>
+          <h5 class="modal-title">Create Tender</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
+
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-md-4">
@@ -321,7 +339,9 @@
             <div class="col-md-4">
               <label class="form-label">Type</label>
               <select name="type" class="form-select">
-                <option>Goods</option><option>Works</option><option>Services</option>
+                <option>Goods</option>
+                <option>Works</option>
+                <option>Services</option>
               </select>
             </div>
             <div class="col-md-4">
@@ -331,7 +351,9 @@
             <div class="col-md-4">
               <label class="form-label">Status</label>
               <select name="status" class="form-select">
-                <option>Draft</option><option>open</option><option>Closed</option>
+                <option>Draft</option>
+                <option>Open</option>
+                <option>Closed</option>
               </select>
             </div>
             <div class="col-12">
@@ -340,14 +362,16 @@
             </div>
           </div>
         </div>
+
         <div class="modal-footer">
-          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success">Createtender</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Create Tender</button>
         </div>
       </form>
+
     </div>
   </div>
-
+</div>
   <!-- VIEW Modal -->
   <div class="modal fade" id="viewRfxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -465,242 +489,127 @@
     </div>
   </div>
 
-  <!-- Bootstrap bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script>
-    // Submenu toggles
-    document.querySelectorAll('[data-toggle="submenu"]').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const targetId = link.getAttribute('data-target');
-        const el = document.getElementById(targetId);
-        if (!el) return;
-        el.classList.toggle('show');
-      });
-    });
-
-    // Mobile hamburger
-    const hamburger = document.getElementById('hamburgerBtn');
-    const sidebar = document.getElementById('sidebar');
-    hamburger && hamburger.addEventListener('click', () => {
-      sidebar.classList.toggle('visible');
-    });
-
-    // Popups: show/hide with click, close outside
-    const popups = {
-      emailIcon: 'emailPopup',
-      smsIcon: 'smsPopup',
-      notifIcon: 'notifPopup',
-      profileIcon: 'profileMenu'
-    };
-    Object.entries(popups).forEach(([iconId, popupId]) => {
-      const icon = document.getElementById(iconId);
-      const popup = document.getElementById(popupId);
-      if (!icon || !popup) return;
-      icon.addEventListener('click', (e) => {
-        // hide other popups
-        Object.values(popups).forEach(pid => { if (pid !== popupId) document.getElementById(pid).style.display = 'none'; });
-        popup.style.display = (popup.style.display === 'block') ? 'none' : 'block';
-        // adjust position (right aligned inside topbar)
-        const rect = icon.getBoundingClientRect();
-        const topbarRect = document.getElementById('topbar').getBoundingClientRect();
-        // place popup under icon
-        popup.style.top = (rect.bottom - topbarRect.top + 8) + 'px';
-        // align right edge to icon
-        const rightPos = (document.documentElement.clientWidth - rect.right) + 8;
-        popup.style.right = rightPos + 'px';
-      });
-    });
-
-    // close popups on outside click
-    document.addEventListener('click', (e) => {
-      const isIcon = e.target.closest('.nav-icon');
-      const isPopup = e.target.closest('.floating-popup');
-      if (!isIcon && !isPopup) {
-        document.querySelectorAll('.floating-popup').forEach(p => p.style.display = 'none');
-      }
-    });
-
-    // Helpers to find row data
-    function rowFromButton(btn) {
-      return btn.closest('tr');
-    }
-    function getRowData(tr) {
-      return {
-        id: tr.dataset.id,
-        code: tr.dataset.code,
-        title: tr.dataset.title,
-        type: tr.dataset.type,
-        closingDate: tr.dataset.closingDate,
-        status: tr.dataset.status,
-        createdBy: tr.dataset.createdBy,
-        description: tr.dataset.desc
-      };
-    }
-
-    // View modal
-    function openViewModal(btn) {
-      const tr = rowFromButton(btn);
-      const d = getRowData(tr);
-      document.getElementById('v-code').innerText = d.code || '';
-      document.getElementById('v-title').innerText = d.title || '';
-      document.getElementById('v-type').innerText = d.type || '';
-      document.getElementById('v-closing').innerText = d.closingDate || '';
-      document.getElementById('v-status').innerText = d.status || '';
-      document.getElementById('v-created').innerText = d.createdBy || '';
-      document.getElementById('v-desc').innerText = d.description || '';
-      const m = new bootstrap.Modal(document.getElementById('viewRfxModal'));
-      m.show();
-    }
-
-    // Edit modal
-    function openEditModal(btn) {
-      const tr = rowFromButton(btn);
-      const d = getRowData(tr);
-      document.getElementById('edit-rowId').value = d.id || '';
-      document.getElementById('edit-code').value = d.code || '';
-      document.getElementById('edit-title').value = d.title || '';
-      document.getElementById('edit-type').value = d.type || '';
-      document.getElementById('edit-closing').value = d.closingDate || '';
-      document.getElementById('edit-status').value = d.status || '';
-      document.getElementById('edit-desc').value = d.description || '';
-      const m = new bootstrap.Modal(document.getElementById('editRfxModal'));
-      m.show();
-    }
-
-    // Delete row (frontend demo)
-    function deleteRfx(btn) {
-      if (!confirm('Delete thistender?')) return;
-      const tr = rowFromButton(btn);
-      tr.remove();
-    }
-
-    // QA modal
-    function openQaModal(btn) {
-      const tr = rowFromButton(btn);
-      const d = getRowData(tr);
-      document.getElementById('qa-rowId').value = d.id || '';
-      document.getElementById('qa-title').innerText = (d.code ? d.code + ' — ' : '') + (d.title || '');
-      document.getElementById('qaScope').checked = false;
-      document.getElementById('qaCriteria').checked = false;
-      document.getElementById('qaBudget').checked = false;
-      document.getElementById('qaDocs').checked = false;
-      document.getElementById('qaNotes').value = '';
-      const m = new bootstrap.Modal(document.getElementById('qaModal'));
-      m.show();
-    }
-
-    function submitQa(action) {
-      const id = document.getElementById('qa-rowId').value;
-      const payload = {
-        scope: document.getElementById('qaScope').checked,
-        criteria: document.getElementById('qaCriteria').checked,
-        budget: document.getElementById('qaBudget').checked,
-        docs: document.getElementById('qaDocs').checked,
-        notes: document.getElementById('qaNotes').value,
-        action
-      };
-      // Demo: just log and close modal. Replace with fetch POST to backend later.
-      console.log('QA submit for', id, payload);
-      bootstrap.Modal.getInstance(document.getElementById('qaModal')).hide();
-      alert('QA submitted (' + action + ') — integrate backend endpoint to persist.');
-    }
-
-    // CREATE form: add row to table (demo)
-    document.getElementById('createForm').addEventListener('submit', function(e){
+<script>
+  // --- Submenu toggle ---
+  document.querySelectorAll('[data-toggle="submenu"]').forEach(link => {
+    link.addEventListener('click', e => {
       e.preventDefault();
-      const form = e.target;
-      const code = form.code.value.trim();
-      const title = form.title.value.trim();
-      const type = form.type.value;
-      const closingDate = form.closingDate.value;
-      const status = form.status.value;
-      const desc = form.description.value;
-
-      // generate a simple id
-      const newId = Date.now();
-
-      const tbody = document.querySelector('#rfxTable tbody');
-      const tr = document.createElement('tr');
-      tr.dataset.id = newId;
-      tr.dataset.code = code;
-      tr.dataset.title = title;
-      tr.dataset.type = type;
-      tr.dataset.closingDate = closingDate;
-      tr.dataset.status = status;
-      tr.dataset.createdBy = 'You';
-      tr.dataset.desc = desc;
-
-      tr.innerHTML = `
-        <td>${code}</td>
-        <td>${title}</td>
-        <td>${type}</td>
-        <td>${closingDate}</td>
-        <td><span class="badge ${status==='open'?'bg-success':status==='Draft'?'bg-secondary':'bg-warning'}">${status}</span></td>
-        <td>You</td>
-        <td class="text-end">
-          <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
-          <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
-          <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button>
-        </td>`;
-
-      tbody.prepend(tr);
-      bootstrap.Modal.getInstance(document.getElementById('createRfxModal')).hide();
-      form.reset();
+      const targetId = link.getAttribute('data-target');
+      const el = document.getElementById(targetId);
+      if (el) el.classList.toggle('show');
     });
+  });
 
-    // EDIT form: update row (frontend demo)
-    document.getElementById('editForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      const id = document.getElementById('edit-rowId').value;
-      const code = document.getElementById('edit-code').value.trim();
-      const title = document.getElementById('edit-title').value.trim();
-      const type = document.getElementById('edit-type').value;
-      const closingDate = document.getElementById('edit-closing').value;
-      const status = document.getElementById('edit-status').value;
-      const desc = document.getElementById('edit-desc').value;
+  // --- Mobile Sidebar toggle ---
+  const hamburger = document.getElementById('hamburgerBtn');
+  const sidebar = document.getElementById('sidebar');
+  if (hamburger && sidebar) {
+    hamburger.addEventListener('click', () => sidebar.classList.toggle('visible'));
+  }
 
-      const tr = [...document.querySelectorAll('#rfxTable tbody tr')].find(r => r.dataset.id === id);
-      if (!tr) {
-        alert('Row not found (frontend demo).');
-        bootstrap.Modal.getInstance(document.getElementById('editRfxModal')).hide();
-        return;
-      }
-      tr.dataset.code = code;
-      tr.dataset.title = title;
-      tr.dataset.type = type;
-      tr.dataset.closingDate = closingDate;
-      tr.dataset.status = status;
-      tr.dataset.desc = desc;
+  // --- View Tender Modal ---
+  function openViewModal(btn) {
+    const row = btn.closest('tr');
+    if (!row) return;
 
-      tr.cells[0].innerText = code;
-      tr.cells[1].innerText = title;
-      tr.cells[2].innerText = type;
-      tr.cells[3].innerText = closingDate;
-      tr.cells[4].innerHTML = `<span class="badge ${status==='open'?'bg-success':status==='Draft'?'bg-secondary':'bg-warning'}">${status}</span>`;
-      tr.cells[5].innerText = tr.dataset.createdBy || 'You';
+    const cells = row.querySelectorAll('td');
+    document.getElementById('v-code').textContent = cells[0].textContent.trim();
+    document.getElementById('v-title').textContent = cells[1].textContent.trim();
+    document.getElementById('v-type').textContent = cells[2].textContent.trim();
+    document.getElementById('v-closing').textContent = cells[3].textContent.trim();
+    document.getElementById('v-status').textContent = cells[4].textContent.trim();
+    document.getElementById('v-created').textContent = 'System Admin'; // replace with actual creator if available
+    document.getElementById('v-desc').textContent = 'N/A'; // optional description if available
 
-      bootstrap.Modal.getInstance(document.getElementById('editRfxModal')).hide();
-    });
+    const viewModal = new bootstrap.Modal(document.getElementById('viewRfxModal'));
+    viewModal.show();
+  }
 
-    // Search / filter
-    document.getElementById('searchInput').addEventListener('input', function () {
-      const q = this.value.toLowerCase();
-      document.querySelectorAll('#rfxTable tbody tr').forEach(row => {
-        const text = row.innerText.toLowerCase();
-        row.style.display = text.includes(q) ? '' : 'none';
+  // --- Edit Tender Modal ---
+  function openEditModal(btn) {
+    const row = btn.closest('tr');
+    if (!row) return;
+    const cells = row.querySelectorAll('td');
+
+    document.getElementById('edit-code').value = cells[0].textContent.trim();
+    document.getElementById('edit-title').value = cells[1].textContent.trim();
+    document.getElementById('edit-type').value = cells[2].textContent.trim();
+    document.getElementById('edit-closing').value = formatToDate(cells[3].textContent.trim());
+    document.getElementById('edit-status').value = cells[4].textContent.trim();
+
+    const editModal = new bootstrap.Modal(document.getElementById('editRfxModal'));
+    editModal.show();
+  }
+
+  // --- QA Modal ---
+  function openQaModal(btn) {
+    const row = btn.closest('tr');
+    if (!row) return;
+    const title = row.querySelector('td:nth-child(2)').textContent.trim();
+    document.getElementById('qa-title').textContent = title;
+
+    const qaModal = new bootstrap.Modal(document.getElementById('qaModal'));
+    qaModal.show();
+  }
+
+  // --- Utility: format date (handles locale string to YYYY-MM-DD) ---
+  function formatToDate(dateString) {
+    const date = new Date(dateString);
+    if (isNaN(date)) return '';
+    return date.toISOString().split('T')[0];
+  }
+
+  // --- Submit QA (approve / request changes) ---
+  function submitQa(action) {
+    const title = document.getElementById('qa-title').textContent;
+    const notes = document.getElementById('qaNotes').value;
+    alert(`QA Action: ${action.toUpperCase()} for "${title}"\nNotes: ${notes}`);
+    bootstrap.Modal.getInstance(document.getElementById('qaModal')).hide();
+  }
+
+  // --- Delete Confirmation ---
+  function deleteRfx(btn) {
+    const row = btn.closest('tr');
+    const code = row.querySelector('td:first-child').textContent.trim();
+    if (confirm(`Are you sure you want to delete tender "${code}"?`)) {
+      row.remove(); // Replace with actual fetch(`/delete_tender/${code}`, {method:'DELETE'})
+    }
+  }
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const tableRows = document.querySelectorAll("tbody tr");
+
+    function filterTenders() {
+      const searchValue = searchInput.value.toLowerCase().trim();
+      const selectedStatus = statusFilter.value.toLowerCase();
+
+      tableRows.forEach(row => {
+        const code = row.querySelector("td:nth-child(1)")?.textContent.toLowerCase() || "";
+        const title = row.querySelector("td:nth-child(2)")?.textContent.toLowerCase() || "";
+        const status = row.querySelector("td:nth-child(5)")?.textContent.toLowerCase() || "";
+
+        const matchesSearch = code.includes(searchValue) || title.includes(searchValue);
+        const matchesStatus = !selectedStatus || status === selectedStatus;
+
+        if (matchesSearch && matchesStatus) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
       });
-    });
-    document.getElementById('statusFilter').addEventListener('change', function () {
-      const val = this.value;
-      document.querySelectorAll('#rfxTable tbody tr').forEach(row => {
-        if (!val) { row.style.display = ''; return; }
-        const s = row.dataset.status || (row.querySelector('td span.badge')?.innerText || '');
-        row.style.display = (s.trim() === val) ? '' : 'none';
-      });
-    });
-  </script>
+    }
+
+    // Attach events
+    searchInput.addEventListener("keyup", filterTenders);
+    statusFilter.addEventListener("change", filterTenders);
+  });
+</script>
+
+
 </body>
 </html>
