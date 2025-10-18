@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RFQ Module | eazyProcure</title>
+  <title>Reports | eazyProcure</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-<style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+    <style>
     :root{
       --sidebar-width: 260px;
       --navbar-height: 64px;
@@ -20,7 +21,7 @@
 
     .topbar {
       height: var(--navbar-height);
-      background: #7dd170; /* light green */
+      background: #bfe8b9; /* light green */
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -334,161 +335,250 @@
 
   </style>
 </head>
-<body class="bg-light">
-  <!-- Sidebar (light) -->
-   <%- include('partials/sidebar') %>
+<body>
+
+
+  <div class="container-fluid">
+    <div class="row">
+  
+ 
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashcl">
+      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashcl" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Client</span></div>
+    </a>
+  </div>
+
+  <!-- Approvals -->
+  <div class="nav-section">
+    <a href="#" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Approvals</span></div>
+    </a>
+  </div>
+<!-- open bids -->
+  <div class="nav-section">
+    <a href="#" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">OPen bids</span></div>
+    </a>
+  </div>
+  <!-- closed bids -->
+     <div class="nav-section">
+    <a href="#" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">closed</span></div>
+    </a>
+  </div>
+    <div class="nav-section">
+    <a href="#" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">QA</span></div>
+    </a>
+  </div>
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/reports"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
 
     <!-- Top Navbar (light green) -->
-     <%- include('partials/topbar') %>
-  <div class="content">
-    <h2 class="text-center mb-4 text-primary">Request for Quotation (RFQ)</h2>
-
-    <!-- Tabs -->
-    <ul class="nav nav-tabs" id="rfqTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="create-tab" data-bs-toggle="tab" data-bs-target="#create" type="button" role="tab">
-          Create RFQ
-        </button>
-      </li>
-      <!-- <li class="nav-item" role="presentation">
-        <button class="nav-link" id="vendors-tab" data-bs-toggle="tab" data-bs-target="#vendors" type="button" role="tab">
-          Vendor Management
-        </button>
-      </li> -->
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab">
-          Submitted Bids
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status" type="button" role="tab">
-          Approval & Status
-        </button>
-      </li>
-    </ul>
-
-    <div class="tab-content bg-white border border-top-0 p-4" id="rfqTabsContent">
-      
-      <!-- Create RFQ -->
-      <div class="tab-pane fade show active" id="create" role="tabpanel">
-        <h5 class="mb-3 text-success">Create RFQ Document</h5>
-        <form method="post" action="/create_rfq">
-          <div class="mb-3">
-            <label class="form-label">RFQ Title</label>
-            <input type="text" name="title" class="form-control" placeholder="Enter RFQ title">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Specifications</label>
-            <textarea class="form-control" name="specifications" rows="3" placeholder="Enter product/service specifications"></textarea>
-          </div>
-          <div class="row">
-           <div class="row">
-  <div class="col-md-4 mb-3">
-    <label class="form-label">Quantity</label>
-    <input type="number" name="quantity" id="quantity" class="form-control" placeholder="Enter quantity">
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
   </div>
 
-  <div class="col-md-4 mb-3">
-    <label class="form-label">Unit price</label>
-    <input type="number" name="unit_price" id="unitPrice" class="form-control" placeholder="Enter unit price">
+  <div class="nav-actions position-relative">
+    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="nav-icon" id="profileIcon" title="Profile">
+      <i class="bi bi-person-circle"></i>
+    </div>
   </div>
+  
+</header>
+      <!-- Main Content -->
+      <div class="content">
+        <h3 class="mb-4">Reports & Archives</h3>
 
-  <div class="col-md-4 mb-3">
-    <label class="form-label">V.A.T (%)</label>
-    <input type="number" name="vat" id="vat" class="form-control" placeholder="Enter VAT Value">
-  </div>
-
-  <div class="col-md-4 mb-3">
-    <label class="form-label">Total price</label>
-    <input type="number" name="total_price" id="totalPrice" class="form-control" placeholder="Total Price" readonly>
-  </div>
-</div>
-
-<script>
-  function calculateTotal() {
-    let quantity = parseFloat(document.getElementById("quantity").value) || 0;
-    let unitPrice = parseFloat(document.getElementById("unitPrice").value) || 0;
-    let vat = parseFloat(document.getElementById("vat").value) || 0;
-
-    // base price
-    let baseTotal = quantity * unitPrice;
-
-    // VAT applied
-    let totalWithVAT = (baseTotal * vat / 100);
-
-    // set value
-    document.getElementById("totalPrice").value = totalWithVAT.toFixed(2);
-  }
-
-  // Attach listeners
-  document.getElementById("quantity").addEventListener("input", calculateTotal);
-  document.getElementById("unitPrice").addEventListener("input", calculateTotal);
-  document.getElementById("vat").addEventListener("input", calculateTotal);
-</script>
-
-            <div class="col-md-4 mb-3">
-              <label class="form-label">Delivery Timeline</label>
-              <input type="date" name="elivery_timeline" class="form-control">
+        <!-- Filters -->
+        <div class="card p-3 mb-4">
+          <form class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Jobs</label>
+              <select class="form-select">
+                <option selected>Choose...</option>
+                <option>job A</option>
+                <option>job B</option>
+              </select>
             </div>
-            <div class="col-md-4 mb-3">
-              <label class="form-label">Payment Terms</label>
-              <input type="text" name="payment_terms" class="form-control" placeholder="e.g., 30 days after delivery">
+            <div class="col-md-3">
+              <label class="form-label">category</label>
+              <select class="form-select">
+                <option selected>Choose...</option>
+                <option>category 1</option>
+                <option>category 2</option>
+              </select>
             </div>
-          </div>
-          <button type="submit" class="btn btn-primary">Create RFQ</button>
-        </form>
-      </div>
+            <div class="col-md-3">
+              <label class="form-label">bidder</label>
+              <select class="form-select">
+                <option selected>Choose...</option>
+                <option>bidder A</option>
+                <option>bidder B</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Date Range</label>
+              <input type="date" class="form-control">
+            </div>
+            <div class="col-12 text-end">
+              <button type="submit" class="btn btn-primary">Generate Report</button>
+            </div>
+          </form>
+        </div>
 
-   
-
-      <!-- Submitted Bids -->
-      <div class="tab-pane fade" id="bids" role="tabpanel">
-        <h5 class="mb-3 text-success">Submitted Bids</h5>
-        <table class="table table-borderless">
-          <thead class="table-light">
-            <tr>
-              <th>Rfq title</th>
-              <th>specification</th>
-              <th>unit price</th>
-              <th>total price</th>
-              <th>deadline</th>
-              <th>payment Terms</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>ABC Suppliers Ltd</td>
-              <td>Lorem ipsum dolor sit.</td>
-              <td></td>
-              <td>$10,000</td>
-              <td><button class="btn btn-sm btn-outline-secondary">View</button></td>
-              <td><span class="badge bg-warning">Under Review</span></td>
-            </tr>
-          
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Approval & Status -->
-      <div class="tab-pane fade" id="status" role="tabpanel">
-        <h5 class="mb-3 text-success">Approval & Workflow</h5>
-        <ul class="list-group">
-          <li class="list-group-item">
-            <strong>RFQ #001:</strong> Created → <span class="badge bg-info">Pending Approval</span>
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3" id="reportTabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="statistics-tab" data-bs-toggle="tab" href="#statistics" role="tab">Statistics</a>
           </li>
-          <li class="list-group-item">
-            <strong>RFQ #002:</strong> Under Review → <span class="badge bg-warning">In Progress</span>
-          </li>
-          <li class="list-group-item">
-            <strong>RFQ #003:</strong> Approved → <span class="badge bg-success">PO Generated</span>
+          <!-- <li class="nav-item">
+            <a class="nav-link" id="archive-tab" data-bs-toggle="tab" href="#archive" role="tab">Archive</a>
+          </li> -->
+          <li class="nav-item">
+            <a class="nav-link" id="view-tab" data-bs-toggle="tab" href="#view" role="tab">View Documents</a>
           </li>
         </ul>
-      </div>
 
+        <div class="tab-content" id="reportTabsContent">
+          <!-- Statistics -->
+          <div class="tab-pane fade show active" id="statistics" role="tabpanel">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <div class="card p-3">
+                  <h6 class="fw-bold">Bids per Project</h6>
+                  <div class="chart-container">
+                    <canvas id="bidsChart"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <div class="card p-3">
+                  <h6 class="fw-bold">Supplier Diversity</h6>
+                  <div class="chart-container">
+                    <canvas id="supplierChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Archive -->
+          <!-- <div class="tab-pane fade" id="archive" role="tabpanel">
+            <div class="card p-3">
+              <h6 class="fw-bold">Archived Reports</h6>
+              <table class="table table-striped mt-3">
+                <thead>
+                  <tr>
+                    <th>Report Name</th>
+                    <th>Project</th>
+                    <th>Date Archived</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Bid Summary Report</td>
+                    <td>Project 1</td>
+                    <td>2025-09-10</td>
+                    <td><button class="btn btn-sm btn-outline-primary">Download</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div> -->
+
+          <!-- View Documents -->
+          <div class="tab-pane fade" id="view" role="tabpanel">
+            <div class="card p-3">
+              <h6 class="fw-bold">Stored Documents</h6>
+              <table class="table table-hover mt-3">
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Subcategory</th>
+                    <th>Bidder</th>
+                    <th>Document</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Project 1</td>
+                    <td>Category A</td>
+                    <td>Supplier X</td>
+                    <td><button class="btn btn-sm btn-outline-success">View</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Charts
+    const bidsCtx = document.getElementById('bidsChart');
+    new Chart(bidsCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Project 1', 'Project 2', 'Project 3'],
+        datasets: [{
+          label: '# of Bids',
+          data: [12, 19, 7],
+          borderWidth: 1
+        }]
+      }
+    });
+
+    const supplierCtx = document.getElementById('supplierChart');
+    new Chart(supplierCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Local', 'Regional', 'International'],
+        datasets: [{
+          data: [40, 35, 25],
+          borderWidth: 1
+        }]
+      }
+    });
+  </script>
    <script>
     // Sidebar submenu toggles (preserve initial markup, only enhance)
     document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{

@@ -213,18 +213,146 @@
 </head>
 <body>
   <div class="layout">
-    <!-- Sidebar (light) -->
-   <%- include('partials/sidebar') %>
+    <!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashsup">
+      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashsup " class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Supplier</span></div>
+    </a>
+  </div>
+
+  <!-- Permissions & Roles -->
+  <!-- <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="permSub">
+      <div class="nav-left"><i class="bi bi-shield-lock-fill" style="color: green;"></i><span class="ms-2">Permissions & Roles</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="permSub" class="submenu">
+      <a href="/admin/permissions"><i class="bi bi-key-fill me-2" style="color: green;"></i> Permissions</a>
+      <a href="/admin/roles"><i class="bi bi-award-fill me-2"></i> Roles</a>
+    </div>
+  </div> -->
+
+  <!-- Manage Users -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="usersSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">Manage Users</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="usersSub" class="submenu">
+      <a href="/admin/mysuplier"><i class="bi bi-truck me-2" style="color: green;"></i> Manage Suppliers</a>
+    </div>
+  </div>
+  <!-- statutory -->
+  <div class="nav-section">
+    <a href="/admin/doc" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Statutory Rquirement</span></div>
+    </a>
+  </div>
+  <!-- Alerts -->
+  <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#alertModal">
+    <div class="nav-left"><i class="bi bi-bell-fill" style="color: green;"></i><span class="ms-2">Alerts</span></div>
+  </a>
+    <!-- supplier prequalification -->
+       <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="msgSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">prequalification</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="msgSub" class="submenu">
+      <a href="/admin/prequal"><i class="bi bi-person-badge me-2" style="color: green;"></i> My Applications</a>
+     
+    </div>
+  </div>
+
+  <!-- tenders -->
+     <div class="nav-section">
+    <a href="/admin/tender"  class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Tender</span></div>
+    </a>
+  </div>
+   <!-- rfx -->
+       <div class="nav-section">
+    <a href="/admin/rfqs" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFQ</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfps"class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFP</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/eois" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">EOI</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfis" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFI</span></div>
+    </a>
+  </div>
+         <div class="nav-section">
+    <a href="/admin/auction " class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Reverse Auction</span></div>
+    </a>
+  </div>
+
+ 
+ 
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/reports"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
 
     <!-- Top Navbar (light green) -->
-     <%- include('partials/topbar') %>
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
+  </div>
+
+  <div class="nav-actions position-relative">
+    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="nav-icon" id="profileIcon" title="Profile">
+      <i class="bi bi-person-circle"></i>
+    </div>
+  </div>
+  
+</header>
 
     <!-- MAIN CONTENT -->
     <main class="content">
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
           <h3 class="mb-0" style="color:#008000;">Manage tender</h3>
-          <small class="muted-small" style="color:#008000;">Create, manage and QA</small>
+          <small class="muted-small" style="color:#008000;">View tender</small>
         </div>
 
         <div class="d-flex gap-2 align-items-center">
@@ -287,9 +415,9 @@
 
         <td class="text-end">
           <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
-                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
-                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button>
-                  <a href="/deltend:id?=<%tender.code%>"><button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button></a>
+                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Apply</button>
+                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i>QA</button>
+                  <!-- <a href="/deltend:id?=<%tender.code%>"><button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button></a> -->
         </td>
       </tr>
     <% }) %>
@@ -417,7 +545,7 @@
     <div class="modal-dialog modal-lg">
       <form id="editForm" class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Edittender</h5>
+          <h5 class="modal-title">Apply tender</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -425,21 +553,21 @@
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label">Code</label>
-              <input id="edit-code" name="code" class="form-control" required>
+              <input id="edit-code" name="code" class="form-control" required readonly>
             </div>
             <div class="col-md-8">
               <label class="form-label">Title</label>
-              <input id="edit-title" name="title" class="form-control" required>
+              <input id="edit-title" name="title" class="form-control" required readonly>
             </div>
             <div class="col-md-4">
               <label class="form-label">Type</label>
-              <select id="edit-type" name="type" class="form-select">
+              <select id="edit-type" name="type" class="form-select" >
                 <option>Goods</option><option>Works</option><option>Services</option>
               </select>
             </div>
             <div class="col-md-4">
               <label class="form-label">Closing Date</label>
-              <input id="edit-closing" name="closingDate" class="form-control" type="date" required>
+              <input id="edit-closing" name="closingDate" class="form-control" type="date" required readonly>
             </div>
             <div class="col-md-4">
               <label class="form-label">Status</label>
@@ -449,13 +577,13 @@
             </div>
             <div class="col-12">
               <label class="form-label">Description</label>
-              <textarea id="edit-desc" name="description" class="form-control" rows="3"></textarea>
+              <textarea id="edit-desc" name="description" class="form-control" rows="3" readonly></textarea>
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="submit" class="btn btn-primary">Submeet</button>
         </div>
       </form>
     </div>

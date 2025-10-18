@@ -67,6 +67,8 @@ exports.dashboard = async (req, res) => {
 };
 
 
+
+
 //logout
 // exports.logoutUser = (req, res) => {
 //   req.session.destroy((err) => {
@@ -103,6 +105,17 @@ router.post('/create_rfib',adminCtrl.createRFIB);
 router.post('/create_rfis',adminCtrl.createRFIS);
 // create tender
 router.post('/create_tender',adminCtrl.createTender);
+// post alerts
+router.post('/subscriptions', adminCtrl.createAlert);
+// Post notification
+router.post('/notify',adminCtrl.createNotification);
+// post suplier regdetails
+router.post('/regdetails',upload.single("profile"),adminCtrl.createRegDetails);
+// statutory
+router.post('/sub_stat',adminCtrl.createStatutory);
+// compliance
+router.post("/comply", adminCtrl.createCompliance);
+
 
 
 

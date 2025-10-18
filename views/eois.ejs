@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EOI - Supplier Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+ <style>
+    :root{
+      --sidebar-width: 260px;
+      --navbar-height: 64px;
+      --accent: #0d6efd;
+      --muted: #6c757d;
+    }
+
+    html,body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial; background: #f8f9fa; }
+
+    /* NAVBAR (light green) */
+
+    .topbar {
+      height: var(--navbar-height);
+      background: #7dd170; /* light green */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: fixed;
+      left: var(--sidebar-width);
+      right: 0;
+      top: 0;
+      z-index: 1100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: left .25s ease;
+    
+    }
+
+     
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+    .nav-icon { cursor: pointer; font-size: 1.2rem; position: relative; }
+    .icon-badge::after { content: attr(data-count); position: absolute; top: -6px; right: -8px; background: red; color: white; font-size: 0.7rem; padding: 2px 5px; border-radius: 50%; display: none; }
+    .icon-badge[data-count]:not([data-count="0"])::after { display: inline-block; }
+    /* brand */
+    .brand {
+      font-weight: 700;
+      color: #134611;
+    }
+
+    /* navbar right icons spacing & style */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      margin-left: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #13340f;
+      transition: background .2s, transform .12s;
+    }
+    .nav-icon:hover { background: rgba(0,0,0,0.06); transform: translateY(-1px); }
+    .nav-icon .bi { font-size: 1.15rem; }
+
+    /* small badge for counts (optional style) */
+    .icon-badge {
+      position: relative;
+    }
+    .icon-badge .badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      font-size: 0.6rem;
+    }
+
+    /* layout: sidebar + content */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar (light) */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: #f1f5f2;
+      padding: 18px 12px;
+      padding-top: calc(var(--navbar-height) + 14px); /* start under navbar */
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+      transition: transform .28s ease;
+      z-index: 1050;
+    }
+    .sidebar.collapsed { transform: translateX(-110%); }
+
+    .sidebar .nav-section { margin-bottom: 6px; }
+    .sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 10px;
+      color: #213426;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-bottom: 4px;
+      transition: background .18s;
+    }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: orange; }
+
+    .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
+    .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
+
+    /* submenu slide (animated) */
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .32s ease, padding .2s ease;
+      padding-left: 36px;
+    }
+    .submenu.show {
+      max-height: 420px; /* enough room */
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .submenu a {
+      display:block;
+      padding:8px 12px;
+      text-decoration:none;
+      color:#183f28;
+      border-radius:6px;
+      margin-bottom:4px;
+    }
+    .submenu a:hover { background:#e6f0e6; color:orange; }
+
+    /* main content area */
+    .content {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--navbar-height);
+      padding: 22px;
+      flex: 1;
+      transition: margin-left .28s ease;
+    }
+    .sidebar.collapsed ~ .content {
+      margin-left: 0;
+    }
+    .sidebar.collapsed ~ .topbar { left: 0; }
+
+    /* cards grid: 3 on top, 4 on next row */
+    .cards-top {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .cards-bottom {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+       
+    }
+
+    .stat-card {
+     
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      cursor:pointer;
+      transition: transform .16s ease, box-shadow .16s;
+       color: white;
+    }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.06); }
+    .stat-icon {
+      width:56px;height:56px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:white;
+      flex-shrink:0;
+    }
+    .stat-body { flex:1; }
+    .stat-title { font-size:0.85rem;color:var(--muted); margin:0; }
+    .stat-value { font-size:1.55rem;font-weight:700;margin:4px 0 0;color:#222; }
+
+    /* colored icon backgrounds */
+    .c-admin{background: linear-gradient(135deg,#3b82f6,#2563eb);}  /* blue */
+    .c-client{background: linear-gradient(135deg,#10b981,#059669);} /* green */
+    .c-supplier{background: linear-gradient(135deg,#fb923c,#f97316);}/* orange */
+    .c-open{background: linear-gradient(135deg,#06b6d4,#0891b2);}    /* teal */
+    .c-closed{background: linear-gradient(135deg,#94a3b8,#6b7280);}  /* gray */
+    .c-applied{background: linear-gradient(135deg,#f59e0b,#d97706);} /* amber */
+    .c-approved{background: linear-gradient(135deg,#7c3aed,#6d28d9);} /* purple */
+
+    /* Open tenders table */
+    .table-card {
+      margin-top: 8px;
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+    }
+
+    /* popups anchored to icons */
+    .floating-popup {
+      position: absolute;
+      width: 260px;
+      max-width: 40vw;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 10px;
+      z-index: 1200;
+      display: none;
+    }
+    .floating-popup .item {
+      display:flex; gap:10px; align-items:center; padding:8px 6px; border-bottom:1px solid #f0f0f0;
+    }
+    .floating-popup .item:last-child{border-bottom:none;}
+    .floating-popup .item .bi { font-size:1.05rem; color:var(--accent); width:28px; text-align:center; }
+    .floating-popup h6{margin:0 0 8px 0;font-size:0.95rem;color:var(--accent);}
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .cards-top { grid-template-columns: repeat(2,1fr); }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 768px) {
+      .topbar { left: 0; padding: 0 10px; }
+      .sidebar { transform: translateX(-110%); position: fixed; z-index:1300; }
+      .sidebar.visible { transform: translateX(0); }
+      .content { margin-left: 0; padding: 14px; margin-top: var(--navbar-height); }
+      .cards-top { grid-template-columns: 1fr; }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    /* --- Top Navbar Styling --- */
+.navbar-custom {
+  margin-left: 260px; /* keeps space for sidebar */
+  background: #90ee90; /* light green */
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-custom .left span {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1e1e2f;
+}
+
+.navbar-custom .right {
+  display: flex;
+  align-items: center;
+  gap: 25px; /* spacing between icons */
+}
+
+.icon-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.icon-wrapper i {
+  font-size: 1.4rem;
+  color: #1e1e2f;
+}
+
+.icon-wrapper .badge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background: red;
+  color: #fff;
+  font-size: 0.7rem;
+  border-radius: 50%;
+  padding: 3px 6px;
+}
+
+/* Dropdown menus for email, sms, notification */
+.navbar-custom .dropdown-menu {
+  min-width: 250px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  border: none;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item i {
+  font-size: 1rem;
+  color: #0d6efd;
+}
+
+/* Profile dropdown */
+.navbar-custom .dropdown-menu .dropdown-item.text-danger {
+  color: #dc3545 !important;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item.text-danger:hover {
+  background: #f8d7da;
+  color: #a71d2a !important;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .navbar-custom {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+  .navbar-custom .left {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .navbar-custom .right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+  </style>
+</head>
+<body>
+
+  
+    <!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashsup">
+      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashsup" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Supplier</span></div>
+    </a>
+  </div>
+
+  <!-- Permissions & Roles -->
+  <!-- <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="permSub">
+      <div class="nav-left"><i class="bi bi-shield-lock-fill" style="color: green;"></i><span class="ms-2">Permissions & Roles</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="permSub" class="submenu">
+      <a href="/admin/permissions"><i class="bi bi-key-fill me-2" style="color: green;"></i> Permissions</a>
+      <a href="/admin/roles"><i class="bi bi-award-fill me-2"></i> Roles</a>
+    </div>
+  </div> -->
+
+  <!-- Manage Users -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="usersSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">Manage Users</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="usersSub" class="submenu">
+      <a href="/admin/mysuplier"><i class="bi bi-truck me-2" style="color: green;"></i> Manage Suppliers</a>
+    </div>
+  </div>
+  <!-- statutory -->
+  <div class="nav-section">
+    <a href="/admin/doc" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Statutory Rquirement</span></div>
+    </a>
+  </div>
+  <!-- Alerts -->
+  <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#alertModal">
+    <div class="nav-left"><i class="bi bi-bell-fill" style="color: green;"></i><span class="ms-2">Alerts</span></div>
+  </a>
+    <!-- supplier prequalification -->
+       <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="msgSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">prequalification</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="msgSub" class="submenu">
+      <a href="/admin/prequal"><i class="bi bi-person-badge me-2" style="color: green;"></i> My Applications</a>
+     
+    </div>
+  </div>
+
+  <!-- tenders -->
+     <div class="nav-section">
+    <a href="/admin/tenders"  class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Tender</span></div>
+    </a>
+  </div>
+   <!-- rfx -->
+         <div class="nav-section">
+    <a href="/admin/rfqs" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFQ</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfps"class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFP</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/eois" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">EOI</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfis" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFI</span></div>
+    </a>
+  </div>
+         <div class="nav-section">
+    <a href="/admin/auction " class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Reverse Auction</span></div>
+    </a>
+  </div>
+
+ 
+ 
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/reports"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
+
+    <!-- Top Navbar (light green) -->
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
+  </div>
+
+  <div class="nav-actions position-relative">
+    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="nav-icon" id="profileIcon" title="Profile">
+      <i class="bi bi-person-circle"></i>
+    </div>
+  </div>
+  
+</header>
+
+
+  <div class="content">
+    <h4 class="fw-bold text-success mb-3"><i class="bi bi-envelope-paper"></i> Expressions of Interest</h4>
+    <p>Submit your Expression of Interest for upcoming tenders.</p>
+    <form action="/eoi/submit" method="post" class="card p-4 shadow-sm">
+      <div class="mb-3">
+        <label class="form-label">Project Title</label>
+        <input type="text" class="form-control" name="title" placeholder="Enter project name">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Company Experience</label>
+        <textarea class="form-control" name="experience" rows="3"></textarea>
+      </div>
+      <button class="btn btn-success">Submit EOI</button>
+    </form>
+  </div>
+</body>
+</html>

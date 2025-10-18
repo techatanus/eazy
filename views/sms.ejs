@@ -425,23 +425,27 @@
 <div class="modal fade" id="addNotificationModal" tabindex="-1" aria-labelledby="addNotificationLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <form id="notificationForm">
+      <form id="notificationForm" method="post" action="/notify">
         <div class="modal-header">
           <h5 class="modal-title" id="addNotificationLabel"><i class="bi bi-bell"></i> Create Notification</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         
         <div class="modal-body">
+            <div class="mb-3">
+            <label for="notifTitle" class="form-label">Sender</label>
+            <input type="text" name="sender" class="form-control" id="notifTitle" placeholder="Enter notification title" required>
+          </div>
           <!-- Title -->
           <div class="mb-3">
             <label for="notifTitle" class="form-label">Title</label>
-            <input type="text" class="form-control" id="notifTitle" placeholder="Enter notification title" required>
+            <input type="text" name="title" class="form-control" id="notifTitle" placeholder="Enter notification title" required>
           </div>
 
           <!-- Type -->
           <div class="mb-3">
             <label for="notifType" class="form-label">Type</label>
-            <select class="form-select" id="notifType" required>
+            <select class="form-select" name="type" id="notifType" required>
               <option value="Announcement" selected>Email</option>
               <option value="Update">text</option>
               <option value="Alert">Notification</option>
@@ -451,7 +455,7 @@
           <!-- Message -->
           <div class="mb-3">
             <label for="notifMessage" class="form-label">Message</label>
-            <textarea class="form-control" id="notifMessage" rows="3" placeholder="Write your message here..." required></textarea>
+            <textarea name="msg" class="form-control" id="notifMessage" rows="3" placeholder="Write your message here..." required></textarea>
           </div>
         </div>
         
@@ -464,39 +468,6 @@
   </div>
 </div>
 
-<script>
-// Handle form submission (frontend demo)
-document.getElementById("notificationForm").addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const title = document.getElementById("notifTitle").value;
-  const type = document.getElementById("notifType").value;
-  const message = document.getElementById("notifMessage").value;
-
-  const now = new Date();
-  const timestamp = now.toLocaleString();
-
-  // Create new message card dynamically
-  const newCard = `
-    <div class="message-card">
-      <div class="message-header">
-        <h6><i class="bi bi-person-circle me-1"></i> Admin</h6>
-        <span class="badge bg-${type === "Announcement" ? "primary" : (type === "Update" ? "success" : "danger")}">${type}</span>
-      </div>
-      <div class="message-body">${message}</div>
-      <div class="message-meta"><i class="bi bi-clock"></i> ${timestamp}</div>
-    </div>
-  `;
-
-  // Append to Message Board
-  document.getElementById("board").insertAdjacentHTML("afterbegin", newCard);
-
-  // Reset form & close modal
-  this.reset();
-  const modal = bootstrap.Modal.getInstance(document.getElementById("addNotificationModal"));
-  modal.hide();
-});
-</script>
 
       <div class="msg-tabs">
         <!-- Tabs -->
@@ -518,33 +489,32 @@ document.getElementById("notificationForm").addEventListener("submit", function(
       <div class="tab-content" id="msgTabContent">
         
         <!-- Message Board -->
-        <div class="tab-pane fade show active" id="board" role="tabpanel">
+         <% if(message && message.length > 0){ %>
+           
+             <% message.forEach(sms =>{ %>
+                    <div class="tab-pane fade show active" id="board" role="tabpanel">
           <div class="message-card">
             <div class="message-header">
-              <h6><i class="bi bi-person-circle me-1"></i> Admin</h6>
+              <h6><i class="bi bi-person-circle me-1"></i> <%=sms.sender %></h6>
               <span class="badge bg-primary">Announcement</span>
             </div>
             <div class="message-body">
-              Tender submission deadline has been extended by 3 days. Kindly update bidders.
+              <%=sms.title %>
             </div>
             <div class="message-meta">
-              <i class="bi bi-clock"></i> 20 Sept 2025, 10:30 AM
+              <i class="bi bi-clock"></i> <%=sms.date %>
             </div>
           </div>
+            <% }) %>
 
-          <div class="message-card">
-            <div class="message-header">
-              <h6><i class="bi bi-person-circle me-1"></i> Procurement Officer</h6>
-              <span class="badge bg-success">Update</span>
+         <%} else{ %>
+
+                     <div class="message-body">
+              No notification available!
             </div>
-            <div class="message-body">
-              Supplier evaluation for Project X is scheduled for next week.
-            </div>
-            <div class="message-meta">
-              <i class="bi bi-clock"></i> 19 Sept 2025, 2:00 PM
-            </div>
-          </div>
-        </div>
+         <%}%>
+
+      
 
         <!-- Birthday Messages -->
         <!-- <div class="tab-pane fade" id="bday" role="tabpanel">

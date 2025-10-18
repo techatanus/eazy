@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Approve Tenders - Client</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background:#f7f9fb; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    .page-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 8px 26px rgba(19,34,15,0.04); }
+    .tab-btn { min-width:120px; text-align:center; }
+    .table thead th { background: #e9f7ef; }
+    .small-muted { font-size: .85rem; color: #6c757d; }
+    .action-btns .btn { min-width: 90px; }
+    .badge-status { font-weight:600; }
+  </style>
+  <style>
+    :root{
+      --sidebar-width: 260px;
+      --navbar-height: 64px;
+      --accent: #0d6efd;
+      --muted: #6c757d;
+    }
+
+    html,body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial; background: #f8f9fa; }
+
+    /* NAVBAR (light green) */
+
+    .topbar {
+      height: var(--navbar-height);
+      background: #7dd170; /* light green */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: fixed;
+      left: var(--sidebar-width);
+      right: 0;
+      top: 0;
+      z-index: 1100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: left .25s ease;
+    
+    }
+
+     
+    .nav-actions { display: flex; align-items: center; gap: 15px; }
+    .nav-icon { cursor: pointer; font-size: 1.2rem; position: relative; }
+    .icon-badge::after { content: attr(data-count); position: absolute; top: -6px; right: -8px; background: red; color: white; font-size: 0.7rem; padding: 2px 5px; border-radius: 50%; display: none; }
+    .icon-badge[data-count]:not([data-count="0"])::after { display: inline-block; }
+    /* brand */
+    .brand {
+      font-weight: 700;
+      color: #134611;
+    }
+
+    /* navbar right icons spacing & style */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      margin-left: 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #13340f;
+      transition: background .2s, transform .12s;
+    }
+    .nav-icon:hover { background: rgba(0,0,0,0.06); transform: translateY(-1px); }
+    .nav-icon .bi { font-size: 1.15rem; }
+
+    /* small badge for counts (optional style) */
+    .icon-badge {
+      position: relative;
+    }
+    .icon-badge .badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      font-size: 0.6rem;
+    }
+
+    /* layout: sidebar + content */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar (light) */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: #f1f5f2;
+      padding: 18px 12px;
+      padding-top: calc(var(--navbar-height) + 14px); /* start under navbar */
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      overflow-y: auto;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+      transition: transform .28s ease;
+      z-index: 1050;
+    }
+    .sidebar.collapsed { transform: translateX(-110%); }
+
+    .sidebar .nav-section { margin-bottom: 6px; }
+    .sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 10px;
+      color: #213426;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-bottom: 4px;
+      transition: background .18s;
+    }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: orange; }
+
+    .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
+    .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
+
+    /* submenu slide (animated) */
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .32s ease, padding .2s ease;
+      padding-left: 36px;
+    }
+    .submenu.show {
+      max-height: 420px; /* enough room */
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    .submenu a {
+      display:block;
+      padding:8px 12px;
+      text-decoration:none;
+      color:#183f28;
+      border-radius:6px;
+      margin-bottom:4px;
+    }
+    .submenu a:hover { background:#e6f0e6; color:orange; }
+
+    /* main content area */
+    .content {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--navbar-height);
+      padding: 22px;
+      flex: 1;
+      transition: margin-left .28s ease;
+    }
+    .sidebar.collapsed ~ .content {
+      margin-left: 0;
+    }
+    .sidebar.collapsed ~ .topbar { left: 0; }
+
+    /* cards grid: 3 on top, 4 on next row */
+    .cards-top {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .cards-bottom {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+       
+    }
+
+    .stat-card {
+     
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      cursor:pointer;
+      transition: transform .16s ease, box-shadow .16s;
+       color: white;
+    }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.06); }
+    .stat-icon {
+      width:56px;height:56px;border-radius:10px;
+      display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:white;
+      flex-shrink:0;
+    }
+    .stat-body { flex:1; }
+    .stat-title { font-size:0.85rem;color:var(--muted); margin:0; }
+    .stat-value { font-size:1.55rem;font-weight:700;margin:4px 0 0;color:#222; }
+
+    /* colored icon backgrounds */
+    .c-admin{background: linear-gradient(135deg,#3b82f6,#2563eb);}  /* blue */
+    .c-client{background: linear-gradient(135deg,#10b981,#059669);} /* green */
+    .c-supplier{background: linear-gradient(135deg,#fb923c,#f97316);}/* orange */
+    .c-open{background: linear-gradient(135deg,#06b6d4,#0891b2);}    /* teal */
+    .c-closed{background: linear-gradient(135deg,#94a3b8,#6b7280);}  /* gray */
+    .c-applied{background: linear-gradient(135deg,#f59e0b,#d97706);} /* amber */
+    .c-approved{background: linear-gradient(135deg,#7c3aed,#6d28d9);} /* purple */
+
+    /* Open tenders table */
+    .table-card {
+      margin-top: 8px;
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+    }
+
+    /* popups anchored to icons */
+    .floating-popup {
+      position: absolute;
+      width: 260px;
+      max-width: 40vw;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 10px;
+      z-index: 1200;
+      display: none;
+    }
+    .floating-popup .item {
+      display:flex; gap:10px; align-items:center; padding:8px 6px; border-bottom:1px solid #f0f0f0;
+    }
+    .floating-popup .item:last-child{border-bottom:none;}
+    .floating-popup .item .bi { font-size:1.05rem; color:var(--accent); width:28px; text-align:center; }
+    .floating-popup h6{margin:0 0 8px 0;font-size:0.95rem;color:var(--accent);}
+
+    /* Responsive */
+    @media (max-width: 991px) {
+      .cards-top { grid-template-columns: repeat(2,1fr); }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 768px) {
+      .topbar { left: 0; padding: 0 10px; }
+      .sidebar { transform: translateX(-110%); position: fixed; z-index:1300; }
+      .sidebar.visible { transform: translateX(0); }
+      .content { margin-left: 0; padding: 14px; margin-top: var(--navbar-height); }
+      .cards-top { grid-template-columns: 1fr; }
+      .cards-bottom { grid-template-columns: repeat(2,1fr); }
+    }
+    /* --- Top Navbar Styling --- */
+.navbar-custom {
+  margin-left: 260px; /* keeps space for sidebar */
+  background: #90ee90; /* light green */
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-custom .left span {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1e1e2f;
+}
+
+.navbar-custom .right {
+  display: flex;
+  align-items: center;
+  gap: 25px; /* spacing between icons */
+}
+
+.icon-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.icon-wrapper i {
+  font-size: 1.4rem;
+  color: #1e1e2f;
+}
+
+.icon-wrapper .badge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background: red;
+  color: #fff;
+  font-size: 0.7rem;
+  border-radius: 50%;
+  padding: 3px 6px;
+}
+
+/* Dropdown menus for email, sms, notification */
+.navbar-custom .dropdown-menu {
+  min-width: 250px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  border: none;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item i {
+  font-size: 1rem;
+  color: #0d6efd;
+}
+
+/* Profile dropdown */
+.navbar-custom .dropdown-menu .dropdown-item.text-danger {
+  color: #dc3545 !important;
+}
+
+.navbar-custom .dropdown-menu .dropdown-item.text-danger:hover {
+  background: #f8d7da;
+  color: #a71d2a !important;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .navbar-custom {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+  .navbar-custom .left {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .navbar-custom .right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+  </style>
+</head>
+<body>
+
+  <div class="layout">
+
+    <!-- Sidebar (light) -->
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashcl">
+      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashcl" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Client</span></div>
+    </a>
+  </div>
+
+  <!-- Approvals -->
+  <div class="nav-section">
+    <a href="/admin/approve" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Approvals</span></div>
+    </a>
+  </div>
+<!-- open bids -->
+  <div class="nav-section">
+    <a href="/admin/openbids" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Open bids</span></div>
+    </a>
+  </div>
+  <!-- closed bids -->
+     <div class="nav-section">
+    <a href="/admin/closedbids" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Closed bids</span></div>
+    </a>
+  </div>
+    <div class="nav-section">
+    <a href="/admin/qa_client" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">QA</span></div>
+    </a>
+  </div>
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/archive_client"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
+
+    <!-- Top Navbar (light green) -->
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
+  </div>
+
+  <div class="nav-actions position-relative">
+    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="nav-icon" id="profileIcon" title="Profile">
+      <i class="bi bi-person-circle"></i>
+    </div>
+  </div>
+  
+</header>
+  <div class="content">
+    <div class="page-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0 text-success"><i class="bi bi-check2-square"></i> Tender Approvals</h4>
+        <div>
+          <small class="small-muted">Client dashboard — review & approve tenders created by Admin</small>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mb-3" id="approvalTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active tab-btn" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">Pending</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link tab-btn" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab" aria-controls="approved" aria-selected="false">Approved</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link tab-btn" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab" aria-controls="rejected" aria-selected="false">Rejected</button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="approvalTabsContent">
+        <!-- Pending -->
+        <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" id="pendingTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Code</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Created</th>
+                  <th>Closing</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- EXAMPLE ROWS: replace with server-side data -->
+                <tr data-id="101">
+                  <td>1</td>
+                  <td>TND-101</td>
+                  <td>Supply of Office Chairs</td>
+                  <td>Furniture</td>
+                  <td>2025-10-01</td>
+                  <td>2025-11-01</td>
+                  <td class="action-btns">
+                    <button class="btn btn-sm btn-success me-1" data-action="approve" data-id="101"><i class="bi bi-check2"></i> Approve</button>
+                    <button class="btn btn-sm btn-danger" data-action="reject" data-id="101"><i class="bi bi-x-lg"></i> Reject</button>
+                  </td>
+                </tr>
+
+                <tr data-id="102">
+                  <td>2</td>
+                  <td>TND-102</td>
+                  <td>Network Cabling</td>
+                  <td>IT</td>
+                  <td>2025-10-05</td>
+                  <td>2025-11-10</td>
+                  <td class="action-btns">
+                    <button class="btn btn-sm btn-success me-1" data-action="approve" data-id="102"><i class="bi bi-check2"></i> Approve</button>
+                    <button class="btn btn-sm btn-danger" data-action="reject" data-id="102"><i class="bi bi-x-lg"></i> Reject</button>
+                  </td>
+                </tr>
+                <!-- END example rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Approved -->
+        <div class="tab-pane fade" id="approved" role="tabpanel" aria-labelledby="approved-tab">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" id="approvedTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Code</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Approved On</th>
+                  <th>Approved By</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Rejected -->
+        <div class="tab-pane fade" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" id="rejectedTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Code</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Rejected On</th>
+                  <th>Reason</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPROVE CONFIRMATION MODAL -->
+  <div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title"><i class="bi bi-check2-circle"></i> Approve Tender</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p id="approveModalText">Are you sure you want to approve this tender?</p>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="notifySuppliers" checked>
+            <label class="form-check-label small-muted" for="notifySuppliers">Notify suppliers about approval</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button id="confirmApproveBtn" class="btn btn-success btn-sm">Yes, Approve</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REJECT MODAL -->
+  <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title"><i class="bi bi-x-circle"></i> Reject Tender</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="rejectForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Reason for rejection (required)</label>
+              <textarea class="form-control" id="rejectReason" name="reason" rows="4" required></textarea>
+            </div>
+            <div class="form-text small-muted">This reason will be stored and visible to admins and in tender audit logs.</div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger btn-sm">Reject Tender</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap + JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Client-side script to handle approve/reject UI + backend calls
+    (function () {
+      const pendingTable = document.getElementById('pendingTable');
+      const approvedTableBody = document.querySelector('#approvedTable tbody');
+      const rejectedTableBody = document.querySelector('#rejectedTable tbody');
+
+      let currentTargetId = null;
+      const approveModal = new bootstrap.Modal(document.getElementById('approveModal'));
+      const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+
+      // Delegate click on pending table for approve/reject buttons
+      pendingTable.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const action = btn.getAttribute('data-action');
+        const id = btn.getAttribute('data-id') || btn.dataset.id || (btn.closest('tr') && btn.closest('tr').dataset.id);
+        if (!id) return;
+
+        currentTargetId = id;
+        if (action === 'approve') {
+          document.getElementById('approveModalText').textContent = `Approve tender ${id}?`;
+          approveModal.show();
+        } else if (action === 'reject') {
+          document.getElementById('rejectReason').value = '';
+          rejectModal.show();
+        }
+      });
+
+      // Confirm approve
+      document.getElementById('confirmApproveBtn').addEventListener('click', async () => {
+        if (!currentTargetId) return;
+        // optional: read checkbox
+        const notify = document.getElementById('notifySuppliers').checked;
+
+        try {
+          // POST to backend to mark approved (replace endpoint as needed)
+          const res = await fetch('/client/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tender_id: currentTargetId, notify })
+          });
+          if (!res.ok) throw new Error('Server error');
+
+          // Move row from pending to approved table (client-side update)
+          moveRowToApproved(currentTargetId, 'You'); // 'You' placeholder for client name
+          approveModal.hide();
+          currentTargetId = null;
+        } catch (err) {
+          console.error(err);
+          alert('Error approving tender — refresh and try again.');
+        }
+      });
+
+      // Handle reject form submission
+      document.getElementById('rejectForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentTargetId) return;
+        const reason = document.getElementById('rejectReason').value.trim();
+        if (!reason) return alert('Please provide a reason.');
+
+        try {
+          const res = await fetch('/client/reject', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tender_id: currentTargetId, reason })
+          });
+          if (!res.ok) throw new Error('Server error');
+
+          // Move row from pending to rejected
+          moveRowToRejected(currentTargetId, reason);
+          rejectModal.hide();
+          currentTargetId = null;
+        } catch (err) {
+          console.error(err);
+          alert('Error rejecting tender — refresh and try again.');
+        }
+      });
+
+      // helpers to move rows between tables
+      function findPendingRow(id) {
+        return pendingTable.querySelector(`tr[data-id="${id}"]`);
+      }
+
+      function moveRowToApproved(id, approvedBy = '') {
+        const row = findPendingRow(id);
+        if (!row) return;
+        const cells = row.querySelectorAll('td');
+        // create new row in approved table
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+          <td>${approvedTableBody.children.length + 1}</td>
+          <td>${cells[1].textContent}</td>
+          <td>${cells[2].textContent}</td>
+          <td>${cells[3].textContent}</td>
+          <td>${new Date().toISOString().slice(0,10)}</td>
+          <td>${approvedBy}</td>
+          <td class="small-muted">Approved</td>
+        `;
+        approvedTableBody.appendChild(newRow);
+        row.remove();
+      }
+
+      function moveRowToRejected(id, reason) {
+        const row = findPendingRow(id);
+        if (!row) return;
+        const cells = row.querySelectorAll('td');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+          <td>${rejectedTableBody.children.length + 1}</td>
+          <td>${cells[1].textContent}</td>
+          <td>${cells[2].textContent}</td>
+          <td>${cells[3].textContent}</td>
+          <td>${new Date().toISOString().slice(0,10)}</td>
+          <td>${escapeHtml(reason)}</td>
+          <td><button class="btn btn-sm btn-outline-secondary" onclick="viewReason('${id}')">View</button></td>
+        `;
+        rejectedTableBody.appendChild(newRow);
+        row.remove();
+      }
+
+      // small helper
+      function escapeHtml(str) {
+        return str.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+      }
+
+      // optional: view reason (can be wired to modal)
+      window.viewReason = function(tid) {
+        alert('View reason for tender ' + tid + '. (Implement modal if needed)');
+      };
+
+      // initial: (you should probably populate approved/rejected from server)
+    })();
+  </script>
+    <!-- Bootstrap JS (for modal) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Sidebar submenu toggles (preserve initial markup, only enhance)
+    document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        const target = this.getAttribute('data-target');
+        const el = document.getElementById(target);
+        if (!el) return;
+        el.classList.toggle('show');
+        // rotate plus icon visual: toggle caret or plus (optional)
+        const icon = this.querySelector('.bi');
+        if (icon) icon.classList.toggle('bi-rotate-90');
+      });
+    });
+
+    // Mobile hamburger toggles the sidebar visibility
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const topbar = document.getElementById('topbar');
+    const content = document.getElementById('content');
+
+    hamburger && hamburger.addEventListener('click', ()=> {
+      sidebar.classList.toggle('visible'); // CSS handles transform for small screens
+    });
+
+    // Global: close any open popup
+    function closeAllFloating(){
+      document.querySelectorAll('.floating-popup, .floating-popup').forEach(el => el.style.display = 'none');
+      document.getElementById('profileMenu').style.display = 'none';
+    }
+
+    // Position and show a floating popup next to the clicked icon
+    function showPopup(popupEl, triggerEl){
+      closeAllFloating();
+      const rect = triggerEl.getBoundingClientRect();
+      const popup = popupEl;
+      // place above or below depending on available space
+      const scrollY = window.scrollY || window.pageYOffset;
+      let top = rect.bottom + scrollY + 8;
+      let left = Math.min(window.innerWidth - popup.offsetWidth - 12, rect.left + window.scrollX - popup.offsetWidth/2 + rect.width/2);
+      popup.style.top = top + 'px';
+      popup.style.left = left + 'px';
+      popup.style.display = 'block';
+    }
+
+    // tidy helper to find elements
+    const emailIcon = document.getElementById('emailIcon');
+    const smsIcon = document.getElementById('smsIcon');
+    const notifIcon = document.getElementById('notifIcon');
+    const emailPopup = document.getElementById('emailPopup');
+    const smsPopup = document.getElementById('smsPopup');
+    const notifPopup = document.getElementById('notifPopup');
+    const profileIcon = document.getElementById('profileIcon');
+    const profileMenu = document.getElementById('profileMenu');
+
+    // toggle handlers
+    emailIcon && emailIcon.addEventListener('click', (e)=> {
+      showPopup(emailPopup, emailIcon);
+      e.stopPropagation();
+    });
+    smsIcon && smsIcon.addEventListener('click', (e)=> {
+      showPopup(smsPopup, smsIcon);
+      e.stopPropagation();
+    });
+    notifIcon && notifIcon.addEventListener('click', (e)=> {
+      showPopup(notifPopup, notifIcon);
+      e.stopPropagation();
+    });
+
+    profileIcon && profileIcon.addEventListener('click', (e)=>{
+      // position profile menu under the icon (right corner)
+      closeAllFloating();
+      const rect = profileIcon.getBoundingClientRect();
+      const scrollY = window.scrollY || window.pageYOffset;
+      profileMenu.style.top = rect.bottom + scrollY + 8 + 'px';
+      profileMenu.style.left = (rect.left + rect.width/2 - profileMenu.offsetWidth/2) + 'px';
+      profileMenu.style.display = 'block';
+      e.stopPropagation();
+    });
+
+    // click outside closes popups
+    document.addEventListener('click', function(e){
+      // if click inside any floating popup or icon, ignore
+      const targets = [emailPopup, smsPopup, notifPopup, profileMenu];
+      if (!e.target.closest('.nav-icon') && !targets.some(t => t && t.contains(e.target))) {
+        closeAllFloating();
+      }
+    });
+
+    // Card modal: show appropriate content when a card is clicked
+    document.querySelectorAll('.stat-card').forEach(card=>{
+      card.addEventListener('click', function(){
+        const title = this.getAttribute('data-card') || 'Details';
+        const titleEl = document.getElementById('detailModalTitle');
+        const bodyEl = document.getElementById('detailModalBody');
+        titleEl.textContent = title;
+        bodyEl.innerHTML = `<strong>${title}</strong><br/>This is demo content for <em>${title}</em>. You can wire this to real data or link the 'View All' to the relevant page.`;
+        // open bootstrap modal programmatically
+        const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+        modal.show();
+      });
+    });
+
+    // close popups on resize to avoid misplaced popup
+    window.addEventListener('resize', closeAllFloating);
+
+  </script>
+</body>
+</html>

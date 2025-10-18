@@ -381,11 +381,141 @@
   </style>
 </head>
 <body>
-   <!-- Sidebar (light) -->
-   <%- include('partials/sidebar') %>
+    <!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashsup">
+      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashsup" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Supplier</span></div>
+    </a>
+  </div>
+
+  <!-- Permissions & Roles -->
+  <!-- <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="permSub">
+      <div class="nav-left"><i class="bi bi-shield-lock-fill" style="color: green;"></i><span class="ms-2">Permissions & Roles</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="permSub" class="submenu">
+      <a href="/admin/permissions"><i class="bi bi-key-fill me-2" style="color: green;"></i> Permissions</a>
+      <a href="/admin/roles"><i class="bi bi-award-fill me-2"></i> Roles</a>
+    </div>
+  </div> -->
+
+  <!-- Manage Users -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="usersSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">Manage Users</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="usersSub" class="submenu">
+      <a href="/admin/mysuplier"><i class="bi bi-truck me-2" style="color: green;"></i> Manage Suppliers</a>
+    </div>
+  </div>
+  <!-- statutory -->
+  <div class="nav-section">
+    <a href="/admin/doc" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Statutory Rquirement</span></div>
+    </a>
+  </div>
+  <!-- Alerts -->
+  <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#alertModal">
+    <div class="nav-left"><i class="bi bi-bell-fill" style="color: green;"></i><span class="ms-2">Alerts</span></div>
+  </a>
+    <!-- supplier prequalification -->
+       <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="msgSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">prequalification</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="msgSub" class="submenu">
+      <a href="/admin/prequal"><i class="bi bi-person-badge me-2" style="color: green;"></i> My Applications</a>
+     
+    </div>
+  </div>
+
+  <!-- tenders -->
+     <div class="nav-section">
+    <a href="/admin/tenders"  class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Tender</span></div>
+    </a>
+  </div>
+   <!-- rfx -->
+         <div class="nav-section">
+    <a href="/admin/rfq" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFQ</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfp"class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFP</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/eoi" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">EOI</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfi" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFI</span></div>
+    </a>
+  </div>
+         <div class="nav-section">
+    <a href="/admin/auction " class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Reverse Auction</span></div>
+    </a>
+  </div>
+
+ 
+ 
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/reports"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
 
     <!-- Top Navbar (light green) -->
-     <%- include('partials/topbar') %>
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
+  </div>
+
+  <div class="nav-actions position-relative">
+    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="nav-icon" id="profileIcon" title="Profile">
+      <i class="bi bi-person-circle"></i>
+    </div>
+  </div>
+  
+</header>
+
+
 <div class="content" >
   <h2 class="text-success mb-4"> Registration,Statutory Requirements and Compliance</h2>
 
@@ -424,30 +554,30 @@
 
           <!-- Registration Form -->
           <div class="tab-pane fade show active" id="registration" role="tabpanel" >
-            <form id="registrationForm">
+            <form id="registrationForm" method="post" action="/regdetails" >
               <h6 class="section-title text-success">Company Registration</h6>
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Company Name</label>
-                  <input type="text" class="form-control" required>
+                  <input type="text" value="<%=supplier.name %>" name="cname" class="form-control" required readonly>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Email</label>
-                  <input type="email" class="form-control" required>
+                  <input type="email" name="email" value="<%=supplier.email %>" class="form-control" required readonly>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Website</label>
-                  <input type="url" class="form-control">
+                  <input type="url" name="website" class="form-control">
                 </div>
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Phone</label>
-                  <input type="tel" class="form-control" required>
+                  <input type="tel" name="tel" class="form-control" required>
                 </div>
 
                 <!-- Location: Country -> County -> Subcounty -->
                 <div class="col-md-4 mb-3">
                   <label class="form-label">Country</label>
-                  <select class="form-select" id="countrySelect">
+                  <select class="form-select" name="country" id="countrySelect">
                     <option value="">Select Country</option>
                     <option value="Kenya">Kenya</option>
                     <option value="Uganda">Uganda</option>
@@ -455,20 +585,20 @@
                 </div>
                 <div class="col-md-4 mb-3">
                   <label class="form-label">County</label>
-                  <select class="form-select" id="countySelect">
+                  <select class="form-select" name="county" id="countySelect">
                     <option value="">Select County</option>
                   </select>
                 </div>
                 <div class="col-md-4 mb-3">
                   <label class="form-label">Subcounty</label>
-                  <select class="form-select" id="subcountySelect">
+                  <select class="form-select" name="subcounty" id="subcountySelect">
                     <option value="">Select Subcounty</option>
                   </select>
                 </div>
 
                 <div class="col-md-6 mb-3">
                   <label class="form-label">Type of Entity</label>
-                  <select class="form-select">
+                  <select class="form-select" name="entity">
                     <option value="">Select Ownership</option>
                     <option>Private</option>
                     <option>Public</option>
@@ -478,7 +608,7 @@
                 </div>
                    <div class="col-md-6 mb-3">
                   <label class="form-label">Attach company profile</label>
-                  <input type="file" class="form-control" required>
+                  <input type="file"  name="profile" class="form-control" required accept=".pdf">
                 </div>
               </div>
             </form>
@@ -486,44 +616,45 @@
 
           <!-- Statutory Requirement Form -->
           <div class="tab-pane fade" id="statutory" role="tabpanel">
-            <form id="statutoryForm">
+            <form id="statutoryForm" action="/sub_stat" method="post">
               <h6 class="section-title text-success">Statutory Requirements</h6>
               <div class="mb-3">
                 <label class="form-label">Certificate of Incorporation</label>
-                <input type="file" class="form-control">
+                <input type="file" name="coi" class="form-control">
               </div>
               <div class="mb-3">
                 <label class="form-label">Company Registration Number</label>
-                <input type="text" class="form-control">
+                <input type="text" name="crn" class="form-control">
               </div>
               <div class="mb-3">
                 <label class="form-label">Shareholding & Directors</label>
-                <input type="file" class="form-control">
+                <input type="file" name="sad" class="form-control">
               </div>
               <div class="mb-3">
                 <label class="form-label">Number of Directors</label>
-                <input type="number" class="form-control">
+                <input type="number" name="nod" class="form-control">
               </div>
               <div class="mb-3">
                 <label class="form-label">KRA PIN</label>
-                <input type="text" class="form-control">
+                <input type="text" name="kra" class="form-control">
               </div>
               <div class="mb-3">
                 <label class="form-label">Tax Compliance Certificate</label>
-                <input type="file" class="form-control">
+                <input type="file" name="tcc" class="form-control">
               </div>
                 <div class="mb-3">
-                <label class="form-label">input label</label>
-                <input type="number" class="form-control">
+                <label class="form-label">TCC_NO</label>
+                <input type="number" name="tcno" class="form-control">
               </div>
               <div class="mb-3">
                 <label class="form-label">Business Permit</label>
-                <input type="file" class="form-control mb-2">
-                <input type="date" class="form-control" placeholder="Expiry Date">
+                <input type="file" name="permit" class="form-control mb-2">
+                <label class="form-label for="">Expiry Date</label>
+                <input type="date" name="expd" class="form-control" placeholder="Expiry Date">
               </div>
               <div class="mb-3">
                 <label class="form-label">AGPO Category</label>
-                <select class="form-select">
+                <select class="form-select" name="agpo">
                   <option value="">Select</option>
                   <option>Youth</option>
                   <option>Women</option>
@@ -535,13 +666,13 @@
 
         <!-- Compliance Form -->
 <div class="tab-pane fade" id="compliance" role="tabpanel">
-  <form id="complianceForm">
+  <form id="complianceForm" action="/comply" method="post">
     <h6 class="section-title text-success">Compliance Documents</h6>
 
     <div id="complianceFields">
       <div class="mb-3 compliance-group">
         <label class="form-label">Industry Specific License(s)</label>
-        <input type="file" class="form-control" multiple>
+        <input type="file" name="license" class="form-control" multiple>
       </div>
     </div>
 
@@ -596,7 +727,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const complianceFields = document.getElementById("complianceFields");
   const addBtn = document.getElementById("addComplianceField");
   const fieldType = document.getElementById("fieldType");
-  const dropdownDiv = document.getElementById("dropdownOptionsDiv");
+  const dropdownDiv = document.getElementById("fieldOptionsDiv");
 
   // Toggle dropdown options input
   fieldType.addEventListener("change", () => {
@@ -609,67 +740,108 @@ document.addEventListener("DOMContentLoaded", function () {
     modal.show();
   });
 
-  // Function to add new field
+  // Drop-in replacement: global function that reads DOM elements on call
   window.addComplianceField = function () {
-    const label = document.getElementById("fieldLabel").value.trim();
-    const type = fieldType.value;
-    const dropdownOptions = document.getElementById("dropdownOptions").value;
+    try {
+      // grab DOM elements fresh each call (avoids scope issues)
+      const labelEl = document.getElementById("fieldLabel");
+      const fieldTypeEl = document.getElementById("fieldType");
+      const dropdownOptsEl = document.getElementById("dropdownOptions");
+      const complianceFields = document.getElementById("complianceFields");
+      const fieldForm = document.getElementById("fieldForm");
+      const dropdownDiv = document.getElementById("fieldOptionsDiv");
+      const modalEl = document.getElementById("complianceFieldModal");
 
-    if (!label) {
-      alert("Please enter field name");
-      return;
-    }
+      // quick checks
+      if (!labelEl || !fieldTypeEl || !complianceFields || !fieldForm) {
+        console.error("Required DOM elements missing. Check IDs: fieldLabel, fieldType, dropdownOptions, complianceFields, fieldForm.");
+        alert("Internal error: required form elements are missing. Check console for details.");
+        return;
+      }
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "mb-3 compliance-group";
+      const label = labelEl.value.trim();
+      const type = fieldTypeEl.value;
+      const dropdownOptions = dropdownOptsEl ? dropdownOptsEl.value : "";
 
-    // Add label
-    const lbl = document.createElement("label");
-    lbl.className = "form-label";
-    lbl.innerText = label;
-    wrapper.appendChild(lbl);
+      if (!label) {
+        alert("Please enter field name");
+        return;
+      }
 
-    let input;
+      // generate name from label (lowercase, spaces -> underscores)
+      const fieldName = label.toLowerCase().replace(/\s+/g, "_").replace(/[^\w\-]/g, "");
 
-    if (type === "select") {
-      input = document.createElement("select");
-      input.className = "form-select";
-      dropdownOptions.split(",").forEach(opt => {
-        let option = document.createElement("option");
-        option.value = opt.trim();
-        option.textContent = opt.trim();
-        input.appendChild(option);
+      const wrapper = document.createElement("div");
+      wrapper.className = "mb-3 compliance-group";
+
+      // Add label
+      const lbl = document.createElement("label");
+      lbl.className = "form-label";
+      lbl.innerText = label;
+      lbl.setAttribute("for", fieldName);
+      wrapper.appendChild(lbl);
+
+      let input;
+
+      if (type === "select") {
+        input = document.createElement("select");
+        input.className = "form-select";
+        input.name = fieldName;
+        input.id = fieldName;
+
+        // only add options if any provided; ignore empty strings
+        dropdownOptions.split(",").map(o => o.trim()).filter(Boolean).forEach(opt => {
+          const option = document.createElement("option");
+          option.value = opt;
+          option.textContent = opt;
+          input.appendChild(option);
+        });
+      } else {
+        input = document.createElement("input");
+        input.type = type;
+        input.className = "form-control";
+        input.name = fieldName;
+        input.id = fieldName;
+        input.placeholder = label;
+      }
+
+      wrapper.appendChild(input);
+
+      // Add remove button
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn btn-sm btn-danger mt-2";
+      removeBtn.innerHTML = `<i class="bi bi-trash"></i> Remove`;
+      removeBtn.addEventListener("click", function () {
+        wrapper.remove();
       });
-    } else {
-      input = document.createElement("input");
-      input.type = type;
-      input.className = "form-control";
+      wrapper.appendChild(removeBtn);
+
+      complianceFields.appendChild(wrapper);
+
+      // Reset modal form (if present)
+      try {
+        fieldForm.reset();
+      } catch (e) {
+        console.warn("Could not reset fieldForm:", e);
+      }
+      if (dropdownDiv) dropdownDiv.classList.add("d-none");
+
+      // Close bootstrap modal if present
+      if (modalEl) {
+        const bsModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        bsModal.hide();
+      }
+
+      console.log("Added compliance field:", { label, fieldName, type });
+    } catch (err) {
+      console.error("Error in addComplianceField:", err);
+      alert("An error occurred. Check console for details.");
     }
-
-    wrapper.appendChild(input);
-
-    // Add remove button
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.className = "btn btn-sm btn-danger mt-2";
-    removeBtn.innerHTML = `<i class="bi bi-trash"></i> Remove`;
-    removeBtn.addEventListener("click", function () {
-      wrapper.remove();
-    });
-    wrapper.appendChild(removeBtn);
-
-    complianceFields.appendChild(wrapper);
-
-    // Reset modal form
-    document.getElementById("fieldForm").reset();
-    dropdownDiv.classList.add("d-none");
-
-    // Close modal
-    const modal = bootstrap.Modal.getInstance(document.getElementById("complianceFieldModal"));
-    modal.hide();
   };
-});
+}); // <-- missing closure added here
 </script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -722,10 +894,10 @@ document.addEventListener("DOMContentLoaded", function () {
         <button class="nav-link active text-success" id="reg-tab" data-bs-toggle="tab" data-bs-target="#reg" type="button" role="tab">Registration Details</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link text-success" id="statutory-tab" data-bs-toggle="tab" data-bs-target="#statutory" type="button" role="tab">Statutory Documents</button>
+        <button class="nav-link text-success" id="statutory-tab" data-bs-toggle="tab" data-bs-target="#stat" type="button" role="tab">Statutory Documents</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link text-success" id="compliance-tab" data-bs-toggle="tab" data-bs-target="#compliance" type="button" role="tab">Compliance Documents</button>
+        <button class="nav-link text-success" id="compliance-tab" data-bs-toggle="tab" data-bs-target="#comp" type="button" role="tab">Compliance Documents</button>
       </li>
     </ul>
 
@@ -742,68 +914,89 @@ document.addEventListener("DOMContentLoaded", function () {
             <tr>
               <th style="background: #98fb98;">#</th>
               <th style="background: #98fb98;">Company Name</th>
-              <th style="background: #98fb98;">Registration No.</th>
-              <th style="background: #98fb98;">Date Registered</th>
+              <th style="background: #98fb98;">Email.</th>
+              <th style="background: #98fb98;">Website</th>
+              <th style="background: #98fb98;">Phone</th>
               <th style="background: #98fb98;">Location</th>
               <th style="background: #98fb98;">Ownership</th>
-              <th style="background: #98fb98;">Status</th>
+              <!-- <th style="background: #98fb98;">Status</th> -->
               <th style="background: #98fb98;">Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
+           <%if(regdetail && regdetail.length > 0 ) { %>
+                   <%regdetail.forEach(regs =>{ %>
+                         <tr>
               <td>1</td>
-              <td>DevTech Ltd</td>
-              <td>BN-12345</td>
-              <td>2020-01-15</td>
-              <td>Location</td>
-              <td>Ownership</td>
-              <td><span class="badge bg-success">Verified</span></td>
+              <td><%=regs.cname %></td>
+              <td><%=regs.email %></td>
+              <td><%=regs.website %></td>
+              <td><%=regs.tel %></td>
+              <td><%=regs.county %></td>
+              <td><%=regs.entity%></td>
+              <!-- <td><span class="badge bg-success">Verified</span></td> -->
               <td>
                 <button class="btn btn-sm btn-info"><i class="bi bi-eye"></i></button>
                 <button class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></button>
                 <button class="btn btn-sm btn-secondary"><i class="bi bi-upload"></i></button>
               </td>
             </tr>
+                 <%  }) %>
+           
+           <%} else{ %>
+<td>No registration details uploaded</td>
+
+           <%}%>
           </tbody>
         </table>
       </div>
 
       <!-- Statutory Documents Table -->
-      <div class="tab-pane fade" id="statutory" role="tabpanel">
+      <div class="tab-pane fade" id="stat" role="tabpanel">
         <h5 class="mb-3 text-success">Statutory Documents</h5>
         <table class="table table-bordered table-hover align-middle">
           <thead class="">
             <tr>
               <th>#</th>
-              <th>Document Type</th>
-              <th>Document Number</th>
-              <th>Expiry Date</th>
-              <th>Uploaded On</th>
-              <th>Status</th>
+              <th>Cert of Incorporation</th>
+              <th>Company Reg NO</th>
+              <th>shareholder</th>
+              <th>Directors</th>
+              <th>Expiry</th>
+              <th>AGPO</th>
               <th>Action</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
+         <tbody>
+           <%if(stats && stats.length > 0 ) { %>
+                   <%stats.forEach(stat =>{ %>
+                         <tr>
               <td>1</td>
-              <td>KRA Tax Compliance</td>
-              <td>KRA-56789</td>
-              <td>2026-06-30</td>
-              <td>2025-09-21</td>
-              <td><span class="badge bg-warning text-dark">Pending</span></td>
+              <td><%=stat.coi %></td>
+              <td><%=stat.crn %></td>
+              <td><%=stat.sad %></td>
+              <td><%=stat.nod %></td>
+              <td><%=stat.expd %></td>
+              <td><%=stat.agpo_category%></td>
+              <!-- <td><span class="badge bg-success">Verified</span></td> -->
               <td>
                 <button class="btn btn-sm btn-info"><i class="bi bi-eye"></i></button>
                 <button class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></button>
                 <button class="btn btn-sm btn-secondary"><i class="bi bi-upload"></i></button>
               </td>
             </tr>
+                 <%  }) %>
+           
+           <%} else{ %>
+<td>No registration details uploaded</td>
+
+           <%}%>
           </tbody>
         </table>
       </div>
 
       <!-- Compliance Documents Table -->
-      <div class="tab-pane fade" id="compliance" role="tabpanel">
+      <div class="tab-pane fade" id="comp" role="tabpanel">
         <h5 class="mb-3 text-success">Compliance Documents</h5>
         <table class="table table-bordered table-hover align-middle">
           <thead class="table-success">
@@ -845,7 +1038,6 @@ document.addEventListener("DOMContentLoaded", function () {
 </div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   const saveBtn = document.getElementById("saveSupplier");
   const tableBody = document.getElementById("supplierTable");
@@ -1074,6 +1266,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 </script>
- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

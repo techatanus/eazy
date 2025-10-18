@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Supplier Questionnaire</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    body { background-color: #f8f9fa; }
+    .question-card { border-left: 4px solid #198754; }
+    .progress-bar { transition: width 0.3s ease; }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">Supplier Portal</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a href="/tenders" class="nav-link">Tenders</a></li>
+          <li class="nav-item"><a href="/rfq" class="nav-link">RFQ</a></li>
+          <li class="nav-item"><a href="/rfp" class="nav-link">RFP</a></li>
+          <li class="nav-item"><a href="/eoi" class="nav-link">EOI</a></li>
+          <li class="nav-item"><a href="/rfi" class="nav-link">RFI</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Section -->
+  <div class="container py-4">
+    <h4 class="fw-bold text-success mb-3">Supplier Questionnaire</h4>
+
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h5 class="fw-bold text-secondary mb-2" id="projectTitle">RFP-203: Hospital Management System</h5>
+        <p class="text-muted">Please complete the questionnaire below to support your proposal submission. All questions are mandatory unless otherwise stated.</p>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="mb-4">
+      <div class="progress" style="height: 20px;">
+        <div class="progress-bar bg-success" id="progressBar" style="width: 0%">0%</div>
+      </div>
+    </div>
+
+    <!-- Questionnaire -->
+    <form id="questionnaireForm" class="bg-white p-4 rounded shadow-sm">
+      <div id="questionsList"></div>
+
+      <div class="text-end mt-4">
+        <button type="submit" class="btn btn-success btn-lg">Submit Questionnaire</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Example questionnaire data
+    const questions = [
+      { id: 1, text: "Is your company legally registered?", type: "radio", options: ["Yes", "No"] },
+      { id: 2, text: "How many years of experience do you have in similar projects?", type: "text" },
+      { id: 3, text: "Attach your company registration certificate.", type: "file" },
+      { id: 4, text: "Do you have a valid tax compliance certificate?", type: "radio", options: ["Yes", "No"] },
+      { id: 5, text: "Briefly describe your company’s technical capacity.", type: "textarea" }
+    ];
+
+    const questionsList = document.getElementById('questionsList');
+    const progressBar = document.getElementById('progressBar');
+
+    // Render questions dynamically
+    questions.forEach((q, i) => {
+      let inputHtml = "";
+      if (q.type === "radio") {
+        inputHtml = q.options.map(opt => `
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="q${q.id}" value="${opt}" required>
+            <label class="form-check-label">${opt}</label>
+          </div>`).join('');
+      } else if (q.type === "text") {
+        inputHtml = `<input type="text" class="form-control" name="q${q.id}" required>`;
+      } else if (q.type === "file") {
+        inputHtml = `<input type="file" class="form-control" name="q${q.id}" required>`;
+      } else if (q.type === "textarea") {
+        inputHtml = `<textarea class="form-control" name="q${q.id}" rows="3" required></textarea>`;
+      }
+
+      questionsList.innerHTML += `
+        <div class="card mb-3 question-card p-3 shadow-sm">
+          <h6 class="fw-bold text-secondary">Q${i + 1}. ${q.text}</h6>
+          <div>${inputHtml}</div>
+        </div>`;
+    });
+
+    // Progress tracking
+    const totalQuestions = questions.length;
+    document.getElementById('questionnaireForm').addEventListener('input', () => {
+      const answered = Array.from(document.querySelectorAll('input, textarea')).filter(el => el.value).length;
+      const progress = Math.min(100, (answered / totalQuestions) * 100);
+      progressBar.style.width = `${progress}%`;
+      progressBar.textContent = `${Math.round(progress)}%`;
+    });
+
+    // Handle submission
+    document.getElementById('questionnaireForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert("✅ Questionnaire submitted successfully!");
+      e.target.reset();
+      progressBar.style.width = "0%";
+      progressBar.textContent = "0%";
+    });
+  </script>
+</body>
+</html>

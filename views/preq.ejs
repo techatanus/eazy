@@ -200,7 +200,7 @@
     .c-applied{background: linear-gradient(135deg,#f59e0b,#d97706);} /* amber */
     .c-approved{background: linear-gradient(135deg,#7c3aed,#6d28d9);} /* purple */
 
-    /* Open tenders table */
+    /* Open catego table */
     .table-card {
       margin-top: 8px;
       background: white;
@@ -356,11 +356,11 @@
     <li class="nav-item">
       <button class="nav-link" id="communication-tab" data-bs-toggle="pill" data-bs-target="#communication" type="button" role="tab">Questionnaire</button>
     </li>
-    <li class="nav-item">
+    <!-- <li class="nav-item">
       <button class="nav-link" id="management-tab" data-bs-toggle="pill" data-bs-target="#management" type="button" role="tab">View Category List</button>
-    </li>
+    </li> -->
     <li class="nav-item">
-      <button class="nav-link" id="reporting-tab" data-bs-toggle="pill" data-bs-target="#reporting" type="button" role="tab">Reporting</button>
+      <button class="nav-link" id="reporting-tab" data-bs-toggle="pill" data-bs-target="#reporting" type="button" role="tab">View Category List</button>
     </li>
   </ul>
 
@@ -425,19 +425,65 @@
     </div>
 
     <!-- View Category List -->
-    <div class="tab-pane fade" id="management" role="tabpanel" aria-labelledby="management-tab">
-      <div class="card p-4 shadow-sm">
-        <h5 class="section-title mb-3">View Category List</h5>
-        <p>Here will be the list of categories.</p>
-      </div>
-    </div>
 
-    <!-- Reporting -->
     <div class="tab-pane fade" id="reporting" role="tabpanel" aria-labelledby="reporting-tab">
-      <div class="card p-4 shadow-sm">
-        <h5 class="section-title mb-3">Reporting</h5>
-        <p>Reports and analytics related to categories will appear here.</p>
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="table table-striped align-middle" id="rfxTable">
+            <thead >
+              <tr>
+                <th style="color:#008000;">Code</th>
+                <th style="color:#008000;">Name</th>
+                <th style="color:#008000;">Price</th>
+                <th style="color:#008000;">Description</th>
+                <th style="color:#008000;">Date</th>
+             
+                <th class="text-end" style="color:#008000;" colspan="3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+      
+<tbody>
+  <% if (catego && catego.length > 0) { %>
+    <% catego.forEach(cat => { %>
+      <tr>
+        <td><%= cat.category_no %></td>
+        <td><%= cat.category_name %></td>
+        <td><%= cat.price%></td>
+         <td><%= cat.description %></td>
+       <td>
+  <% if (cat.date) { %>
+    <%= new Date(cat.date).toLocaleString('en-KE', { 
+          dateStyle: 'medium', 
+          timeStyle: 'short' 
+        }) %>
+  <% } else { %>
+    N/A
+  <% } %>
+</td>
+
+       <td class="text-end">
+          <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
+                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
+                 
+                  <button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i>Delete</button>
+        </td>
+      </tr>
+    <% }) %>
+  <% } else { %>
+    <tr>
+      <td colspan="6" class="text-center text-muted">No closed catego found</td>
+    </tr>
+  <% } %>
+</tbody>
+
+           
+
+            </tbody>
+          </table>
+        </div>
       </div>
+
     </div>
 
   </div>
@@ -703,6 +749,9 @@
     window.addEventListener('resize', closeAllFloating);
 
   </script>
+
+
+
 <!-- <script>
   document.getElementById("fileInput").addEventListener("change", handleFile);
 

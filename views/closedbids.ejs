@@ -2,11 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RFQ Module | eazyProcure</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-<style>
+  <title>Closed Bids - Client Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .page-title {
+      color: #198754;
+      font-weight: 600;
+    }
+    .table thead {
+      background-color: #198754;
+      color: #fff;
+    }
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+    .modal-header {
+      background-color: #198754;
+      color: white;
+    }
+  </style>
+  <style>
     :root{
       --sidebar-width: 260px;
       --navbar-height: 64px;
@@ -113,7 +134,7 @@
       margin-bottom: 4px;
       transition: background .18s;
     }
-    .sidebar .nav-link:hover { background: #e6f0e6; color: #0d6efd; }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: orange; }
 
     .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
     .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
@@ -138,7 +159,7 @@
       border-radius:6px;
       margin-bottom:4px;
     }
-    .submenu a:hover { background:#e6f0e6; color:var(--accent); }
+    .submenu a:hover { background:#e6f0e6; color:orange; }
 
     /* main content area */
     .content {
@@ -165,7 +186,7 @@
       grid-template-columns: repeat(4,1fr);
       gap: 16px;
       margin-bottom: 20px;
-     
+       
     }
 
     .stat-card {
@@ -331,165 +352,230 @@
     justify-content: flex-end;
   }
 }
-
   </style>
 </head>
-<body class="bg-light">
-  <!-- Sidebar (light) -->
-   <%- include('partials/sidebar') %>
+<body>
+
+  <div class="layout">
+
+    <!-- Sidebar (light) -->
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashcl">
+      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashcl" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Client</span></div>
+    </a>
+  </div>
+
+  <!-- Approvals -->
+  <div class="nav-section">
+    <a href="/admin/approve" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Approvals</span></div>
+    </a>
+  </div>
+<!-- open bids -->
+  <div class="nav-section">
+    <a href="/admin/openbids" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Open bids</span></div>
+    </a>
+  </div>
+  <!-- closed bids -->
+     <div class="nav-section">
+    <a href="/admin/closedbids" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Closed bids</span></div>
+    </a>
+  </div>
+    <div class="nav-section">
+    <a href="/admin/qa_client" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">QA</span></div>
+    </a>
+  </div>
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/archive_client"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
 
     <!-- Top Navbar (light green) -->
-     <%- include('partials/topbar') %>
-  <div class="content">
-    <h2 class="text-center mb-4 text-primary">Request for Quotation (RFQ)</h2>
-
-    <!-- Tabs -->
-    <ul class="nav nav-tabs" id="rfqTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="create-tab" data-bs-toggle="tab" data-bs-target="#create" type="button" role="tab">
-          Create RFQ
-        </button>
-      </li>
-      <!-- <li class="nav-item" role="presentation">
-        <button class="nav-link" id="vendors-tab" data-bs-toggle="tab" data-bs-target="#vendors" type="button" role="tab">
-          Vendor Management
-        </button>
-      </li> -->
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="bids-tab" data-bs-toggle="tab" data-bs-target="#bids" type="button" role="tab">
-          Submitted Bids
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status" type="button" role="tab">
-          Approval & Status
-        </button>
-      </li>
-    </ul>
-
-    <div class="tab-content bg-white border border-top-0 p-4" id="rfqTabsContent">
-      
-      <!-- Create RFQ -->
-      <div class="tab-pane fade show active" id="create" role="tabpanel">
-        <h5 class="mb-3 text-success">Create RFQ Document</h5>
-        <form method="post" action="/create_rfq">
-          <div class="mb-3">
-            <label class="form-label">RFQ Title</label>
-            <input type="text" name="title" class="form-control" placeholder="Enter RFQ title">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Specifications</label>
-            <textarea class="form-control" name="specifications" rows="3" placeholder="Enter product/service specifications"></textarea>
-          </div>
-          <div class="row">
-           <div class="row">
-  <div class="col-md-4 mb-3">
-    <label class="form-label">Quantity</label>
-    <input type="number" name="quantity" id="quantity" class="form-control" placeholder="Enter quantity">
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
   </div>
 
-  <div class="col-md-4 mb-3">
-    <label class="form-label">Unit price</label>
-    <input type="number" name="unit_price" id="unitPrice" class="form-control" placeholder="Enter unit price">
+  <div class="nav-actions position-relative">
+    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="nav-icon" id="profileIcon" title="Profile">
+      <i class="bi bi-person-circle"></i>
+    </div>
   </div>
+  
+</header>
 
-  <div class="col-md-4 mb-3">
-    <label class="form-label">V.A.T (%)</label>
-    <input type="number" name="vat" id="vat" class="form-control" placeholder="Enter VAT Value">
-  </div>
-
-  <div class="col-md-4 mb-3">
-    <label class="form-label">Total price</label>
-    <input type="number" name="total_price" id="totalPrice" class="form-control" placeholder="Total Price" readonly>
-  </div>
-</div>
-
-<script>
-  function calculateTotal() {
-    let quantity = parseFloat(document.getElementById("quantity").value) || 0;
-    let unitPrice = parseFloat(document.getElementById("unitPrice").value) || 0;
-    let vat = parseFloat(document.getElementById("vat").value) || 0;
-
-    // base price
-    let baseTotal = quantity * unitPrice;
-
-    // VAT applied
-    let totalWithVAT = (baseTotal * vat / 100);
-
-    // set value
-    document.getElementById("totalPrice").value = totalWithVAT.toFixed(2);
-  }
-
-  // Attach listeners
-  document.getElementById("quantity").addEventListener("input", calculateTotal);
-  document.getElementById("unitPrice").addEventListener("input", calculateTotal);
-  document.getElementById("vat").addEventListener("input", calculateTotal);
-</script>
-
-            <div class="col-md-4 mb-3">
-              <label class="form-label">Delivery Timeline</label>
-              <input type="date" name="elivery_timeline" class="form-control">
-            </div>
-            <div class="col-md-4 mb-3">
-              <label class="form-label">Payment Terms</label>
-              <input type="text" name="payment_terms" class="form-control" placeholder="e.g., 30 days after delivery">
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary">Create RFQ</button>
-        </form>
+  <!-- Main Content -->
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="page-title"><i class="bi bi-folder-x"></i> Closed Bids</h4>
+      <div class="d-flex gap-2">
+        <input id="searchInput" class="form-control form-control-sm" placeholder="Search by title or code..." style="width:250px;">
+        <button class="btn btn-success btn-sm" onclick="filterBids()">Search</button>
       </div>
+    </div>
 
-   
-
-      <!-- Submitted Bids -->
-      <div class="tab-pane fade" id="bids" role="tabpanel">
-        <h5 class="mb-3 text-success">Submitted Bids</h5>
-        <table class="table table-borderless">
-          <thead class="table-light">
+    <div class="card">
+      <div class="card-body table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
             <tr>
-              <th>Rfq title</th>
-              <th>specification</th>
-              <th>unit price</th>
-              <th>total price</th>
-              <th>deadline</th>
-              <th>payment Terms</th>
+              <th>#</th>
+              <th>Bid Code</th>
+              <th>Title</th>
+              <th>No. of Categories</th>
+              <th>Closing Date</th>
+              <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>ABC Suppliers Ltd</td>
-              <td>Lorem ipsum dolor sit.</td>
-              <td></td>
-              <td>$10,000</td>
-              <td><button class="btn btn-sm btn-outline-secondary">View</button></td>
-              <td><span class="badge bg-warning">Under Review</span></td>
-            </tr>
-          
-          </tbody>
+          <tbody id="closedBidsTable"></tbody>
         </table>
       </div>
-
-      <!-- Approval & Status -->
-      <div class="tab-pane fade" id="status" role="tabpanel">
-        <h5 class="mb-3 text-success">Approval & Workflow</h5>
-        <ul class="list-group">
-          <li class="list-group-item">
-            <strong>RFQ #001:</strong> Created → <span class="badge bg-info">Pending Approval</span>
-          </li>
-          <li class="list-group-item">
-            <strong>RFQ #002:</strong> Under Review → <span class="badge bg-warning">In Progress</span>
-          </li>
-          <li class="list-group-item">
-            <strong>RFQ #003:</strong> Approved → <span class="badge bg-success">PO Generated</span>
-          </li>
-        </ul>
-      </div>
-
     </div>
   </div>
 
+  <!-- Modal: View Categories & Rankings -->
+  <div class="modal fade" id="categoriesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-list-ul"></i> Categories & Rankings</h5>
+          <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="categoriesContent">
+          <!-- Dynamic Content -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const closedBids = [
+      {
+        id: 1,
+        code: "BID-091",
+        title: "Supply of Office Furniture",
+        categories: [
+          { name: "Wooden Desks", supplier: "DevTech Ltd", rank: 1 },
+          { name: "Office Chairs", supplier: "SoftLink Ltd", rank: 2 },
+          { name: "Filing Cabinets", supplier: "Mobi Interiors", rank: 3 }
+        ],
+        closing_date: "2025-09-30",
+        status: "Closed"
+      },
+      {
+        id: 2,
+        code: "BID-092",
+        title: "ICT Equipment Supply",
+        categories: [
+          { name: "Laptops", supplier: "TechPoint", rank: 1 },
+          { name: "Printers", supplier: "PrintPro", rank: 2 }
+        ],
+        closing_date: "2025-10-05",
+        status: "Closed"
+      }
+    ];
+
+    const tableBody = document.getElementById("closedBidsTable");
+
+    function renderClosedBids(list) {
+      tableBody.innerHTML = "";
+      list.forEach((b, i) => {
+        tableBody.innerHTML += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${b.code}</td>
+            <td>${b.title}</td>
+            <td>${b.categories.length}</td>
+            <td>${b.closing_date}</td>
+            <td><span class="badge bg-secondary">${b.status}</span></td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary" onclick="viewCategories('${b.title}', ${i})">
+                <i class="bi bi-eye"></i> View
+              </button>
+            </td>
+          </tr>`;
+      });
+    }
+
+    function viewCategories(title, index) {
+      const bid = closedBids[index];
+      let html = `
+        <h5 class="fw-bold text-success">${title}</h5>
+        <table class="table table-bordered mt-3">
+          <thead class="table-success">
+            <tr>
+              <th>#</th>
+              <th>Category</th>
+              <th>Supplier</th>
+              <th>Rank</th>
+            </tr>
+          </thead>
+          <tbody>`;
+      
+      bid.categories.forEach((cat, i) => {
+        html += `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${cat.name}</td>
+            <td>${cat.supplier}</td>
+            <td><span class="badge bg-${cat.rank === 1 ? 'success' : 'secondary'}">${cat.rank}</span></td>
+          </tr>`;
+      });
+      
+      html += `</tbody></table>`;
+      document.getElementById("categoriesContent").innerHTML = html;
+      new bootstrap.Modal(document.getElementById('categoriesModal')).show();
+    }
+
+    function filterBids() {
+      const val = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = closedBids.filter(b => b.title.toLowerCase().includes(val) || b.code.toLowerCase().includes(val));
+      renderClosedBids(filtered);
+    }
+
+    // Initialize
+    renderClosedBids(closedBids);
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS (for modal) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-   <script>
+
+  <script>
     // Sidebar submenu toggles (preserve initial markup, only enhance)
     document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{
       btn.addEventListener('click', function(e){

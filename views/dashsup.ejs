@@ -339,12 +339,142 @@
 <body>
 
   <div class="layout">
+    <!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashsup">
+      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
 
-    <!-- Sidebar (light) -->
-   <%- include('partials/sidebar') %>
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashsup" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Supplier</span></div>
+    </a>
+  </div>
+
+  <!-- Permissions & Roles -->
+  <!-- <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="permSub">
+      <div class="nav-left"><i class="bi bi-shield-lock-fill" style="color: green;"></i><span class="ms-2">Permissions & Roles</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="permSub" class="submenu">
+      <a href="/admin/permissions"><i class="bi bi-key-fill me-2" style="color: green;"></i> Permissions</a>
+      <a href="/admin/roles"><i class="bi bi-award-fill me-2"></i> Roles</a>
+    </div>
+  </div> -->
+
+  <!-- Manage Users -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="usersSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">Manage Users</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="usersSub" class="submenu">
+      <a href="/admin/mysuplier"><i class="bi bi-truck me-2" style="color: green;"></i> Manage Suppliers</a>
+    </div>
+  </div>
+  <!-- statutory -->
+  <div class="nav-section">
+    <a href="/admin/doc" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Statutory Rquirement</span></div>
+    </a>
+  </div>
+  <!-- Alerts -->
+  <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#alertModal">
+    <div class="nav-left"><i class="bi bi-bell-fill" style="color: green;"></i><span class="ms-2">Alerts</span></div>
+  </a>
+    <!-- supplier prequalification -->
+       <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="msgSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">prequalification</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="msgSub" class="submenu">
+      <a href="/admin/prequal"><i class="bi bi-person-badge me-2" style="color: green;"></i> My Applications</a>
+     
+    </div>
+  </div>
+
+  <!-- tenders -->
+     <div class="nav-section">
+    <a href="/admin/tenders"  class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Tender</span></div>
+    </a>
+  </div>
+   <!-- rfx -->
+         <div class="nav-section">
+    <a href="/admin/rfqs" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFQ</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfps"class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFP</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/eois" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">EOI</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfis" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFI</span></div>
+    </a>
+  </div>
+         <div class="nav-section">
+    <a href="/admin/auction " class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Reverse Auction</span></div>
+    </a>
+  </div>
+
+ 
+ 
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/reports"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
 
     <!-- Top Navbar (light green) -->
-     <%- include('partials/topbar') %>
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
+  </div>
+
+  <div class="nav-actions position-relative">
+    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="nav-icon" id="profileIcon" title="Profile">
+      <i class="bi bi-person-circle"></i>
+    </div>
+  </div>
+  
+</header>
+
+
+
 
     <!-- Main content -->
     <main class="content" id="content">
@@ -377,7 +507,7 @@
 </script>
 
       <!-- Bottom 4 cards -->
-    <div class="cards-bottom">
+    <!-- <div class="cards-bottom">
         <div class="stat-card" data-card="Open Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #012441 !important">
           <div class="stat-icon c-open"><i class="bi bi-folder2-open"></i></div>
           <div class="stat-body">
@@ -409,7 +539,7 @@
             <p class="stat-value" style="color: white;"> <%= totals.clients %></p>
           </div>
         </div>
-      </div>
+      </div> -->
 
     
   <!-- Tabs -->
@@ -421,7 +551,7 @@
       <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">Rejected</button>
     </li> -->
     <li class="nav-item" role="presentation">
-      <button class="nav-link text-success" id="closed-tab" data-bs-toggle="tab" data-bs-target="#closed" type="button" role="tab">Closed closed</button>
+      <button class="nav-link text-success" id="closed-tab" data-bs-toggle="tab" data-bs-target="#closed" type="button" role="tab">Closed jobs</button>
     </li>
   </ul>
 
@@ -439,6 +569,7 @@
        <th>Description</th>
       <th>Status</th>
       <th>Closing Date</th>
+      <th>Action</th>
      
     </tr>
   </thead>
@@ -478,6 +609,7 @@
     N/A
   <% } %>
           </td>
+          <td><button>open</button></td>
         </tr>
       <% }); %>
     <% } else { %>
@@ -512,6 +644,7 @@
                <th>Bid Title</th>
                 <th>Status</th>
               <th>Closing Date</th>
+              
             </tr>
           </thead>
           <tbody id="supplierTableRejected">
@@ -533,7 +666,7 @@
        <th>Description</th>
       <th>Status</th>
       <th>Closing Date</th>
-     
+     <th>Action</th>
     </tr>
   </thead>
 
@@ -566,6 +699,7 @@
     N/A
   <% } %>
           </td>
+          <td><button>view report</button></td>
         </tr>
       <% }); %>
     <% } else { %>

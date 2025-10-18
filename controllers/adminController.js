@@ -4,17 +4,29 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
 const { resolveSoa } = require('dns');
+const { log } = require('console');
 
 
-
+// admin
 exports.dashboard = async (req, res) => {
   try {
     const [adminsRows] = await db.query("SELECT COUNT(*) as c FROM admins");
     const [clientsRows] = await db.query("SELECT COUNT(*) as c FROM clients");
     const [suppliersRows] = await db.query("SELECT COUNT(*) as c FROM suppliers");
-    const [openTendersRows] = await db.query(
-      "SELECT * FROM tenders WHERE status IN ('open', 'Draft') ORDER BY closing_date ASC LIMIT 10" );
+ 
 
+    const [openTendersRows] = await db.query( "SELECT * FROM tenders WHERE status IN ('open', 'Draft','closed') ORDER BY closing_date ASC LIMIT 10" );
+
+    // Get open jobs (open or draft tenders)
+  const [openJobsCountRows] = await db.query(
+      "SELECT COUNT(*) as total FROM tenders WHERE status IN ('open', 'Draft')"
+    );
+    // Get closed jobs (closed tenders)
+     const [closedJobsCountRows] = await db.query(
+      "SELECT COUNT(*) as total FROM tenders WHERE status = 'closed'"
+    );
+
+  const [category] = await db.query("SELECT * FROM categories");
     const user = req.session.user || { person: "Guest" };
 
     // Pull flash message then clear it
@@ -27,9 +39,13 @@ exports.dashboard = async (req, res) => {
       totals: {
         admins: adminsRows[0].c,
         clients: clientsRows[0].c,
-        suppliers: suppliersRows[0].c
+        suppliers: suppliersRows[0].c,
+        openJobs: openJobsCountRows[0].total,
+        closedJobs: closedJobsCountRows[0].total
       },
+     // closed tenders
       openTenders: openTendersRows,
+      category,
       user,
       message,
       status
@@ -40,6 +56,103 @@ exports.dashboard = async (req, res) => {
   }
 };
 
+// supplier
+exports.dashboards = async (req, res) => {
+  try {
+    const [adminsRows] = await db.query("SELECT COUNT(*) as c FROM admins");
+    const [clientsRows] = await db.query("SELECT COUNT(*) as c FROM clients");
+    const [suppliersRows] = await db.query("SELECT COUNT(*) as c FROM suppliers");
+ 
+
+    const [openTendersRows] = await db.query( "SELECT * FROM tenders WHERE status IN ('open', 'Draft','closed') ORDER BY closing_date ASC LIMIT 10" );
+
+    // Get open jobs (open or draft tenders)
+  const [openJobsCountRows] = await db.query(
+      "SELECT COUNT(*) as total FROM tenders WHERE status IN ('open', 'Draft')"
+    );
+    // Get closed jobs (closed tenders)
+     const [closedJobsCountRows] = await db.query(
+      "SELECT COUNT(*) as total FROM tenders WHERE status = 'closed'"
+    );
+
+  const [category] = await db.query("SELECT * FROM categories");
+    const user = req.session.user || { person: "Guest" };
+
+    // Pull flash message then clear it
+    const message = req.session.message || null;
+    const status = req.session.status || null;
+    req.session.message = null;
+    req.session.status = null;
+
+    res.render("dashsup", {
+      totals: {
+        admins: adminsRows[0].c,
+        clients: clientsRows[0].c,
+        suppliers: suppliersRows[0].c,
+        openJobs: openJobsCountRows[0].total,
+        closedJobs: closedJobsCountRows[0].total
+      },
+     // closed tenders
+      openTenders: openTendersRows,
+      category,
+      user,
+      message,
+      status
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error in Dashboard");
+  }
+};
+
+// client
+exports.dashboardc = async (req, res) => {
+  try {
+    const [adminsRows] = await db.query("SELECT COUNT(*) as c FROM admins");
+    const [clientsRows] = await db.query("SELECT COUNT(*) as c FROM clients");
+    const [suppliersRows] = await db.query("SELECT COUNT(*) as c FROM suppliers");
+ 
+
+    const [openTendersRows] = await db.query( "SELECT * FROM tenders WHERE status IN ('open', 'Draft','closed') ORDER BY closing_date ASC LIMIT 10" );
+
+    // Get open jobs (open or draft tenders)
+  const [openJobsCountRows] = await db.query(
+      "SELECT COUNT(*) as total FROM tenders WHERE status IN ('open', 'Draft')"
+    );
+    // Get closed jobs (closed tenders)
+     const [closedJobsCountRows] = await db.query(
+      "SELECT COUNT(*) as total FROM tenders WHERE status = 'closed'"
+    );
+
+  const [category] = await db.query("SELECT * FROM categories");
+    const user = req.session.user || { person: "Guest" };
+
+    // Pull flash message then clear it
+    const message = req.session.message || null;
+    const status = req.session.status || null;
+    req.session.message = null;
+    req.session.status = null;
+
+    res.render("dashcl", {
+      totals: {
+        admins: adminsRows[0].c,
+        clients: clientsRows[0].c,
+        suppliers: suppliersRows[0].c,
+        openJobs: openJobsCountRows[0].total,
+        closedJobs: closedJobsCountRows[0].total
+      },
+     // closed tenders
+      openTenders: openTendersRows,
+      category,
+      user,
+      message,
+      status
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error in Dashboard");
+  }
+};
 
 exports.permissionsList = async (req, res) => {
   try {
@@ -125,8 +238,8 @@ exports.createUser = async (req, res) => {
     let table = role.toLowerCase() === "supplier" ? "suppliers" : "clients";
 
     await db.query(
-      `INSERT INTO ${table} (name, person, email, pass, verified, verification_token) VALUES (?, ?, ?, ?, ?, ?)`,
-      [name, person, email, hashedPassword, 0, token]
+      `INSERT INTO ${table} (name, person, email, pass, verified, verification_token,role) VALUES (?, ?, ?, ?, ?, ?,?)`,
+      [name, person, email, hashedPassword, 0, token,role]
     );
 
     // 6. Send verification email
@@ -209,60 +322,158 @@ exports.verifyUser = async (req, res) => {
 
 
 // Login check (must be verified)
+// exports.loginUser = async (req, res) => {
+//   const { email, pass } = req.body;
+
+//   try {
+//     // Find user in suppliers or clients
+// let [user] = await db.query(
+//   `
+//   SELECT email, pass,person, verified FROM admins WHERE email = ?
+//   UNION
+//   SELECT email, pass,person, verified FROM suppliers WHERE email = ?
+//   UNION
+//   SELECT email, pass,person, verified FROM clients WHERE email = ?
+//   `,
+//   [email, email, email]
+// );
+
+//     if (user.length === 0) {
+//       return res.render("home", { 
+//         message: "Invalid email or password", 
+//         status: "error" 
+//       });
+//     }
+
+//     user = user[0];
+//     req.session.user = user;
+
+//     if (!user.verified) {
+//       return res.render("home", { 
+//         message: "Please verify your email first", 
+//         status: "error" 
+//       });
+//     }
+
+//     const isMatch = await bcrypt.compare(pass, user.pass);
+//     if (!isMatch) {
+//       return res.render("home", { 
+//         message: "Invalid email or password", 
+//         status: "error" 
+//       });
+//     }
+
+//     console.log("Logged in as:", user.person);
+
+//     // ✅ On success, redirect to dashboard
+//     res.redirect("/dashboard");
+
+//   } catch (err) {
+//     console.error(err);
+//     res.render("home", { 
+//       message: "Server error", 
+//       status: "error" 
+//     });
+//   }
+// };
+
 exports.loginUser = async (req, res) => {
   const { email, pass } = req.body;
 
   try {
-    // Find user in suppliers or clients
-let [user] = await db.query(
-  `
-  SELECT email, pass,person, verified FROM admins WHERE email = ?
-  UNION
-  SELECT email, pass,person, verified FROM suppliers WHERE email = ?
-  UNION
-  SELECT email, pass,person, verified FROM clients WHERE email = ?
-  `,
-  [email, email, email]
-);
+    let user = null;
+    let source = null;
+    let reg_id = null; // 🧩 new variable to hold registration ID
 
-    if (user.length === 0) {
-      return res.render("home", { 
-        message: "Invalid email or password", 
-        status: "error" 
+    // 1️⃣ Check Admins
+    const [adminRows] = await db.query("SELECT * FROM admins WHERE email = ?", [email]);
+    if (adminRows.length > 0) {
+      user = adminRows[0];
+      source = "admin";
+    }
+
+    // 2️⃣ Check Suppliers
+    if (!user) {
+      const [supplierRows] = await db.query("SELECT * FROM suppliers WHERE email = ?", [email]);
+      if (supplierRows.length > 0) {
+        user = supplierRows[0];
+        source = "supplier";
+      }
+    }
+
+    // 3️⃣ Check Clients
+    if (!user) {
+      const [clientRows] = await db.query("SELECT * FROM clients WHERE email = ?", [email]);
+      if (clientRows.length > 0) {
+        user = clientRows[0];
+        source = "client";
+      }
+    }
+
+    // ❌ No match
+    if (!user) {
+      return res.render("home", {
+        message: "Invalid email or password",
+        status: "error",
       });
     }
 
-    user = user[0];
-    req.session.user = user;
-
-    if (!user.verified) {
-      return res.render("home", { 
-        message: "Please verify your email first", 
-        status: "error" 
-      });
-    }
-
+    // 🔐 Check password
     const isMatch = await bcrypt.compare(pass, user.pass);
     if (!isMatch) {
-      return res.render("home", { 
-        message: "Invalid email or password", 
-        status: "error" 
+      return res.render("home", {
+        message: "Invalid email or password",
+        status: "error",
       });
     }
 
-    console.log("Logged in as:", user.person);
+    // 📧 Check verification
+    if (!user.verified) {
+      return res.render("home", {
+        message: "Please verify your email first",
+        status: "error",
+      });
+    }
 
-    // ✅ On success, redirect to dashboard
-    res.redirect("/dashboard");
+    // 🧩 Retrieve reg_id from registration table
+    const [regRows] = await db.query(
+      "SELECT id AS reg_id FROM registration WHERE email = ? ORDER BY id DESC LIMIT 1",
+      [user.email]
+    );
+
+    if (regRows.length > 0) {
+      reg_id = regRows[0].reg_id;
+    }
+
+    // 💾 Save session
+    req.session.user = {
+      email: user.email,
+      person: user.person,
+      role: source,
+      reg_id: reg_id || null, // store reg_id in session
+    };
+
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => (err ? reject(err) : resolve()));
+    });
+
+    console.log(`✅ Logged in as ${user.person} (${source}), reg_id: ${reg_id}`);
+
+    // 🔀 Redirect based on table source
+    if (source === "admin") return res.redirect("/dashboard");
+    if (source === "supplier") return res.redirect("admin/dashsup");
+    if (source === "client") return res.redirect("admin/dashcl");
 
   } catch (err) {
-    console.error(err);
-    res.render("home", { 
-      message: "Server error", 
-      status: "error" 
+    console.error("❌ Login error:", err);
+    return res.render("home", {
+      message: "Server error",
+      status: "error",
     });
   }
 };
+
+
 
 // fetch admins
 exports.admins = (req, res) => {
@@ -682,12 +893,12 @@ exports.createRFIS = async (req, res) => {
 // create tender
 exports.createTender = async (req, res) => {
   try {
-    const { code, title, type, closingDate, status, description } = req.body;
+    const { category,code, title, type, closingDate, status, description } = req.body;
 
     console.log("Received body:", req.body);
 
     // 🧩 Basic validation
-    if (!code || !title || !type || !closingDate || !status || !description) {
+    if (!category || !code || !title || !type || !closingDate || !status || !description) {
       return res.status(400).send("❌ Missing required fields: code, title, type, closingDate, status, description");
     }
 
@@ -702,11 +913,12 @@ exports.createTender = async (req, res) => {
     // 🧩 Step 2: Insert new tender
     const insertSql = `
       INSERT INTO tenders
-      (code, title, type,closing_date, status,description)
-      VALUES (?, ?, ?, ?, ?, ?)
+      (category,code, title, type,closing_date, status,description)
+      VALUES (?, ?, ?, ?, ?, ?,?)
     `;
 
     const [result] = await db.query(insertSql, [
+      category,
       code,
       title,
       type,
@@ -724,3 +936,338 @@ exports.createTender = async (req, res) => {
     res.status(500).send("Server error while creating tender.");
   }
 };
+
+// receive alerts
+exports.createAlert = async (req, res) => {
+  try {
+    const { category,frequency, email } = req.body;
+
+    console.log("Received body:", req.body);
+
+    // 🧩 Basic validation
+    if (!category || !frequency || !email ) {
+      return res.status(400).send("❌ Missing required fields: category,frequency, email");
+    }
+
+    // 🧩 Step 1: Check if tender already exists
+    const [existing] = await db.query("SELECT * FROM alerts WHERE category = ? AND email = ?", [category,email]);
+
+    if (existing.length > 0) {
+      console.log("Alert for this category already exists:", existing[0]);
+      return res.status(400).send("❌ Alert with this code already exists.");
+    }
+
+    // 🧩 Step 2: Insert new tender
+    const insertSql = `
+      INSERT INTO alerts
+      (category,frequency, email)
+      VALUES (?, ?, ?)
+    `;
+
+    const [result] = await db.query(insertSql, [category,frequency, email]);
+
+    console.log("✅ You have successfully! subscribe for this alerts:", result);
+    res.status(201).send("✅ You have successfully! subscribe for this alerts");
+    // Optional redirect: res.redirect("/rfqs");
+
+  } catch (error) {
+    console.error("❌ Error creating Alert:", error);
+    res.status(500).send("Server error while creating Alert.");
+  }
+};
+
+// create a notification
+exports.createNotification = async (req, res) => {
+  try {
+    const { sender,title,type,msg } = req.body;
+
+    console.log("Received body:", req.body);
+
+    // 🧩 Basic validation
+    if (!sender || !title || !type || !msg ) {
+      return res.status(400).send("❌ Missing required fields: sender,title,type,msg");
+    }
+
+    // 🧩 Step 1: Check if tender already exists
+    const [existing] = await db.query("SELECT * FROM notification WHERE title = ?", [title]);
+
+    if (existing.length > 0) {
+      console.log("This Notification  already exists:", existing[0]);
+      return res.status(400).send("❌ A Notification  with this code already exists.");
+    }
+
+    // 🧩 Step 2: Insert new tender
+    const insertSql = `
+      INSERT INTO notification
+      (sender,title,type,msg)
+      VALUES (?, ?, ?,?)
+    `;
+
+    const [result] = await db.query(insertSql, [sender,title,type,msg]);
+
+    console.log("✅ You have successfully! created a notification:", result);
+    res.status(201).send("✅ You have successfully! created a notification");
+    // Optional redirect: res.redirect("/rfqs");
+
+  } catch (error) {
+    console.error("❌ Error creating notification:", error);
+    res.status(500).send("Server error while creating notification.");
+  }
+};
+
+
+
+
+
+// create registration details
+exports.createRegDetails = async (req, res) => {
+  try {
+    const {
+      cname,
+      email,
+      website,
+      tel,
+      country,
+      county,
+      subcounty,
+      entity,
+      profile,
+    } = req.body;
+
+    console.log(req.body);
+
+    // Validation
+    if (!cname || !email || !tel || !country || !county || !subcounty || !entity || !profile) {
+      return res.status(400).json({
+        status: "error",
+        message: "All required fields must be filled.",
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid email format.",
+      });
+    }
+
+    const phoneRegex = /^\+?\d{9,15}$/;
+    if (!phoneRegex.test(tel)) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid phone number format.",
+      });
+    }
+
+    // Check if company already exists
+    const [existing] = await db.query(
+      "SELECT * FROM registration WHERE email = ? OR cname = ?",
+      [email, cname]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "A company with this name or email already exists.",
+      });
+    }
+
+    // Insert new registration details
+    const [result] = await db.query(
+      `INSERT INTO registration 
+      (cname, email, website, tel, country, county, subcounty, entity, profile) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [cname, email, website, tel, country, county, subcounty, entity, profile]
+    );
+
+    // ✅ Store the inserted ID in session
+    req.session.reg_id = result.insertId;
+    console.log("✅ Stored registration ID in session:", req.session.reg_id);
+
+    // ✅ Return success
+    res.status(200).json({
+      status: "success",
+      message: "Company registration details submitted successfully.",
+      reg_id: result.insertId, // Optional: send back to client if needed
+    });
+  } catch (err) {
+    console.error("Error saving registration:", err);
+    res.status(500).json({
+      status: "error",
+      message: "Server error while processing registration.",
+    });
+  }
+};
+
+// upload statutory
+exports.createStatutory = async (req, res) => {
+  try {
+    const { coi, crn, sad, nod, kra, tcc, tcno, expd, permit, agpo } = req.body;
+
+    console.log("Received body:", req.body);
+
+    // Check session for reg_id
+    const reg_id = req.session.reg_id;
+    if (!reg_id) {
+      return res.status(400).json({
+        status: "error",
+        message: "Missing registration reference. Please complete registration first.",
+      });
+    }
+
+    // Validation
+    if (!coi || !crn || !sad || !nod || !kra || !tcc || !tcno || !permit || !expd || !agpo) {
+      return res.status(400).send(
+        "❌ Missing required fields: coi, crn, sad, nod, kra, tcc, tcno, permit, expd, agpo"
+      );
+    }
+
+    // Check for duplicates
+    const [existing] = await db.query("SELECT * FROM statutory WHERE kra = ?", [kra]);
+    if (existing.length > 0) {
+      console.log("This information already exists:", existing[0]);
+      return res.status(400).send("❌ Information with this KRA already exists.");
+    }
+
+    // Insert new statutory info linked to registration
+    const insertSql = `
+      INSERT INTO statutory
+      (reg_id, coi, crn, sad, nod, kra, tcc, tcc_no, bs_permit, expd, agpo_category)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const [result] = await db.query(insertSql, [
+      reg_id,
+      coi,
+      crn,
+      sad,
+      nod,
+      kra,
+      tcc,
+      tcno,
+      permit,
+      expd,
+      agpo,
+    ]);
+
+    console.log("✅ Statutory info inserted successfully:", result);
+
+    res.status(201).json({
+      status: "success",
+      message: "✅ Statutory information submitted successfully and linked to registration.",
+      reg_id,
+    });
+  } catch (error) {
+    console.error("❌ Error creating information:", error);
+    res.status(500).send("Server error while creating information.");
+  }
+};
+
+
+// compliance
+
+exports.createCompliance = async (req, res) => {
+  try {
+    const tableName = "compliance";
+    const formData = req.body;
+    const reg_id = req.session.reg_id; // get from session
+
+    if (!reg_id) {
+      console.error("❌ reg_id not found in session.");
+      return res.status(400).send("Missing registration reference (reg_id).");
+    }
+
+    if (!formData || Object.keys(formData).length === 0) {
+      return res.status(400).send("No form data received.");
+    }
+
+    // STEP 1: Check if compliance table exists
+    const [tableExists] = await db.query("SHOW TABLES LIKE ?", [tableName]);
+
+    // STEP 2: Create table if not exists
+    if (tableExists.length === 0) {
+      // add reg_id as a permanent column
+      let columns = ["reg_id INT"];
+      columns.push(
+        ...Object.keys(formData).map((key) => `\`${key}\` TEXT`)
+      );
+
+      const createTableSQL = `
+        CREATE TABLE \`${tableName}\` (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          ${columns.join(", ")},
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `;
+      await db.query(createTableSQL);
+      console.log("✅ Created new table:", tableName);
+    } else {
+      // STEP 3: Check existing columns
+      const [existingCols] = await db.query("SHOW COLUMNS FROM ??", [tableName]);
+      const existingNames = existingCols.map((c) => c.Field);
+
+      // ensure reg_id column exists
+      if (!existingNames.includes("reg_id")) {
+        await db.query(`ALTER TABLE \`${tableName}\` ADD COLUMN reg_id INT;`);
+        console.log("🆕 Added column 'reg_id' to compliance table");
+      }
+
+      // STEP 4: Add any new dynamic fields
+      for (const key of Object.keys(formData)) {
+        if (!existingNames.includes(key)) {
+          await db.query(`ALTER TABLE \`${tableName}\` ADD COLUMN \`${key}\` TEXT;`);
+          console.log(`🆕 Added new column '${key}' to ${tableName}`);
+        }
+      }
+    }
+
+    // STEP 5: Validate data
+    const validData = {};
+    for (const [key, value] of Object.entries(formData)) {
+      if (value !== undefined && value !== null && value !== "") {
+        validData[key] = value;
+      }
+    }
+
+    // Always include reg_id
+    validData.reg_id = reg_id;
+
+    // STEP 6: Insert data
+    const fields = Object.keys(validData)
+      .map((f) => `\`${f}\``)
+      .join(", ");
+    const placeholders = Object.keys(validData)
+      .map(() => "?")
+      .join(", ");
+    const values = Object.values(validData);
+
+    const insertSQL = `
+      INSERT INTO \`${tableName}\` (${fields})
+      VALUES (${placeholders})
+    `;
+
+    const [result] = await db.query(insertSQL, values);
+
+    console.log("✅ Compliance data saved:", validData);
+
+    // Return or redirect with inserted ID
+    const insertedId = result.insertId;
+    console.log("🆔 New compliance record ID:", insertedId);
+
+    // Option 1: redirect with success message
+    res.redirect("/admin/doc");
+
+    // Option 2 (alternative): send JSON
+    // res.json({ message: "Compliance data saved successfully", insertedId });
+
+  } catch (err) {
+    console.error("❌ Error in createCompliance:", err);
+    res.status(500).send("Server error while saving compliance data.");
+  }
+};
+
+
+
+
+

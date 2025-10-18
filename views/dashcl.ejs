@@ -341,10 +341,85 @@
   <div class="layout">
 
     <!-- Sidebar (light) -->
-   <%- include('partials/sidebar') %>
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashcl">
+      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashcl" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Client</span></div>
+    </a>
+  </div>
+
+  <!-- Approvals -->
+  <div class="nav-section">
+    <a href="/admin/approve" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Approvals</span></div>
+    </a>
+  </div>
+<!-- open bids -->
+  <div class="nav-section">
+    <a href="/admin/openbids" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Open bids</span></div>
+    </a>
+  </div>
+  <!-- closed bids -->
+     <div class="nav-section">
+    <a href="/admin/closedbids" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Closed bids</span></div>
+    </a>
+  </div>
+    <div class="nav-section">
+    <a href="/admin/qa_client" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">QA</span></div>
+    </a>
+  </div>
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/archive_client"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
 
     <!-- Top Navbar (light green) -->
-     <%- include('partials/topbar') %>
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
+  </div>
+
+  <div class="nav-actions position-relative">
+    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="nav-icon" id="profileIcon" title="Profile">
+      <i class="bi bi-person-circle"></i>
+    </div>
+  </div>
+  
+</header>
+
+
 
     <!-- Main content -->
     <main class="content" id="content">
@@ -397,7 +472,7 @@
         <div class="stat-card" data-card="Applied Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #e79f18 !important">
           <div class="stat-icon c-applied"><i class="bi bi-send-check"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Total SUpliers</p>
+            <p class="stat-title" style="color: white;">Approved</p>
             <p class="stat-value" style="color: white;"> <%= totals.suppliers %> </p>
           </div>
         </div>
@@ -405,7 +480,7 @@
         <div class="stat-card" data-card="Approved Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #2196F3 !important">
           <div class="stat-icon c-approved"><i class="bi bi-patch-check-fill"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Total CLient</p>
+            <p class="stat-title" style="color: white;">Pending</p>
             <p class="stat-value" style="color: white;"> <%= totals.clients %></p>
           </div>
         </div>
