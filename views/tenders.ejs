@@ -218,7 +218,7 @@
   <div class="mb-3 ps-2 text-center">
     <!-- Replace text with logo -->
     <a href="/admin/dashsup">
-      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
     </a>
   </div>
 
@@ -349,10 +349,11 @@
 
     <!-- MAIN CONTENT -->
     <main class="content">
+       <h3 class="mb-0" style="color:#008000; padding: 4px;">Tender jobs you have paid for</h3>
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
-          <h3 class="mb-0" style="color:#008000;">Manage tender</h3>
-          <small class="muted-small" style="color:#008000;">View tender</small>
+          <h5 class="mb-0" style="color:#008000; padding: 14px;">Tenders</h5>
+          <!-- <small class="muted-small" style="color:#008000;">View tender</small> -->
         </div>
 
         <div class="d-flex gap-2 align-items-center">
@@ -363,9 +364,9 @@
             <option>open</option>
             <option>Closed</option>
           </select>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRfxModal">
+          <!-- <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRfxModal">
             <i class="bi bi-plus-lg"></i> Createtender
-          </button>
+          </button> -->
         </div>
       </div>
 
@@ -374,13 +375,13 @@
           <table class="table table-striped align-middle" id="rfxTable">
             <thead >
               <tr>
-                <th style="color:#008000;">Code</th>
-                <th style="color:#008000;">Title</th>
-                <th style="color:#008000;">Type</th>
-                <th style="color:#008000;">Closing Date</th>
-                <th style="color:#008000;">Status</th>
+                <th style="color:#008000;">Buyer</th>
+                <th style="color:#008000;">Job</th>
+                <th style="color:#008000;">Category</th>
+                <th style="color:#008000;">Closing Time</th>
+                <!-- <th style="color:#008000;">Status</th> -->
              
-                <th class="text-end" style="color:#008000;" colspan="3">Actions</th>
+                <th class="text-end" style="color:#008000;" colspan="1">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -389,9 +390,10 @@
   <% if (tenders && tenders.length > 0) { %>
     <% tenders.forEach(tender => { %>
       <tr>
-        <td><%= tender.code %></td>
+        <td></td>
+      
         <td><%= tender.title %></td>
-        <td><%= tender.type %></td>
+        <td></td>
        <td>
   <% if (tender.closing_date) { %>
     <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
@@ -403,7 +405,7 @@
   <% } %>
 </td>
 
-       <td>
+       <!-- <td>
   <span class="badge 
     <% if (tender.status === 'open') { %> bg-success 
     <% } else if (tender.status === 'Draft') { %> bg-warning text-dark 
@@ -411,12 +413,12 @@
     <% } else { %> bg-secondary <% } %>">
     <%= tender.status %>
   </span>
-</td>
+</td> -->
 
         <td class="text-end">
           <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
-                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Apply</button>
-                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i>QA</button>
+                  <!-- <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Apply</button>
+                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i>QA</button> -->
                   <!-- <a href="/deltend:id?=<%tender.code%>"><button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button></a> -->
         </td>
       </tr>
@@ -523,11 +525,11 @@
         </div>
         <div class="modal-body">
           <dl class="row">
-            <dt class="col-sm-3">Code</dt><dd class="col-sm-9" id="v-code"></dd>
+            <!-- <dt class="col-sm-3">Code</dt><dd class="col-sm-9" id="v-code"></dd> -->
             <dt class="col-sm-3">Title</dt><dd class="col-sm-9" id="v-title"></dd>
-            <dt class="col-sm-3">Type</dt><dd class="col-sm-9" id="v-type"></dd>
+            <!-- <dt class="col-sm-3">Type</dt><dd class="col-sm-9" id="v-type"></dd> -->
             <dt class="col-sm-3">Closing</dt><dd class="col-sm-9" id="v-closing"></dd>
-            <dt class="col-sm-3">Status</dt><dd class="col-sm-9" id="v-status"></dd>
+            <!-- <dt class="col-sm-3">Status</dt><dd class="col-sm-9" id="v-status"></dd> -->
             <dt class="col-sm-3">Created By</dt><dd class="col-sm-9" id="v-created"></dd>
             <dt class="col-sm-3">Description</dt><dd class="col-sm-9" id="v-desc"></dd>
           </dl>
@@ -656,12 +658,12 @@
     if (!row) return;
 
     const cells = row.querySelectorAll('td');
-    document.getElementById('v-code').textContent = cells[0].textContent.trim();
+    // document.getElementById('v-code').textContent = cells[0].textContent.trim();
     document.getElementById('v-title').textContent = cells[1].textContent.trim();
-    document.getElementById('v-type').textContent = cells[2].textContent.trim();
+    // document.getElementById('v-type').textContent = cells[2].textContent.trim();
     document.getElementById('v-closing').textContent = cells[3].textContent.trim();
-    document.getElementById('v-status').textContent = cells[4].textContent.trim();
-    document.getElementById('v-created').textContent = 'System Admin'; // replace with actual creator if available
+   // document.getElementById('v-status').textContent = cells[4].textContent.trim();
+   document.getElementById('v-created').textContent = 'System Admin'; // replace with actual creator if available
     document.getElementById('v-desc').textContent = 'N/A'; // optional description if available
 
     const viewModal = new bootstrap.Modal(document.getElementById('viewRfxModal'));

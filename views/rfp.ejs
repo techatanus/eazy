@@ -372,20 +372,72 @@
   <h2 class="text-center text-primary mb-4">Request for Proposal (RFP)</h2>
 
   <!-- Tabs -->
-  <ul class="nav nav-tabs" id="rfpTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#createRFP" type="button">Create RFP</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#vendorSubmissions" type="button">Vendor Submissions</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#evaluation" type="button">Evaluation</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bidderPortal" type="button">Bidder Portal</button>
-    </li>
-  </ul>
+<!-- Tabs -->
+<ul class="nav nav-tabs" id="rfpTabs" role="tablist">
+  <!-- NEW JOB TAB -->
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#newJob" type="button">New Job</button>
+  </li>
+
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#createRFP" type="button">Create RFP</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#vendorSubmissions" type="button">Vendor Submissions</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#evaluation" type="button">Evaluation</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bidderPortal" type="button">Bidder Portal</button>
+  </li>
+</ul>
+<div class="tab-content bg-white border border-top-0 p-4">
+  <!-- NEW JOB TAB CONTENT -->
+  <div class="tab-pane fade show active" id="newJob">
+    <h5 class="text-success mb-3">Create New Job</h5>
+    <form action="/create_job" method="post">
+      <div class="mb-3">
+        <label class="form-label">Client</label>
+        <select name="client" class="form-select">
+          <option value="">Select Client</option>
+          <option value="County Government">County Government</option>
+          <option value="Ministry">Ministry</option>
+          <option value="Private Company">Private Company</option>
+          <option value="NGO">NGO</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Bid Title</label>
+        <input type="text" name="bid_title" class="form-control" placeholder="Enter bid title" required>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Start Date & Time</label>
+          <input type="datetime-local" name="start_datetime" class="form-control" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Closing Date & Time</label>
+          <input type="datetime-local" name="closing_datetime" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Eligibility Criteria</label>
+        <select name="eligibility[]" class="form-select" >
+          <option value="All">All</option>
+          <option value="Youth">Youth</option>
+          <option value="Women">Women</option>
+          <option value="PWDs">PWDs</option>
+        </select>
+        <small class="text-muted">Hold Ctrl (Cmd on Mac) to select multiple options</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Create Job</button>
+    </form>
+  </div>
 
   <div class="tab-content bg-white border border-top-0 p-4">
     <!-- Create RFP -->

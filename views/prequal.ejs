@@ -385,7 +385,7 @@
   <div class="mb-3 ps-2 text-center">
     <!-- Replace text with logo -->
     <a href="/admin/dashsup">
-      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
     </a>
   </div>
 
@@ -513,11 +513,13 @@
   </div>
   
 </header>
+
 <div class="content">
+  <h3 style="color: #008000;">Prequalification jobs you have paid for</h3>
   <div class="card p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="text-success fw-bold mb-0">
-        <i class="bi bi-file-earmark-text"></i> My Applications
+      <h4 class=" fw-bold mb-0" style="color: #008000;">
+        <i class="bi bi-file-earmark-text"></i> Prequalifications
       </h4>
       <div class="d-flex gap-2">
         <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search tender code, title..." style="width:250px;">
@@ -535,11 +537,11 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Tender Code</th>
-            <th>Title</th>
+            <th>Buyer</th>
+             <th>Job</th>
             <th>Category</th>
-            <th>Applied On</th>
-            <th>Status</th>
+             <th>Closing Time</th>
+           
             <th>Action</th>
           </tr>
         </thead>
@@ -547,11 +549,11 @@
           <!-- Example Row (to be dynamically generated) -->
           <tr>
             <td>1</td>
-            <td>TND-2025-001</td>
+            <td>ABC LTD</td>
             <td>Supply of Office Furniture</td>
             <td>Procurement</td>
-            <td>2025-10-15</td>
-            <td><span class="badge bg-warning text-dark">Pending</span></td>
+            <td>2025-11-15</td>
+            <!-- <td><span class="badge bg-warning text-dark">Pending</span></td> -->
             <td>
               <div class="d-flex gap-2">
                 <a href="/report/1" class="btn btn-sm btn-info">
@@ -599,6 +601,112 @@
   searchInput.addEventListener("input", filterTable);
   statusFilter.addEventListener("change", filterTable);
 </script>
+  <script>
+    // Sidebar submenu toggles (preserve initial markup, only enhance)
+    document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        const target = this.getAttribute('data-target');
+        const el = document.getElementById(target);
+        if (!el) return;
+        el.classList.toggle('show');
+        // rotate plus icon visual: toggle caret or plus (optional)
+        const icon = this.querySelector('.bi');
+        if (icon) icon.classList.toggle('bi-rotate-90');
+      });
+    });
 
+    // Mobile hamburger toggles the sidebar visibility
+    const hamburger = document.getElementById('hamburgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const topbar = document.getElementById('topbar');
+    const content = document.getElementById('content');
+
+    hamburger && hamburger.addEventListener('click', ()=> {
+      sidebar.classList.toggle('visible'); // CSS handles transform for small screens
+    });
+
+    // Global: close any open popup
+    function closeAllFloating(){
+      document.querySelectorAll('.floating-popup, .floating-popup').forEach(el => el.style.display = 'none');
+      document.getElementById('profileMenu').style.display = 'none';
+    }
+
+    // Position and show a floating popup next to the clicked icon
+    function showPopup(popupEl, triggerEl){
+      closeAllFloating();
+      const rect = triggerEl.getBoundingClientRect();
+      const popup = popupEl;
+      // place above or below depending on available space
+      const scrollY = window.scrollY || window.pageYOffset;
+      let top = rect.bottom + scrollY + 8;
+      let left = Math.min(window.innerWidth - popup.offsetWidth - 12, rect.left + window.scrollX - popup.offsetWidth/2 + rect.width/2);
+      popup.style.top = top + 'px';
+      popup.style.left = left + 'px';
+      popup.style.display = 'block';
+    }
+
+    // tidy helper to find elements
+    const emailIcon = document.getElementById('emailIcon');
+    const smsIcon = document.getElementById('smsIcon');
+    const notifIcon = document.getElementById('notifIcon');
+    const emailPopup = document.getElementById('emailPopup');
+    const smsPopup = document.getElementById('smsPopup');
+    const notifPopup = document.getElementById('notifPopup');
+    const profileIcon = document.getElementById('profileIcon');
+    const profileMenu = document.getElementById('profileMenu');
+
+    // toggle handlers
+    emailIcon && emailIcon.addEventListener('click', (e)=> {
+      showPopup(emailPopup, emailIcon);
+      e.stopPropagation();
+    });
+    smsIcon && smsIcon.addEventListener('click', (e)=> {
+      showPopup(smsPopup, smsIcon);
+      e.stopPropagation();
+    });
+    notifIcon && notifIcon.addEventListener('click', (e)=> {
+      showPopup(notifPopup, notifIcon);
+      e.stopPropagation();
+    });
+
+    profileIcon && profileIcon.addEventListener('click', (e)=>{
+      // position profile menu under the icon (right corner)
+      closeAllFloating();
+      const rect = profileIcon.getBoundingClientRect();
+      const scrollY = window.scrollY || window.pageYOffset;
+      profileMenu.style.top = rect.bottom + scrollY + 8 + 'px';
+      profileMenu.style.left = (rect.left + rect.width/2 - profileMenu.offsetWidth/2) + 'px';
+      profileMenu.style.display = 'block';
+      e.stopPropagation();
+    });
+
+    // click outside closes popups
+    document.addEventListener('click', function(e){
+      // if click inside any floating popup or icon, ignore
+      const targets = [emailPopup, smsPopup, notifPopup, profileMenu];
+      if (!e.target.closest('.nav-icon') && !targets.some(t => t && t.contains(e.target))) {
+        closeAllFloating();
+      }
+    });
+
+    // Card modal: show appropriate content when a card is clicked
+    document.querySelectorAll('.stat-card').forEach(card=>{
+      card.addEventListener('click', function(){
+        const title = this.getAttribute('data-card') || 'Details';
+        const titleEl = document.getElementById('detailModalTitle');
+        const bodyEl = document.getElementById('detailModalBody');
+        titleEl.textContent = title;
+        bodyEl.innerHTML = `<strong>${title}</strong><br/>This is demo content for <em>${title}</em>. You can wire this to real data or link the 'View All' to the relevant page.`;
+        // open bootstrap modal programmatically
+        const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+        modal.show();
+      });
+    });
+
+    // close popups on resize to avoid misplaced popup
+    window.addEventListener('resize', closeAllFloating);
+
+  </script>
 </body>
 </html>

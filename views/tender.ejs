@@ -235,6 +235,73 @@
             <option>open</option>
             <option>Closed</option>
           </select>
+          <!-- Button to Open Modal -->
+<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createJobModal">
+  <i class="bi bi-plus-lg"></i> New Job
+</button>
+
+<!-- Create Job Modal -->
+<div class="modal fade" id="createJobModal" tabindex="-1" aria-labelledby="createJobModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="createJobModalLabel">Create New Job</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form action="/create_job" method="post" id="createJobForm">
+          
+          <div class="mb-3">
+            <label class="form-label">Client</label>
+            <select name="client" class="form-select" required>
+              <option value="">Select Client</option>
+              <option value="County Government">County Government</option>
+              <option value="Ministry">Ministry</option>
+              <option value="Private Company">Private Company</option>
+              <option value="NGO">NGO</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Bid Title</label>
+            <input type="text" name="bid_title" class="form-control" placeholder="Enter bid title" required>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Start Date & Time</label>
+              <input type="datetime-local" name="start_datetime" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Closing Date & Time</label>
+              <input type="datetime-local" name="closing_datetime" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Eligibility Criteria</label>
+            <select name="eligibility" class="form-select" required>
+              <option value="">Select Eligibility</option>
+              <option value="All">All</option>
+              <option value="Youth">Youth</option>
+              <option value="Women">Women</option>
+              <option value="PWDs">PWDs</option>
+            </select>
+          </div>
+
+          <div class="text-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Job</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
           <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRfxModal">
             <i class="bi bi-plus-lg"></i> Createtender
           </button>
@@ -246,13 +313,20 @@
           <table class="table table-striped align-middle" id="rfxTable">
             <thead >
               <tr>
-                <th style="color:#008000;">Code</th>
-                <th style="color:#008000;">Title</th>
-                <th style="color:#008000;">Type</th>
+                   <!-- <th>Company</th>
+      <th>BidTitle</th>
+      <th>Closing date</th>
+       <th>Eligibility</th>
+      <th>Action</th> -->
+         
+
+                <th style="color:#008000;">Company</th>
+                <th style="color:#008000;">BidTitle</th>
                 <th style="color:#008000;">Closing Date</th>
-                <th style="color:#008000;">Status</th>
+                  <th style="color:#008000;">Eligibility</th>
+              
              
-                <th class="text-end" style="color:#008000;" colspan="3">Actions</th>
+                <th class="text-end" style="color:#008000;" colspan="3">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -263,7 +337,7 @@
       <tr>
         <td><%= tender.code %></td>
         <td><%= tender.title %></td>
-        <td><%= tender.type %></td>
+       
        <td>
   <% if (tender.closing_date) { %>
     <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
@@ -274,8 +348,8 @@
     N/A
   <% } %>
 </td>
-
-       <td>
+<td><span class="badge bg-secondary">View</span></td>
+       <!-- <td>
   <span class="badge 
     <% if (tender.status === 'open') { %> bg-success 
     <% } else if (tender.status === 'Draft') { %> bg-warning text-dark 
@@ -283,12 +357,12 @@
     <% } else { %> bg-secondary <% } %>">
     <%= tender.status %>
   </span>
-</td>
+</td> -->
 
         <td class="text-end">
           <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
                   <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
-                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button>
+                  <!-- <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i> QA</button> -->
                   <a href="/deltend:id?=<%tender.code%>"><button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button></a>
         </td>
       </tr>
@@ -330,7 +404,7 @@
           <div class="row g-3">
                <div class="col-md-12">
               <label class="form-label">Select Category</label> <br>
-             <select class="col-md-8" name="category" id="" style="height: 40%;">
+             <select class="col-md-4" name="category" id="" style="height: 40%;">
                 <% if(category && category.length > 0){ %>
                        <% category.forEach(categ =>{ %>
                         <option value="<%=categ.category_name %>"><%=categ.category_name %></option>
@@ -339,6 +413,10 @@
                <% }else{ %>
   <option > No categories found</option>
               <% } %>
+             </select>
+             <label for="">Select Job</label>
+             <select class="col-md-4" name="" id="">
+              <option value=""></option>
              </select>
             </div>
             <div class="col-md-4">

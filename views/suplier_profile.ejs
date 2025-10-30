@@ -2,34 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Supplier Registration | eazyProcure</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Supplier Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body {
-      background: #f8f9fa;
+      background-color: #f8f9fa;
+    }
+    .profile-container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-top: 30px;
     }
     .section-title {
-      font-weight: bold;
+      font-weight: 600;
       margin-bottom: 15px;
       color: #0d6efd;
     }
-    .table-custom {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-      overflow: hidden;
+    .details-label {
+      font-weight: 500;
+      color: #333;
     }
-    .table th {
-      background: #0d6efd;
-      color: #fff;
-      font-weight: 600;
+    .details-value {
+      color: #555;
     }
-    .table td, .table th {
-      vertical-align: middle;
+    .download-link {
+      color: #0d6efd;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .download-link:hover {
+      text-decoration: underline;
     }
   </style>
-    <style>
+  <style>
     :root{
       --sidebar-width: 260px;
       --navbar-height: 64px;
@@ -43,7 +51,7 @@
 
     .topbar {
       height: var(--navbar-height);
-      background: #bfe8b9; /* light green */
+      background: #7dd170; /* light green */
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -136,7 +144,7 @@
       margin-bottom: 4px;
       transition: background .18s;
     }
-    .sidebar .nav-link:hover { background: #e6f0e6; color: #0d6efd; }
+    .sidebar .nav-link:hover { background: #e6f0e6; color: orange; }
 
     .sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
     .sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
@@ -161,7 +169,7 @@
       border-radius:6px;
       margin-bottom:4px;
     }
-    .submenu a:hover { background:#e6f0e6; color:var(--accent); }
+    .submenu a:hover { background:#e6f0e6; color:orange; }
 
     /* main content area */
     .content {
@@ -188,7 +196,7 @@
       grid-template-columns: repeat(4,1fr);
       gap: 16px;
       margin-bottom: 20px;
-     
+       
     }
 
     .stat-card {
@@ -354,212 +362,275 @@
     justify-content: flex-end;
   }
 }
-
   </style>
 </head>
 <body>
-  <!-- Sidebar (light) -->
-   <%- include('partials/sidebar') %>
+  <div class="content">
+        <!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashsup">
+      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashsup" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Supplier</span></div>
+    </a>
+  </div>
+
+  <!-- Permissions & Roles -->
+  <!-- <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="permSub">
+      <div class="nav-left"><i class="bi bi-shield-lock-fill" style="color: green;"></i><span class="ms-2">Permissions & Roles</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="permSub" class="submenu">
+      <a href="/admin/permissions"><i class="bi bi-key-fill me-2" style="color: green;"></i> Permissions</a>
+      <a href="/admin/roles"><i class="bi bi-award-fill me-2"></i> Roles</a>
+    </div>
+  </div> -->
+
+  <!-- Manage Users -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="usersSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">Manage Suplier</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="usersSub" class="submenu">
+      <a href="/admin/mysuplier"><i class="bi bi-truck me-2" style="color: green;"></i> Manage Suppliers</a>
+    </div>
+  </div>
+  <!-- statutory -->
+  <div class="nav-section">
+    <a href="/admin/doc" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Statutory Rquirement</span></div>
+    </a>
+  </div>
+  <!-- Alerts -->
+  <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#alertModal">
+    <div class="nav-left"><i class="bi bi-bell-fill" style="color: green;"></i><span class="ms-2">Alerts</span></div>
+  </a>
+    <!-- supplier prequalification -->
+       <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="msgSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">prequalification</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="msgSub" class="submenu">
+      <a href="/admin/prequal"><i class="bi bi-person-badge me-2" style="color: green;"></i> My Applications</a>
+     
+    </div>
+  </div>
+
+  <!-- tenders -->
+     <div class="nav-section">
+    <a href="/admin/tenders"  class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Tender</span></div>
+    </a>
+  </div>
+   <!-- rfx -->
+         <div class="nav-section">
+    <a href="/admin/rfqs" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFQ</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfps"class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFP</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/eois" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">EOI</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfis" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFI</span></div>
+    </a>
+  </div>
+         <div class="nav-section">
+    <a href="/admin/auction " class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Reverse Auction</span></div>
+    </a>
+  </div>
+
+ 
+ 
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/reports"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
 
     <!-- Top Navbar (light green) -->
-     <%- include('partials/topbar') %>
-<div class="content">
-  <h2 class="text-primary mb-4">Supplier Registration</h2>
+   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
+  </div>
 
-  <!-- Button trigger modal -->
-  <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#supplierModal">
-    + Add New Document
-  </button>
+  <div class="nav-actions position-relative">
+    <!-- <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+      <i class="bi bi-envelope-fill"></i>
+    </div> -->
+    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <!-- <div class="nav-icon icon-badge" id="cartIcon" title="Cart" data-count="0">
+  <i class="bi bi-cart-fill"></i>
+</div> -->
 
-  <!-- Modal -->
-  <div class="modal fade" id="supplierModal" tabindex="-1" aria-labelledby="supplierModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="supplierModalLabel">Register Supplier</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="supplierForm">
-            <!-- Company Details -->
-            <h6 class="section-title">Company Details</h6>
-            <div class="mb-3">
-              <label class="form-label">Company Name</label>
-              <input type="text" class="form-control" id="companyName" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Registration Number</label>
-              <input type="text" class="form-control" id="registrationNumber" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Financial Info</label>
-              <textarea class="form-control" id="financialInfo" rows="2"></textarea>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Contact Email</label>
-              <input type="email" class="form-control" id="contactEmail">
-            </div>
+  <!-- 👤 Profile Dropdown -->
+<div class="dropdown">
+  <div class="nav-icon dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+    <i class="bi bi-person-circle"></i>
+  </div>
+  <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+    <li>
+      <a class="dropdown-item d-flex align-items-center" href="/admin/sup_profile">
+        <i class="bi bi-person me-2 text-success"></i> Profile
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center" href="/admin/logout" id="logoutBtn">
+        <i class="bi bi-box-arrow-right me-2 text-danger"></i> Logout
+      </a>
+    </li>
+  </ul>
+</div>
 
-            <!-- Upload Documents -->
-            <h6 class="section-title">Upload Documents</h6>
-            <div class="mb-3">
-              <label class="form-label">Tax Compliance Certificate</label>
-              <input type="file" class="form-control" id="taxCert">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Certificate of Incorporation</label>
-              <input type="file" class="form-control" id="incorpCert">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Certifications (ISO, Industry Licenses)</label>
-              <input type="file" class="form-control" id="certifications" multiple>
-            </div>
+  </div>
+  
+</header>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="fw-bold" style="color: #008000;">My Profile</h4>
+      <div>
+        <button class="btn btn-outline-primary btn-sm me-2" id="editProfileBtn"><i class="bi bi-pencil"></i> Edit Profile</button>
+        <button class="btn btn-outline-success btn-sm" id="changePasswordBtn"><i class="bi bi-key"></i> Change Password</button>
+      </div>
+    </div>
 
-            <!-- References -->
-            <h6 class="section-title">References & Past Performance</h6>
-            <textarea class="form-control" id="references" rows="3"></textarea>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="saveSupplier">Upload document</button>
+    <div class="row">
+      <!-- Left Side -->
+      <div class="col-md-6 border-end">
+        <h5 class="section-title" style="color: #008000;">Mandatory Details</h5>
+        <div class="mb-2"><span class="details-label">Company Name:</span> <span class="details-value"> XYZ LTD</span></div>
+        <div class="mb-2"><span class="details-label">Contact Name:</span> <span class="details-value">EVANS OLAKI</span></div>
+        <div class="mb-2"><span class="details-label">Tax Identification Number:</span> <span class="details-value">A087635O</span></div>
+        <div class="mb-2"><span class="details-label">Phone Number:</span> <span class="details-value">0798741201</span></div>
+        <div class="mb-2"><span class="details-label">Email Address:</span> <span class="details-value">bunisorve@gmail.com</span></div>
+        <div class="mb-2"><span class="details-label">Postal Address:</span> <span class="details-value">P.O Box 50404-008</span></div>
+        <div class="mb-2"><span class="details-label">Two Factor Authentication:</span> <span class="badge bg-secondary">Disabled</span></div>
+      </div>
+
+      <!-- Right Side -->
+      <div class="col-md-6">
+        <h5 class="section-title" style="color: #008000;">Profile Details</h5>
+        <div class="mb-3">
+          <p class="mb-1 fw-bold" style="color: #008000;">Documents</p>
+          <div class="mb-2">Company Registration Document - <a href="#" class="download-link"><i class="bi bi-download"></i> Download</a></div>
+          <div class="mb-2">Company CR12 - <a href="#" class="download-link"><i class="bi bi-download"></i> Download</a></div>
+          <div class="mb-2">PIN Certificate - <a href="#" class="download-link"><i class="bi bi-download"></i> Download</a></div>
+          <div class="mb-2">Tax Compliance Certificate - <a href="#" class="download-link"><i class="bi bi-download"></i> Download</a></div>
+          <div class="mb-2 ms-3 text-muted">Expires on: <strong>2026-01-15</strong></div>
+          <div class="mb-2">Trading License - <a href="#" class="download-link"><i class="bi bi-download"></i> Download</a></div>
+          <div class="mb-2 ms-3 text-muted">Expires on: <strong>2025-12-31</strong></div>
+          <div class="mb-2">AGPO Certificate - <a href="#" class="download-link"><i class="bi bi-download"></i> Download</a></div>
         </div>
       </div>
     </div>
   </div>
 
-<!-- Tabs -->
-<ul class="nav nav-tabs mb-3" id="supplierTabs" role="tablist">
-  <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="uploaded-tab" data-bs-toggle="tab" data-bs-target="#uploaded" type="button" role="tab" aria-controls="uploaded" aria-selected="true">Uploaded Info</button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="false">Pending</button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab" aria-controls="rejected" aria-selected="false">Rejected</button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="nav-link" id="closed-tab" data-bs-toggle="tab" data-bs-target="#closed" type="button" role="tab" aria-controls="closed" aria-selected="false">Closed Bids</button>
-  </li>
-</ul>
-
-<!-- Tab Contents -->
-<div class="tab-content" id="supplierTabContent">
-  <!-- Uploaded Info -->
-  <div class="tab-pane fade show active" id="uploaded" role="tabpanel" aria-labelledby="uploaded-tab">
-    <div class="table-responsive table-custom">
-      <table class="table table-bordered table-hover mb-0">
-        <thead>
-          <tr>
-            <th>Company Name</th>
-            <th>Reg. Number</th>
-            <th>Email</th>
-            <th>Financial Info</th>
-            <th>References</th>
-          </tr>
-        </thead>
-        <tbody id="supplierTableUploaded">
-          <!-- Uploaded supplier info will load here -->
-        </tbody>
-      </table>
+  <!-- Edit Profile Modal -->
+  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Edit Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-2">
+              <label class="form-label">Company Name</label>
+              <input type="text" class="form-control" value="DEO GLOBAL CONCEPTS">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Contact Name</label>
+              <input type="text" class="form-control" value="EVANS OLAKI">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" value="example@gmail.com">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" value="0741197710">
+            </div>
+            <button type="button" class="btn btn-primary w-100">Save Changes</button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Pending -->
-  <div class="tab-pane fade" id="pending" role="tabpanel" aria-labelledby="pending-tab">
-    <div class="table-responsive table-custom">
-      <table class="table table-bordered table-hover mb-0">
-        <thead>
-          <tr>
-            <th>Bid Title</th>
-            <th>Company</th>
-            <th>Status</th>
-            <th>Closing Date</th>
-          </tr>
-        </thead>
-        <tbody id="supplierTablePending">
-          <!-- Pending data will load here -->
-        </tbody>
-      </table>
+  <!-- Change Password Modal -->
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Change Password</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-2">
+              <label class="form-label">Current Password</label>
+              <input type="password" class="form-control">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-control">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" class="form-control">
+            </div>
+            <button type="button" class="btn btn-success w-100">Update Password</button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Rejected -->
-  <div class="tab-pane fade" id="rejected" role="tabpanel" aria-labelledby="rejected-tab">
-    <div class="table-responsive table-custom">
-      <table class="table table-bordered table-hover mb-0">
-        <thead>
-          <tr>
-            <th>Bid Title</th>
-            <th>Company</th>
-            <th>Status</th>
-            <th>Closing Date</th>
-          </tr>
-        </thead>
-        <tbody id="supplierTableRejected">
-          <!-- Rejected data will load here -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Closed Bids -->
-  <div class="tab-pane fade" id="closed" role="tabpanel" aria-labelledby="closed-tab">
-    <div class="table-responsive table-custom">
-      <table class="table table-bordered table-hover mb-0">
-        <thead>
-          <tr>
-            <th>Bid Title</th>
-            <th>Company</th>
-            <th>Status</th>
-            <th>Closing Date</th>
-          </tr>
-        </thead>
-        <tbody id="supplierTableClosed">
-          <!-- Closed bids data will load here -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-</div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  const saveBtn = document.getElementById("saveSupplier");
-  const tableBody = document.getElementById("supplierTable");
-
-  saveBtn.addEventListener("click", () => {
-    const name = document.getElementById("companyName").value;
-    const regNo = document.getElementById("registrationNumber").value;
-    const email = document.getElementById("contactEmail").value;
-    const finInfo = document.getElementById("financialInfo").value;
-    const refs = document.getElementById("references").value;
-
-    if(name && regNo) {
-      const row = `
-        <tr>
-          <td>${name}</td>
-          <td>${regNo}</td>
-          <td>${email}</td>
-          <td>${finInfo}</td>
-          <td>${refs}</td>
-        </tr>
-      `;
-      tableBody.insertAdjacentHTML("beforeend", row);
-      document.getElementById("supplierForm").reset();
-      const modal = bootstrap.Modal.getInstance(document.getElementById("supplierModal"));
-      modal.hide();
-    } else {
-      alert("Please fill in at least Company Name and Registration Number");
-    }
-  });
-</script>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    // JS for modal controls
+    document.getElementById('editProfileBtn').addEventListener('click', () => {
+      new bootstrap.Modal(document.getElementById('editProfileModal')).show();
+    });
+    document.getElementById('changePasswordBtn').addEventListener('click', () => {
+      new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+    });
+  </script>
+    <script>
     // Sidebar submenu toggles (preserve initial markup, only enhance)
     document.querySelectorAll('[data-toggle="submenu"]').forEach(btn=>{
       btn.addEventListener('click', function(e){

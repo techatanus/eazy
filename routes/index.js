@@ -69,13 +69,7 @@ exports.dashboard = async (req, res) => {
 
 
 
-//logout
-// exports.logoutUser = (req, res) => {
-//   req.session.destroy((err) => {
-//     if (err) console.error(err);
-//     res.redirect("/");
-//   });
-// };
+
 
 // post user account info
 router.post('/sign',adminCtrl.createUser);
@@ -85,6 +79,9 @@ router.get('/verify/:token',adminCtrl.verifyUser);
 
 // login
 router.post('/login',adminCtrl.loginUser);
+
+// logout user
+router.get('/logout',adminCtrl.logoutUser);
 
 // create single category
 router.post('/add_category',adminCtrl.create_category);

@@ -27,7 +27,7 @@ router.get('/perms', (req, res) => {
   try {
     const user = req.session.user;
     if(!user){
-      res.redirect('/')
+     return res.redirect('/')
     }   
      res.render('permissions'); // assuming your file is permissions.ejs 
   } catch (error) {
@@ -40,7 +40,7 @@ router.get('/super',(req,res)=>{
     try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/');
+       return res.redirect('/');
       }
        res.render('super')
       
@@ -54,7 +54,7 @@ router.get('/client',(req,res)=>{
 
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+       return res.redirect('/')
       }
         res.render('client')
       
@@ -68,7 +68,7 @@ router.get('/suplier',(req,res)=>{
   try {
     const user = req.session.user;
     if(!user){
-      res.redirect('/')
+     return res.redirect('/')
     }
     res.render('supplier')
   } catch (error) {
@@ -80,7 +80,7 @@ router.get('/suplier',(req,res)=>{
 router.get('/mysuplier',(req,res)=>{
   const user = req.session.user;
   if(!user){
-    res.redirect('/');
+    return res.redirect('/');
   }
     db.query("SELECT * FROM suppliers")
     .then(([results]) => {
@@ -101,7 +101,7 @@ router.get('/bids',(req,res)=>{
      try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+     return   res.redirect('/')
       }
      res.render('rfx')
      } catch (error) {
@@ -116,7 +116,7 @@ router.get('/tender', async (req, res) => {
   try {
     const user = req.session.user;
     if(!user){
-      res.redirect('/');
+    return  res.redirect('/');
     }
     const [tenders] = await db.query("SELECT * FROM tenders");
     const [category] = await db.query("SELECT * FROM categories");
@@ -156,7 +156,7 @@ router.get('/preq', async(req,res)=>{
     try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+      return  res.redirect('/')
       }
     const [catego] = await db.query("SELECT * FROM categories");
     console.log("✅ Retrieved catego:",catego); // Debugging log
@@ -173,7 +173,7 @@ router.get('/log',(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+      return  res.redirect('/')
       }
      res.render('logs')
      } catch (error) {
@@ -186,7 +186,7 @@ router.get('/reports',(req,res)=>{
      try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+       return res.redirect('/')
       }
      res.render('report')
      } catch (error) {
@@ -198,7 +198,7 @@ router.get('/reportc',(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+      return res.redirect('/')
       }
      res.render('archivecl')
      } catch (error) {
@@ -211,7 +211,7 @@ router.get('/sms', async(req,res)=>{
   try {
     const user = req.session.user;
     if(!user){
-      res.redirect('/')
+     return res.redirect('/')
     }
      const [message] = await db.query("SELECT * FROM notification");
      console.log("Successful loaded notification", message);
@@ -223,18 +223,19 @@ router.get('/sms', async(req,res)=>{
   }
 })
 // suplier_profile
-router.get('/sup_profile',(req,res)=>{
-       try {
-      const user = req.session.user;
-      if(!user){
-        res.redirect('/')
-      }
-     res.render('suplier_profile')
-     } catch (error) {
-      
-     }
+router.get('/sup_profile', (req, res) => {
+  try {
+    const user = req.session.user;
+    if (!user) {
+      return res.redirect('/'); // 🟢 Add return to stop further execution
+    }
+    res.render('suplier_profile'); // This runs only if user exists
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-})
 
 // statutory document
 router.get('/doc', async (req, res) => {
@@ -275,7 +276,7 @@ router.get('/rfq',(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+      return  res.redirect('/')
       }
      res.render('rfq')
      } catch (error) {
@@ -284,13 +285,30 @@ router.get('/rfq',(req,res)=>{
 
 })
 // rfqs
-router.get('/rfqs',(req,res)=>{
+router.get('/rfqs',async(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+       return res.redirect('/')
       }
-     res.render('rfqs')
+      
+             const [jobs] = await db.query(`
+              
+       SELECT 
+    c.category_name,
+    t.title,
+    c.description,
+    c.price
+  FROM categories c
+  INNER JOIN tenders t 
+    ON c.category_name = t.category
+  ORDER BY c.category_name ASC
+              
+              `) ;
+             console.log(jobs);
+             
+            res.render('rfqs',{jobs});
+       
      } catch (error) {
       
      }
@@ -301,7 +319,7 @@ router.get('/rfp',(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+       return res.redirect('/')
       }
      res.render('rfp')
      } catch (error) {
@@ -421,26 +439,64 @@ router.get('/qas',(req,res)=>{
 })
 
 // client approval
-router.get('/approve',(req,res)=>{
+router.get('/approve',async(req,res)=>{
     try {
       const user = req.session.user;
       if(!user){
         return res.redirect('/')
-      }
-      res.render('approval');
+      };
+      const status = 'draft';
+      const status1 = 'rejected'
+    
+      const status2 = 'approved';
+
+
+      // pending tenders
+   const [tenders] = await db.query("SELECT * FROM tenders WHERE status = ?",[status]);
+//approved tenders
+     const [tender] = await db.query("SELECT * FROM tenders WHERE status = ?",[status2]);
+
+     const [reject] = await db.query("SELECT * FROM tenders WHERE status = ?",[status1]);
+ 
+   console.log(tender);
+   
+            res.render('approval',{tenders,tender,reject});
     } catch (error) {
       
     }
 });
 
 // open bids
-router.get('/openbids',(req,res)=>{
+router.get('/openbids',async(req,res)=>{
     try {
       const user = req.session.user;
       if(!user){
         return res.redirect('/')
       }
-      res.render('openbids');
+            const status2 = 'approved';
+           const [openbids] = await db.query(`
+  SELECT 
+    t.id,
+    t.code,
+    t.title,
+    t.category,
+    t.description,
+    t.closing_date,
+    t.status,
+    cat.total
+  FROM tenders AS t
+  LEFT JOIN (
+    SELECT category, COUNT(*) AS total
+    FROM tenders
+    WHERE status = ?
+    GROUP BY category
+  ) AS cat ON t.category = cat.category
+  WHERE t.status = ?
+  ORDER BY t.closing_date DESC
+`, [status2, status2]);
+
+
+      res.render('openbids',{openbids});
     } catch (error) {
       
     }
@@ -478,6 +534,61 @@ router.get('/qa_client',(req,res)=>{
 router.get('/archive_client',(req,res)=>{
   res.render('archive_client')
 })
+
+// submeet quatation
+
+// POST /submit_jobs
+// router.post("/submit_jobs", async (req, res) => {
+//   try {
+//     const {
+//       category,
+//       item,
+//       description,
+//       price,
+//       quantity,
+//       total_price,
+//       comments,
+//       total_amount,
+//     } = req.body;
+
+//     // Ensure we have data
+//     if (!category || category.length === 0) {
+//       return res.status(400).send("No quotation data submitted.");
+//     }
+
+//     // Prepare an array of records
+//     const quotes = [];
+//     for (let i = 0; i < category.length; i++) {
+//       quotes.push([
+//         category[i],
+//         item[i],
+//         description[i],
+//         parseFloat(price[i]) || 0,
+//         parseFloat(quantity[i]) || 0,
+//         parseFloat(total_price[i]) || 0,
+//         comments[i] || "",
+//         parseFloat(total_amount) || 0,
+//       ]);
+//     }
+
+//     // Insert into MySQL (bulk insert)
+//     const sql = `
+//       INSERT INTO supplier_quotes 
+//       (category, item, description, price, quantity, total_price, comments, total_amount) 
+//       VALUES ?
+//     `;
+
+//     await db.query(sql, [quotes]);
+
+//     console.log("Quotation saved successfully.");
+//     res.redirect("/thankyou"); // or send JSON if using AJAX
+//   } catch (error) {
+//     console.error("Error saving quotation:", error);
+//     res.status(500).send("Server error while saving quotation.");
+//   }
+// });
+
+
 
 
 

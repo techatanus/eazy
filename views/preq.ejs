@@ -344,29 +344,95 @@
     <!-- Top Navbar (light green) -->
      <%- include('partials/topbar') %>
   <h2 class="mb-4 text-center text-success">Category Management</h2>
+<!-- Main Navigation Tabs -->
+<ul class="nav nav-pills mb-3 justify-content-center" id="adminTabs" role="tablist">
+  <li class="nav-item">
+    <button class="nav-link active" id="job-tab" data-bs-toggle="pill" data-bs-target="#job" type="button" role="tab" aria-controls="job" aria-selected="true">
+      New Job
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" id="form-tab" data-bs-toggle="pill" data-bs-target="#form" type="button" role="tab" aria-controls="form" aria-selected="false">
+      Create Category
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="false">
+      Multiple Upload
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" id="communication-tab" data-bs-toggle="pill" data-bs-target="#communication" type="button" role="tab" aria-controls="communication" aria-selected="false">
+      Questionnaire
+    </button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link" id="reporting-tab" data-bs-toggle="pill" data-bs-target="#reporting" type="button" role="tab" aria-controls="reporting" aria-selected="false">
+      View Category List
+    </button>
+  </li>
+</ul>
 
-  <!-- Main Navigation Tabs -->
-  <ul class="nav nav-pills mb-3 justify-content-center" id="adminTabs" role="tablist">
-    <li class="nav-item">
-      <button class="nav-link active" id="form-tab" data-bs-toggle="pill" data-bs-target="#form" type="button" role="tab">Create Category</button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload" type="button" role="tab">Multiple Upload</button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" id="communication-tab" data-bs-toggle="pill" data-bs-target="#communication" type="button" role="tab">Questionnaire</button>
-    </li>
-    <!-- <li class="nav-item">
-      <button class="nav-link" id="management-tab" data-bs-toggle="pill" data-bs-target="#management" type="button" role="tab">View Category List</button>
-    </li> -->
-    <li class="nav-item">
-      <button class="nav-link" id="reporting-tab" data-bs-toggle="pill" data-bs-target="#reporting" type="button" role="tab">View Category List</button>
-    </li>
-  </ul>
+<script>
+  // Keep only one tab active (blue) at a time
+  const tabButtons = document.querySelectorAll('#adminTabs .nav-link');
+
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+
 
   <!-- Tab Content -->
   <div class="tab-content" id="adminTabsContent">
+<!-- New Job Tab -->
+  <div class="tab-pane fade show active" id="newJob">
+    <h5 class="text-success mb-3">Create New Job</h5>
+    <form action="/create_job" method="post">
+      <div class="mb-3">
+        <label class="form-label">Client</label>
+        <select name="client" class="form-select">
+          <option value="">Select Client</option>
+          <option value="County Government">County Government</option>
+          <option value="Ministry">Ministry</option>
+          <option value="Private Company">Private Company</option>
+          <option value="NGO">NGO</option>
+        </select>
+      </div>
 
+      <div class="mb-3">
+        <label class="form-label">Bid Title</label>
+        <input type="text" name="bid_title" class="form-control" placeholder="Enter bid title" required>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Start Date & Time</label>
+          <input type="datetime-local" name="start_datetime" class="form-control" required>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Closing Date & Time</label>
+          <input type="datetime-local" name="closing_datetime" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Eligibility Criteria</label>
+        <select name="eligibility[]" class="form-select" >
+          <option value="All">All</option>
+          <option value="Youth">Youth</option>
+          <option value="Women">Women</option>
+          <option value="PWDs">PWDs</option>
+        </select>
+        <small class="text-muted">Hold Ctrl (Cmd on Mac) to select multiple options</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Create Job</button>
+    </form>
+  </div>
     <!-- Create Category -->
     <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="form-tab">
       <div class="card p-4 shadow-sm">
@@ -388,7 +454,10 @@
             <label class="form-label">Description</label>
             <textarea class="form-control" name="description" placeholder="Enter category description"></textarea>
           </div>
-          <button type="submit" class="btn btn-success">Save</button>
+          <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-success" id="saveJobBtn">Save</button>
+        <button type="button" class="btn btn-primary next-tab" id="nextTabBtn">Next</button>
+      </div>
         </form>
       </div>
     </div>
@@ -402,7 +471,10 @@
             <label class="form-label">Upload File</label>
             <input type="file" class="form-control">
           </div>
-          <button type="submit" class="btn btn-success">Upload</button>
+            <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-success" id="saveJobBtn">upload</button>
+        <button type="button" class="btn btn-primary next-tab" id="nextTabBtn">Next</button>
+      </div>
         </form>
       </div>
     </div>
@@ -417,12 +489,106 @@
   <h3>Generated Questionnaire</h3>
   <form id="questionnaire"></form>
 
-  <button id="previewBtn">Preview</button>
-
+  <!-- <button id="previewBtn">Preview</button> -->
+   <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-success" id="previewBtn">Preview</button>
+        <button type="button" class="btn btn-primary next-tab" id="nextTabBtn">Next</button>
+      </div>
   <div id="previewArea"></div>
    
       </div>
     </div>
+<script>
+document.querySelectorAll('.next-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Find current active tab
+    const activeTab = document.querySelector('#adminTabs .nav-link.active');
+    const nextTabItem = activeTab.parentElement.nextElementSibling;
+    
+    if (nextTabItem) {
+      const nextTabBtn = nextTabItem.querySelector('.nav-link');
+      const nextTab = new bootstrap.Tab(nextTabBtn);
+      nextTab.show();
+    } else {
+      alert("You’ve reached the last section!");
+    }
+  });
+});
+</script>
+<!-- next button -->
+ <script>
+document.querySelectorAll('.next-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Find current active tab
+    const activeTab = document.querySelector('#adminTabs .nav-link.active');
+    const nextTabItem = activeTab.parentElement.nextElementSibling;
+    
+    if (nextTabItem) {
+      const nextTabBtn = nextTabItem.querySelector('.nav-link');
+      const nextTab = new bootstrap.Tab(nextTabBtn);
+      nextTab.show();
+    } else {
+      alert("You’ve reached the last section!");
+    }
+  });
+});
+</script>
+
+<script>
+  // Handle Save Job
+  document.getElementById("saveJobBtn").addEventListener("click", function () {
+    const form = document.getElementById("newJobForm");
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    const formData = Object.fromEntries(new FormData(form).entries());
+    console.log("Job saved:", formData);
+    alert("Job saved successfully!");
+  });
+
+  // Move to Create Category tab after saving
+  document.getElementById("nextTabBtn").addEventListener("click", function () {
+    const nextTab = document.querySelector('#form-tab');
+    const tabInstance = new bootstrap.Tab(nextTab);
+    tabInstance.show();
+  });
+</script>
+
+
+<script>
+  // Show modal when New Job tab is clicked
+  document.getElementById("job-tab").addEventListener("click", function (e) {
+    e.preventDefault();
+    const modal = new bootstrap.Modal(document.getElementById("newJobModal"));
+    modal.show();
+  });
+
+  // Handle Save button
+  document.getElementById("saveJobBtn").addEventListener("click", function () {
+    const form = document.getElementById("newJobForm");
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    // Example: collect form data
+    const formData = Object.fromEntries(new FormData(form).entries());
+    console.log("Job saved:", formData);
+
+    alert("Job saved successfully!");
+  });
+
+  // Handle Next button — moves to Create Category tab
+  document.getElementById("nextTabBtn").addEventListener("click", function () {
+    const nextTab = document.querySelector('#form-tab');
+    const tabInstance = new bootstrap.Tab(nextTab);
+    tabInstance.show();
+
+    const modalEl = document.getElementById("newJobModal");
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    modalInstance.hide();
+  });
+</script>
 
     <!-- View Category List -->
 
@@ -511,136 +677,193 @@
 <!-- questionnair script -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-  document.getElementById("fileInput").addEventListener("change", handleFile);
+document.getElementById("fileInput").addEventListener("change", handleFile);
 
-  function handleFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+function cleanText(t) {
+  if (!t) return "";
+  // remove long underscore placeholders and trailing colons/extra spaces
+  return t.replace(/[_\u2014\u2013]+/g, '')    // underscores and long dashes
+          .replace(/:\s*$/g, '')              // trailing colon
+          .replace(/\s{2,}/g, ' ')            // collapse multiple spaces
+          .trim();
+}
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      let rows = [];
+function handleFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
 
-      if (file.name.endsWith(".csv")) {
-        // Parse CSV
-        const text = e.target.result;
-        rows = text.replace(/\r\n/g, "\n").split("\n").map(r => r.split(","));
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    let rows = [];
+
+    if (file.name.endsWith(".csv")) {
+      const text = e.target.result;
+      rows = text.replace(/\r\n/g, "\n").split("\n").map(r => r.split(","));
+    } else {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+    }
+
+    // Remove header row
+    rows.shift();
+
+    const questionnaire = document.getElementById("questionnaire");
+    questionnaire.innerHTML = "";
+
+    rows.forEach((row, index) => {
+      if (!row || row.length < 8) return;
+
+      let [
+        section,
+        questionId,
+        questionTextRaw,
+        answerType,
+        mandatory,
+        optionsOrRule,
+        weight,
+        attachmentRequired
+      ] = row.map(v => String(v || ""));
+
+      const questionText = questionTextRaw.trim();
+
+      // Clean display text for normal questions
+      const cleanedQuestionText = cleanText(questionText);
+
+      let field = "";
+
+      // Detect reference-style blocks (keywords are flexible)
+      const isReferenceBlock =
+        /reference/i.test(questionText) ||
+        /organization name/i.test(questionText) ||
+        /contact person/i.test(questionText);
+
+      if (isReferenceBlock) {
+        // Render clean input fields only (no underscore placeholders)
+        field = `
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <label class="form-label">Organization Name</label>
+              <input type="text" class="form-control" name="org_name_${index}" placeholder="Organization Name">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Contact Person</label>
+              <input type="text" class="form-control" name="contact_person_${index}" placeholder="Contact Person">
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <label class="form-label">Designation/Position</label>
+              <input type="text" class="form-control" name="designation_${index}" placeholder="Designation / Position">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Telephone Number</label>
+              <input type="text" class="form-control" name="phone_${index}" placeholder="Telephone Number">
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-control" name="email_${index}" placeholder="Email Address">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Nature of Goods/Services Supplied</label>
+              <input type="text" class="form-control" name="services_${index}" placeholder="Nature of Goods/Services Supplied">
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Contract Value (approx.)</label>
+            <input type="text" class="form-control" name="contract_value_${index}" placeholder="Contract Value (approx.)">
+          </div>
+        `;
       } else {
-        // Parse Excel
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-      }
-
-      // Remove header row
-      rows.shift();
-
-      const questionnaire = document.getElementById("questionnaire");
-      questionnaire.innerHTML = "";
-
-      rows.forEach((row, index) => {
-        if (row.length < 8) return;
-
-        const [
-          section,
-          questionId,
-          questionText,
-          answerType,
-          mandatory,
-          optionsOrRule,
-          weight,
-          attachmentRequired
-        ] = row.map(v => String(v || "").trim());
-
-        let field = "";
-
-        // Generate field based on Answer Type
-        switch (answerType.toLowerCase()) {
+        // Normal question rendering (clean the question text for display)
+        switch ((answerType || "").toLowerCase()) {
           case "text":
             field = `<textarea name="q${index}" class="form-control mb-2" placeholder="Enter answer"></textarea>`;
             break;
-
           case "number":
-            field = `<input type="number" name="q${index}" class="form-control mb-2" />`;
+            field = `<input type="number" name="q${index}" class="form-control mb-2" placeholder="Enter number" />`;
             break;
-
           case "date":
             field = `<input type="date" name="q${index}" class="form-control mb-2" />`;
             break;
-
           case "pass/fail":
             field = `
               <select name="q${index}" class="form-control mb-2">
                 <option value="">-- Select --</option>
                 <option value="Pass">Pass</option>
                 <option value="Fail">Fail</option>
-              </select>
-            `;
+              </select>`;
             break;
-
           case "file":
-            field = `<input type="file" name="q${index}" accept="application/pdf" class="form-control mb-2" /> 
+            field = `<input type="file" name="q${index}" accept="application/pdf" class="form-control mb-2" />
                      <small>FileType=PDF, MaxSize=1MB</small>`;
             break;
-
           default:
-            // Handle rules like "Staffing ≥ 20 employees = 8 points..."
             if (optionsOrRule && optionsOrRule.includes("=")) {
               field = `<select name="q${index}" class="form-control mb-2">
                 ${optionsOrRule.split(",").map(opt => {
                   const [label, val] = opt.split("=");
-                  return `<option value="${val.trim()}">${label.trim()} (${val.trim()} pts)</option>`;
+                  return `<option value="${val ? val.trim() : label.trim()}">${label.trim()}</option>`;
                 }).join("")}
               </select>`;
             } else {
-              // fallback text
-              field = `<input type="text" name="q${index}" class="form-control mb-2" />`;
+              field = `<input type="text" name="q${index}" class="form-control mb-2" placeholder="Enter answer" />`;
             }
         }
+      }
 
-        // Mark mandatory
-        const requiredMark = mandatory.toLowerCase() === "y" ? " <span style='color:red'>*</span>" : "";
+      const requiredMark = (mandatory || "").toLowerCase() === "y" ? " <span style='color:red'>*</span>" : "";
 
-        // File attachment if required
-        let attachmentField = "";
-        if (attachmentRequired.toLowerCase() === "y") {
-          attachmentField = `<input type="file" name="attach${index}" accept="application/pdf" class="form-control mb-2" /> 
-                             <small>FileType=PDF, MaxSize=1MB</small>`;
-        }
+      let attachmentField = "";
+      if ((attachmentRequired || "").toLowerCase() === "y") {
+        attachmentField = `
+          <input type="file" name="attach${index}" accept="application/pdf" class="form-control mb-2" />
+          <small>FileType=PDF, MaxSize=1MB</small>`;
+      }
 
-        questionnaire.innerHTML += `
-          <div class="quiz-card mb-3 p-2 border rounded">
-            <h5>${section} - ${questionId}</h5>
-            <p><strong>${questionText}</strong>${requiredMark}</p>
-            ${field}
-            ${attachmentField}
-            <small><em>Weight: ${weight}</em></small>
-          </div>
-        `;
-      });
-    };
+      // Only show the cleaned question text if it has non-empty content and it's not redundant
+      const showQuestionHeading = !isReferenceBlock && cleanedQuestionText.length > 0;
 
-    // Use correct reader mode
-    if (file.name.endsWith(".csv")) {
-      reader.readAsText(file);
-    } else {
-      reader.readAsArrayBuffer(file);
-    }
+      questionnaire.innerHTML += `
+        <div class="quiz-card mb-3 p-2 border rounded">
+          <h5>${section ? section : ''}${section && questionId ? ' - ' : ''}${questionId ? questionId : ''}</h5>
+          ${showQuestionHeading ? `<p><strong>${cleanedQuestionText}</strong>${requiredMark}</p>` : ''}
+          ${field}
+          ${attachmentField}
+          <small><em>Weight: ${weight ? weight : ''}</em></small>
+        </div>
+      `;
+    });
+  };
+
+  // Reader mode
+  if (file.name.endsWith(".csv")) {
+    reader.readAsText(file);
+  } else {
+    reader.readAsArrayBuffer(file);
   }
+}
 
-  // Preview entered answers
-  document.getElementById("previewBtn").addEventListener("click", function(e) {
-    e.preventDefault();
-    const formData = new FormData(document.getElementById("questionnaire"));
-    let preview = "<h3>Preview Responses</h3><ul>";
-    for (let [key, value] of formData.entries()) {
-      preview += `<li>${key}: ${value instanceof File ? value.name : value}</li>`;
-    }
-    preview += "</ul>";
-    document.getElementById("previewArea").innerHTML = preview;
-  });
+// Preview entered answers
+document.getElementById("previewBtn").addEventListener("click", function(e) {
+  e.preventDefault();
+  const form = document.getElementById("questionnaire");
+  if (!form) return;
+  const formData = new FormData(form);
+  let preview = "<h3>Preview Responses</h3><ul>";
+  for (let [key, value] of formData.entries()) {
+    preview += `<li>${key}: ${value instanceof File ? value.name : value}</li>`;
+  }
+  preview += "</ul>";
+  document.getElementById("previewArea").innerHTML = preview;
+});
 </script>
+
+
+
 
  <script>
     // Sidebar submenu toggles (preserve initial markup, only enhance)

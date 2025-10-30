@@ -346,7 +346,7 @@
   <div class="mb-3 ps-2 text-center">
     <!-- Replace text with logo -->
     <a href="/admin/dashcl">
-      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
     </a>
   </div>
 
@@ -508,12 +508,12 @@
       <table class="table table-borderless table-hover mb-0">
   <thead class="table-light">
     <tr>
-      <th>Code</th>
+      <th>#</th>
+       <th>Company</th>
       <th>Bid Title</th>
-      <th>Category</th>
-       <th>Description</th>
-      <th>Status</th>
-      <th>Closing Date</th>
+      <th>Closing date</th>
+       <th>Eligibility</th>
+      <th>Action</th>
      
     </tr>
   </thead>
@@ -523,26 +523,26 @@
     <% 
       // Filter tenders to include only open or draft
       const visibleTenders = openTenders.filter(t => 
-        t.status === 'open' || t.status === 'draft'
+        t.status === 'approved' || t.status === 'draft'
       ); 
     %>
 
     <% if (visibleTenders.length > 0) { %>
-      <% visibleTenders.forEach(tender => { %>
+      <% visibleTenders.forEach((tender,index) => { %>
         <tr>
           <!-- <td>
             <img src="<%= tender.logo || '/images/default-logo.png' %>" 
                  alt="Logo" width="40" height="40" class="rounded-circle">
           </td> -->
+          <td><%=index + 1 %></td>
           <td><%= tender.code || 'N/A' %></td>
           <td><%= tender.title %></td>
-          <td><%= tender.type%></td>
-          <td><%= tender.description %></td>
-          <td>
+        
+          <!-- <td>
             <span class="badge bg-<%= tender.status === 'open' ? 'success' : 'warning' %>">
               <%= tender.status.charAt(0).toUpperCase() + tender.status.slice(1) %>
             </span>
-          </td>
+          </td> -->
           <td>
               <% if (tender.closing_date) { %>
     <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
@@ -602,12 +602,13 @@
       <table class="table table-borderless table-hover mb-0">
   <thead class="table-light">
     <tr>
-      <th>Code</th>
+      <th>#</th>
+      <th>Company</th>
       <th>Bid Title</th>
-      <th>Category</th>
-       <th>Description</th>
-      <th>Status</th>
-      <th>Closing Date</th>
+      <th>Closing date</th>
+       <th>Eligibility</th>
+      <th>Action</th>
+      
      
     </tr>
   </thead>
@@ -620,16 +621,16 @@
     %>
 
     <% if (visibleTenders.length > 0) { %>
-      <% visibleTenders.forEach(tender => { %>
+      <% visibleTenders.forEach((tender, index) => { %>
         <tr>
-          <td><%= tender.code || 'N/A' %></td>
+            <td><%=index + 1%></td>
+          <td></td>
           <td><%= tender.title %></td>
-          <td><%= tender.type %></td>
-          <td><%= tender.description %></td>
+       
           <td>
-            <span class="badge bg-<%= tender.status === 'closed' ? 'success' : 'secondary' %>">
+            <!-- <span class="badge bg-<%= tender.status === 'closed' ? 'success' : 'secondary' %>">
               <%= tender.status.charAt(0).toUpperCase() + tender.status.slice(1) %>
-            </span>
+            </span> -->
           </td>
           <td>
               <% if (tender.closing_date) { %>
@@ -680,7 +681,156 @@
 
     </div>
   </div>
-       
+                  <div class="container-fluid mt-4" style="padding: 40px;">
+  <div class="row g-4">
+    <!-- ===== PIE CHART CARD ===== -->
+    <div class="col-md-5">
+      <div class="card shadow-sm rounded-3 p-3">
+        <h5 class="text-center fw-bold mb-3">Tender Status Overview</h5>
+        <div class="chart-container" style="position: relative; height: 350px; width: 100%;">
+          <canvas id="jobStatusChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BAR CHART CARD ===== -->
+    <div class="col-md-7">
+      <div class="card shadow-sm rounded-3 p-3">
+        <h5 class="text-center fw-bold mb-3">Tenders per Category</h5>
+        <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+          <canvas id="tendersBarChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js + DataLabels Plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const statusCounts = <%- JSON.stringify(statusCounts || {}) %>;
+  const categoryStatusCounts = <%- JSON.stringify(categoryStatusCounts || []) %>;
+
+  // ================= PIE CHART =================
+  const pieCtx = document.getElementById("jobStatusChart").getContext("2d");
+  const pieData = [
+    statusCounts.Draft || 0,
+    statusCounts.Open || 0,
+    statusCounts.Closed || 0,
+    statusCounts.Rejected || 0,
+    statusCounts.Approved || 0,
+  ];
+
+  new Chart(pieCtx, {
+    type: "pie",
+    data: {
+      labels: ["Draft", "Open", "Closed", "Rejected", "Approved"],
+      datasets: [
+        {
+          data: pieData,
+          backgroundColor: ["#ffc107", "#28a745", "#007bff", "#dc3545", "#17a2b8"],
+          borderWidth: 2,
+          hoverOffset: 10,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      animation: {
+        animateScale: true,
+        animateRotate: true,
+      },
+      plugins: {
+        legend: { position: "bottom" },
+        datalabels: {
+          color: "#fff",
+          font: { weight: "bold", size: 12 },
+          formatter: (value, ctx) => {
+            const dataArr = ctx.chart.data.datasets[0].data;
+            const total = dataArr.reduce((a, b) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1) + "%";
+            return percentage;
+          },
+          animation: {
+            duration: 2000,
+            easing: "easeOutBounce",
+          },
+        },
+      },
+    },
+    plugins: [ChartDataLabels],
+  });
+
+  // ================= BAR CHART =================
+  // Compute total tenders per category to sort them
+  const sortedCategories = categoryStatusCounts
+    .map(row => ({
+      ...row,
+      total:
+        (row.Draft || 0) +
+        (row.Open || 0) +
+        (row.Closed || 0) +
+        (row.Rejected || 0) +
+        (row.Approved || 0),
+    }))
+    .sort((a, b) => b.total - a.total); // highest category first
+
+  const labels = sortedCategories.map(row => row.category);
+
+  const barCtx = document.getElementById("tendersBarChart").getContext("2d");
+  new Chart(barCtx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        { label: "Draft", backgroundColor: "#ffc107", data: sortedCategories.map(r => r.Draft) },
+        { label: "Open", backgroundColor: "#28a745", data: sortedCategories.map(r => r.Open) },
+        { label: "Closed", backgroundColor: "#007bff", data: sortedCategories.map(r => r.Closed) },
+        { label: "Rejected", backgroundColor: "#dc3545", data: sortedCategories.map(r => r.Rejected) },
+        { label: "Approved", backgroundColor: "#17a2b8", data: sortedCategories.map(r => r.Approved) },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 2000,
+        easing: "easeOutElastic",
+      },
+      plugins: {
+        legend: { position: "bottom" },
+        title: {
+          display: true,
+          text: "Tenders per Category (Highest First)",
+          font: { size: 16, weight: "bold" },
+        },
+        datalabels: {
+          anchor: "end",
+          align: "top",
+          color: "#000",
+          font: { weight: "bold" },
+          formatter: (value) => (value > 0 ? value : ""),
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: "Category", font: { weight: "bold" } },
+          ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 },
+        },
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: "Number of Tenders", font: { weight: "bold" } },
+          grace: "5%",
+        },
+      },
+    },
+    plugins: [ChartDataLabels],
+  });
+});
+</script>
       </div>
 
     </main>

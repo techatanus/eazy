@@ -354,7 +354,7 @@
   <div class="mb-3 ps-2 text-center">
     <!-- Replace text with logo -->
     <a href="/admin/dashcl">
-      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
     </a>
   </div>
 
@@ -451,50 +451,118 @@
       <div class="tab-content" id="approvalTabsContent">
         <!-- Pending -->
         <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle" id="pendingTable">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Code</th>
-                  <th>Title</th>
-                  <th>Category</th>
-                  <th>Created</th>
-                  <th>Closing</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- EXAMPLE ROWS: replace with server-side data -->
-                <tr data-id="101">
-                  <td>1</td>
-                  <td>TND-101</td>
-                  <td>Supply of Office Chairs</td>
-                  <td>Furniture</td>
-                  <td>2025-10-01</td>
-                  <td>2025-11-01</td>
-                  <td class="action-btns">
-                    <button class="btn btn-sm btn-success me-1" data-action="approve" data-id="101"><i class="bi bi-check2"></i> Approve</button>
-                    <button class="btn btn-sm btn-danger" data-action="reject" data-id="101"><i class="bi bi-x-lg"></i> Reject</button>
-                  </td>
-                </tr>
+        <div class="table-responsive">
+  <table class="table table-hover align-middle" id="pendingTable">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Code</th>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Status</th>
+        <th>Closing</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (tenders && tenders.length > 0) { %>
+        <% tenders.forEach((tender, index) => { %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td><%= tender.code %></td>
+            <td><%= tender.title %></td>
+            <td><%= tender.category %></td>
+            <td><%= tender.status %></td>
+            <td><%= tender.closing_date %></td>
+            <td class="action-btns">
+              <a href="/t_approve?id=<%= tender.id %>" class="btn btn-sm btn-success me-1">
+                <i class="bi bi-check2"></i> Approve
+              </a>
+              <button 
+                type="button" 
+                class="btn btn-sm btn-danger rejectBtn" 
+                data-id="<%= tender.id %>">
+                <i class="bi bi-x-lg"></i> Reject
+              </button>
+            </td>
+          </tr>
+        <% }) %>
+      <% } else { %>
+        <tr><td colspan="7">No tenders available at the moment</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
 
-                <tr data-id="102">
-                  <td>2</td>
-                  <td>TND-102</td>
-                  <td>Network Cabling</td>
-                  <td>IT</td>
-                  <td>2025-10-05</td>
-                  <td>2025-11-10</td>
-                  <td class="action-btns">
-                    <button class="btn btn-sm btn-success me-1" data-action="approve" data-id="102"><i class="bi bi-check2"></i> Approve</button>
-                    <button class="btn btn-sm btn-danger" data-action="reject" data-id="102"><i class="bi bi-x-lg"></i> Reject</button>
-                  </td>
-                </tr>
-                <!-- END example rows -->
-              </tbody>
-            </table>
-          </div>
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Reject Tender</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="rejectTenderId">
+        <label class="form-label">Reason for Rejection</label>
+        <textarea id="rejectReason" class="form-control" rows="3" placeholder="Enter rejection reason..."></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmRejectBtn">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const rejectButtons = document.querySelectorAll(".rejectBtn");
+    const modal = new bootstrap.Modal(document.getElementById("rejectModal"));
+    const rejectTenderId = document.getElementById("rejectTenderId");
+    const rejectReason = document.getElementById("rejectReason");
+    const confirmRejectBtn = document.getElementById("confirmRejectBtn");
+
+    // When Reject is clicked
+    rejectButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        rejectTenderId.value = btn.dataset.id;
+        rejectReason.value = "";
+        modal.show();
+      });
+    });
+
+    // When Confirm Reject is clicked
+    confirmRejectBtn.addEventListener("click", async () => {
+      const id = rejectTenderId.value;
+      const reason = rejectReason.value.trim();
+      if (!reason) {
+        alert("Please enter a rejection reason.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/t_reject", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, reason }),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert("Tender rejected successfully.");
+          location.reload();
+        } else {
+          alert("Error rejecting tender.");
+        }
+      } catch (err) {
+        console.error("Reject error:", err);
+        alert("Server error rejecting tender.");
+      }
+    });
+  });
+</script>
+
         </div>
 
         <!-- Approved -->
@@ -508,12 +576,31 @@
                   <th>Title</th>
                   <th>Category</th>
                   <th>Approved On</th>
-                  <th>Approved By</th>
-                  <th>Notes</th>
+                  <th>status</th>
+                  <!-- <th>Notes</th> -->
                 </tr>
               </thead>
               <tbody>
                 <!-- populated dynamically -->
+                        <% if(tender && tender.length > 0){ %>
+                   <%tender.forEach((tender,index) =>{ %>
+                            <tr data-id="102">
+                  <td><%=index + 1 %></td>
+                  <td><%=tender.code %></td>
+                  <td><%=tender.title %></td>
+                  <td><%=tender.category %></td>
+                   <td><%=tender.date%></td>
+                  <td><%=tender.status%></td>
+                 
+                  <!-- <td class="action-btns">
+                    <button class="btn btn-sm btn-success me-1" data-action="approve" data-id="101"><i class="bi bi-check2"></i> Approve</button>
+                    <button class="btn btn-sm btn-danger" data-action="reject" data-id="101"><i class="bi bi-x-lg"></i> Reject</button>
+                  </td> -->
+                </tr>
+                   <%})%>
+                 <%}else{ %>
+                           <tr><td>No tenders available at the moment</td></tr>
+                 <%}%>
               </tbody>
             </table>
           </div>
@@ -531,11 +618,31 @@
                   <th>Category</th>
                   <th>Rejected On</th>
                   <th>Reason</th>
-                  <th>Action</th>
+                  <!-- <th>Action</th> -->
                 </tr>
               </thead>
               <tbody>
                 <!-- populated dynamically -->
+                    <tbody>
+      <% if (reject && reject.length > 0) { %>
+        <% reject.forEach((tender, index) => { %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td><%= tender.code %></td>
+            <td><%= tender.title %></td>
+            <td><%= tender.category %></td>
+          <td><%= new Date(tender.date).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+
+            <td><%= tender.reason %></td>
+            
+        
+          </tr>
+        <% }) %>
+      <% } else { %>
+        <tr><td colspan="7">No tenders available at the moment</td></tr>
+      <% } %>
+    </tbody>
+              
               </tbody>
             </table>
           </div>

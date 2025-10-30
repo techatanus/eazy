@@ -433,13 +433,12 @@
       <table class="table table-borderless table-hover mb-0">
   <thead class="table-light">
     <tr>
-      <th>Code</th>
-      <th>Bid Title</th>
-      <th>Category</th>
-       <th>Description</th>
-      <th>Status</th>
-      <th>Closing Date</th>
-     
+      <th>Company</th>
+      <th>BidTitle</th>
+      <th>Closing date</th>
+       <th>Eligibility</th>
+      <th>Action</th>
+          
     </tr>
   </thead>
 
@@ -527,12 +526,12 @@
       <table class="table table-borderless table-hover mb-0">
   <thead class="table-light">
     <tr>
-      <th>Code</th>
-      <th>Bid Title</th>
-      <th>Category</th>
-       <th>Description</th>
-      <th>Status</th>
-      <th>Closing Date</th>
+      <th>Company</th>
+      <th>BidTitle</th>
+      <th>Closing date</th>
+       <th>Eligibility</th>
+      <th>Action</th>
+         
      
     </tr>
   </thead>
@@ -549,7 +548,7 @@
         <tr>
           <td><%= tender.code || 'N/A' %></td>
           <td><%= tender.title %></td>
-          <td><%= tender.type %></td>
+         
           <td><%= tender.description %></td>
           <td>
             <span class="badge bg-<%= tender.status === 'closed' ? 'success' : 'secondary' %>">

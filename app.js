@@ -3,10 +3,11 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 require('dotenv').config();
-
+const db = require('./config/db');
 
 const indexRouter = require('./routes/index');
 const adminRouter = require('./routes/admin');
+
 
 
 const app = express();
@@ -31,7 +32,35 @@ app.use(
 );
 
 
+// --- APPROVE Tender ---
+app.get("/t_approve", async (req, res) => {
+  try {
+    const { id } = req.query;
+    if (!id) return res.status(400).send("Tender ID missing");
 
+    await db.query("UPDATE tenders SET status = 'approved', reason = NULL WHERE id = ?", [id]);
+    res.redirect("approve"); // redirect to tender list after update
+  } catch (error) {
+    console.error("Error approving tender:", error);
+    res.status(500).send("Server error approving tender");
+  }
+});
+
+// --- REJECT Tender (POST with reason) ---
+app.post("/t_reject", async (req, res) => {
+  try {
+    const { id, reason } = req.body;
+    if (!id) return res.status(400).send("Tender ID missing");
+    if (!reason || reason.trim() === "")
+      return res.status(400).send("Please provide a rejection reason");
+
+    await db.query("UPDATE tenders SET status = 'rejected', reason = ? WHERE id = ?", [reason, id]);
+    res.json({ success: true, message: "Tender rejected successfully" });
+  } catch (error) {
+    console.error("Error rejecting tender:", error);
+    res.status(500).send("Server error rejecting tender");
+  }
+});
 
 
 

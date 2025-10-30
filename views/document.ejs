@@ -386,7 +386,7 @@
   <div class="mb-3 ps-2 text-center">
     <!-- Replace text with logo -->
     <a href="/admin/dashsup">
-      <img src="/images/logs.jpeg" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
     </a>
   </div>
 
@@ -449,22 +449,22 @@
   </div>
    <!-- rfx -->
          <div class="nav-section">
-    <a href="/admin/rfq" class="nav-link">
+    <a href="/admin/rfqs" class="nav-link">
       <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFQ</span></div>
     </a>
   </div>
        <div class="nav-section">
-    <a href="/admin/rfp"class="nav-link">
+    <a href="/admin/rfps"class="nav-link">
       <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFP</span></div>
     </a>
   </div>
        <div class="nav-section">
-    <a href="/admin/eoi" class="nav-link">
+    <a href="/admin/eois" class="nav-link">
       <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">EOI</span></div>
     </a>
   </div>
        <div class="nav-section">
-    <a href="/admin/rfi" class="nav-link">
+    <a href="/admin/rfis" class="nav-link">
       <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFI</span></div>
     </a>
   </div>
@@ -499,18 +499,33 @@
   </div>
 
   <div class="nav-actions position-relative">
-    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
+    <!-- <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
       <i class="bi bi-envelope-fill"></i>
     </div>
     <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
       <i class="bi bi-chat-dots-fill"></i>
-    </div>
+    </div> -->
     <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
       <i class="bi bi-bell-fill"></i>
     </div>
-    <div class="nav-icon" id="profileIcon" title="Profile">
-      <i class="bi bi-person-circle"></i>
-    </div>
+  <!-- 👤 Profile Dropdown -->
+<div class="dropdown">
+  <div class="nav-icon dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+    <i class="bi bi-person-circle"></i>
+  </div>
+  <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+    <li>
+      <a class="dropdown-item d-flex align-items-center" href="/profile">
+        <i class="bi bi-person me-2 text-success"></i> Profile
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center" href="/admin/logout" id="logoutBtn">
+        <i class="bi bi-box-arrow-right me-2 text-danger"></i> Logout
+      </a>
+    </li>
+  </ul>
+</div>
   </div>
   
 </header>
@@ -521,7 +536,7 @@
 
   <!-- Button trigger modal -->
   <button type="button" class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#supplierModal">
-    + Upload document
+    + Update profile
   </button>
 
 
@@ -954,7 +969,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <!-- Statutory Documents Table -->
       <div class="tab-pane fade" id="stat" role="tabpanel">
         <h5 class="mb-3 text-success">Statutory Documents</h5>
-        <table class="table table-bordered table-hover align-middle">
+        <table class="table table-borderedless table-hover align-middle">
           <thead class="">
             <tr>
               <th>#</th>
