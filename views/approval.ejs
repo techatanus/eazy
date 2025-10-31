@@ -456,9 +456,9 @@
     <thead>
       <tr>
         <th>#</th>
-        <th>Code</th>
+        <!-- <th>Code</th> -->
         <th>Title</th>
-        <th>Category</th>
+        <!-- <th>Category</th> -->
         <th>Status</th>
         <th>Closing</th>
         <th>Action</th>
@@ -469,9 +469,9 @@
         <% tenders.forEach((tender, index) => { %>
           <tr>
             <td><%= index + 1 %></td>
-            <td><%= tender.code %></td>
+            <!-- <td><%= tender.code %></td> -->
             <td><%= tender.title %></td>
-            <td><%= tender.category %></td>
+            <!-- <td><%= tender.category %></td> -->
             <td><%= tender.status %></td>
             <td><%= tender.closing_date %></td>
             <td class="action-btns">
@@ -572,9 +572,9 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Code</th>
+                  <!-- <th>Code</th> -->
                   <th>Title</th>
-                  <th>Category</th>
+                  <!-- <th>Category</th> -->
                   <th>Approved On</th>
                   <th>status</th>
                   <!-- <th>Notes</th> -->
@@ -586,9 +586,9 @@
                    <%tender.forEach((tender,index) =>{ %>
                             <tr data-id="102">
                   <td><%=index + 1 %></td>
-                  <td><%=tender.code %></td>
+                  <!-- <td><%=tender.code %></td> -->
                   <td><%=tender.title %></td>
-                  <td><%=tender.category %></td>
+                  <!-- <td><%=tender.category %></td> -->
                    <td><%=tender.date%></td>
                   <td><%=tender.status%></td>
                  
@@ -613,9 +613,9 @@
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Code</th>
+                  <!-- <th>Code</th> -->
                   <th>Title</th>
-                  <th>Category</th>
+                  <!-- <th>Category</th> -->
                   <th>Rejected On</th>
                   <th>Reason</th>
                   <!-- <th>Action</th> -->
@@ -628,9 +628,9 @@
         <% reject.forEach((tender, index) => { %>
           <tr>
             <td><%= index + 1 %></td>
-            <td><%= tender.code %></td>
+            <!-- <td><%= tender.code %></td> -->
             <td><%= tender.title %></td>
-            <td><%= tender.category %></td>
+            <!-- <td><%= tender.category %></td> -->
           <td><%= new Date(tender.date).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
 
             <td><%= tender.reason %></td>

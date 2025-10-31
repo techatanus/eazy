@@ -5,7 +5,8 @@ const nodemailer = require("nodemailer");
 const multer = require("multer");
 const { resolveSoa } = require('dns');
 const { log } = require('console');
-
+const xlsx = require("xlsx");
+const path = require("path");
 
 // admin
 exports.dashboard = async (req, res) => {
@@ -679,41 +680,36 @@ exports.createAdmin = async (req, res) => {
 
 
 // new categories
-
 exports.create_category = async (req, res) => {
   try {
-    console.log("🟢 Route hit: /create_category");
+    const { job_id, client, category_no, category_name, price, description } = req.body;
 
-    const { category_no, category_name, price, description } = req.body;
-    console.log("🟠 Received body:", req.body);
-
-    if (!category_no || !category_name || !price || !description) {
-      console.log("🔴 Validation failed");
-      return res.status(400).send("All fields are required.");
+    if (!job_id || !client || !category_no || !category_name || !price || !description) {
+      return res.status(400).send("All fields are required (including job ID).");
     }
 
-    // Check if category exists
-    const [existing] = await db.query("SELECT * FROM categories WHERE category_no = ?", [category_no]);
-    console.log("🟡 Existing category check:", existing);
-
-    if (existing.length > 0) {
-      console.log("⚠️ Category already exists.");
-      return res.status(400).send("Category already exists.");
-    }
-
-    // Insert new category
-    const [insertResult] = await db.query(
-      "INSERT INTO categories (category_no, category_name, price, description) VALUES (?, ?, ?, ?)",
-      [category_no, category_name, price, description]
+    const [existing] = await db.query(
+      "SELECT * FROM categories WHERE category_no = ? AND client = ? AND job_id = ?",
+      [category_no, client, job_id]
     );
 
-    console.log("✅ Insert successful:", insertResult);
-    return res.status(200).send("Category created successfully!");
+    if (existing.length > 0) {
+      return res.status(400).send("Category already exists for this job.");
+    }
+
+    const [insertResult] = await db.query(
+      "INSERT INTO categories (job_id, client, category_no, category_name, price, description) VALUES (?, ?, ?, ?, ?, ?)",
+      [job_id, client, category_no, category_name, price, description]
+    );
+
+    res.redirect("/admin/preq");
   } catch (err) {
     console.error("🔥 Error in create_category:", err);
     res.status(500).send("Database error while creating category.");
   }
 };
+
+
 
 
 // rfqs
@@ -1319,6 +1315,217 @@ exports.createCompliance = async (req, res) => {
     res.status(500).send("Server error while saving compliance data.");
   }
 };
+
+// create new job
+exports.createNewJob = async (req, res) => {
+  try {
+    const { client, bid_title, start_datetime, closing_datetime, eligibility } = req.body;
+
+    // Validate form data
+    if (!client || !bid_title || !start_datetime || !closing_datetime) {
+      return res.status(400).send("All fields are required.");
+    }
+
+    // Check if job already exists
+    const [existingJob] = await db.query(
+      "SELECT * FROM jobs WHERE client = ? AND bid_title = ?",
+      [client, bid_title]
+    );
+
+    if (existingJob.length > 0) {
+      console.log("⚠️ Job already exists:", bid_title);
+      return res.status(409).send("Job with this title already exists for the selected client.");
+    }
+
+    // Insert new job and get inserted ID
+    const sql = `
+      INSERT INTO jobs (client, bid_title, start_datetime, closing_datetime, eligibility, status)
+      VALUES (?, ?, ?, ?, ?, 'open')
+    `;
+    const [result] = await db.query(sql, [
+      client,
+      bid_title,
+      start_datetime,
+      closing_datetime,
+      eligibility,
+    ]);
+
+    const newJobId = result.insertId;
+    console.log(`✅ New job created: ${bid_title} (ID: ${newJobId}) for ${client}`);
+
+    // ✅ Store job ID in session
+    req.session.jobId = newJobId;
+    req.session.jobTitle = bid_title;
+    req.session.client = client;
+
+    console.log("🧠 Stored in session:", {
+      jobId: req.session.jobId,
+      jobTitle: req.session.jobTitle,
+      client: req.session.client,
+    });
+
+    // Redirect after success
+    res.redirect("/admin/preq");
+
+  } catch (err) {
+    console.error("❌ Error creating new job:", err.message);
+    res.status(500).send("Server error: " + err.message);
+  }
+};
+
+
+
+// multi category upload
+// Configure multer for file upload
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/"); // Folder to store uploaded files
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage });
+
+// Exported middleware for route
+exports.uploadFile = upload.single("excelFile");
+
+// Main upload handler
+exports.multiUpload = async (req, res) => {
+  try {
+    console.log("🟢 Route hit: /multi_upload");
+
+    const { client } = req.body;
+    const filePath = req.file?.path;
+    const job_id = req.session.jobId; // ✅ Get job ID from session
+
+    console.log("🧠 Job ID from session:", job_id);
+
+    if (!job_id || !client || !filePath) {
+      return res.status(400).send("Job ID, Client, and file are required.");
+    }
+
+    // Read Excel file
+    const workbook = xlsx.readFile(filePath);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = xlsx.utils.sheet_to_json(sheet);
+
+    if (data.length === 0) {
+      return res.status(400).send("Excel file is empty.");
+    }
+
+    // Track inserted & skipped
+    let insertedCount = 0;
+    let skippedCount = 0;
+
+    for (const row of data) {
+      const { category_no, category_name, price, description } = row;
+
+      if (!category_no || !category_name || !price) continue;
+
+      // Check if category already exists for this job + client + category_no
+      const [existing] = await db.query(
+        `SELECT id FROM categories WHERE job_id = ? AND client = ? AND category_no = ?`,
+        [job_id, client, category_no]
+      );
+
+      if (existing.length > 0) {
+        skippedCount++;
+        continue; // Skip duplicates
+      }
+
+      // Insert new category with job_id
+      await db.query(
+        `INSERT INTO categories (job_id, client, category_no, category_name, price, description)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [job_id, client, category_no, category_name, price, description || ""]
+      );
+
+      insertedCount++;
+    }
+
+    console.log(`✅ Upload completed! ${insertedCount} new categories added, ${skippedCount} duplicates skipped.`);
+
+    res.redirect("/admin/preq");
+
+  } catch (error) {
+    console.error("❌ Upload error:", error);
+    res.status(500).send("Error uploading file: " + error.message);
+  }
+};
+
+
+// Configure Multer for file uploads
+
+
+
+// --- MAIN FUNCTION ---
+exports.createQuiz = [
+  upload.single('file'),
+
+  async (req, res) => {
+    try {
+      const { job_id, category } = req.body; // ✅ include job_id
+      const file = req.file;
+
+      console.log("🟢 Received:", { job_id, category, file });
+
+      // ✅ Validation
+      if (!job_id || !category || !file)
+        return res.status(400).send('⚠️ Missing job_id, category, or file.');
+
+      // ✅ Check file type
+      const ext = path.extname(file.originalname).toLowerCase();
+      if (!['.xls', '.xlsx'].includes(ext))
+        return res.status(400).send('⚠️ Invalid file type. Upload Excel only.');
+
+      // ✅ Check if already uploaded for this job and category
+      const [exists] = await db.query(
+        'SELECT * FROM uploads WHERE job_id = ? AND category = ?',
+        [job_id, category]
+      );
+      if (exists.length > 0)
+        return res.status(200).send(`⚠️ Excel for category "${category}" already uploaded for this job.`);
+
+      // ✅ Parse Excel
+      const workbook = xlsx.readFile(file.path);
+      const sheetName = workbook.SheetNames[0];
+      const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+      if (sheetData.length === 0)
+        return res.status(400).send('⚠️ Excel file is empty.');
+
+      // ✅ Insert upload record into DB
+      await db.query(
+        'INSERT INTO uploads (job_id, category, file) VALUES (?, ?, ?)',
+        [job_id, category, file.filename]
+      );
+
+      res.status(200).send(`✅ "${file.originalname}" uploaded successfully for category "${category}".`);
+    } catch (error) {
+      console.error('❌ Server error:', error);
+      res.status(500).send('❌ Server error occurred.');
+    }
+  }
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //logout
 exports.logoutUser = (req, res) => {

@@ -335,7 +335,11 @@
   <% if (tenders && tenders.length > 0) { %>
     <% tenders.forEach(tender => { %>
       <tr>
-        <td><%= tender.code %></td>
+           <td>
+            <img src="<%= tender.logo || '/images/default-logo.png' %>" 
+                 alt="Logo" width="40" height="40" class="rounded-circle">
+          </td>
+        <!-- <td><%= tender.code %></td> -->
         <td><%= tender.title %></td>
        
        <td>

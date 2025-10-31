@@ -63,6 +63,17 @@ app.post("/t_reject", async (req, res) => {
 });
 
 
+// jobid in sess
+app.get("/api/get-session", (req, res) => {
+  if (req.session && req.session.jobId) {
+    return res.json({ job_id: req.session.jobId });
+  } else {
+    return res.status(404).json({ message: "No job ID found in session" });
+  }
+});
+
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server listening on ${PORT}`));

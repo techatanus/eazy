@@ -89,7 +89,7 @@
     /* Sidebar (light) */
     .sidebar {
       width: var(--sidebar-width);
-      background: #f1f5f2;
+    
       padding: 18px 12px;
       padding-top: calc(var(--navbar-height) + 14px); /* start under navbar */
       position: fixed;
@@ -454,19 +454,19 @@
     <% if (visibleTenders.length > 0) { %>
       <% visibleTenders.forEach(tender => { %>
         <tr>
-          <!-- <td>
+          <td>
             <img src="<%= tender.logo || '/images/default-logo.png' %>" 
                  alt="Logo" width="40" height="40" class="rounded-circle">
-          </td> -->
-          <td><%= tender.code || 'N/A' %></td>
+          </td>
+          <!-- <td><%= tender.code || 'N/A' %></td> -->
           <td><%= tender.title %></td>
-          <td><%= tender.type%></td>
-          <td><%= tender.description %></td>
-          <td>
+          <!-- <td><%= tender.type%></td>
+          <td><%= tender.description %></td> -->
+          <!-- <td>
             <span class="badge bg-<%= tender.status === 'open' ? 'success' : 'warning' %>">
               <%= tender.status.charAt(0).toUpperCase() + tender.status.slice(1) %>
             </span>
-          </td>
+          </td> -->
           <td>
               <% if (tender.closing_date) { %>
     <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
@@ -477,6 +477,8 @@
     N/A
   <% } %>
           </td>
+          <td><a href="#">preview</a></td>
+          <td><a href="#">View</a></td>
         </tr>
       <% }); %>
     <% } else { %>
@@ -546,7 +548,7 @@
     <% if (visibleTenders.length > 0) { %>
       <% visibleTenders.forEach(tender => { %>
         <tr>
-          <td><%= tender.code || 'N/A' %></td>
+          <!-- <td><%= tender.code || 'N/A' %></td> -->
           <td><%= tender.title %></td>
          
           <td><%= tender.description %></td>

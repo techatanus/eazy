@@ -509,7 +509,7 @@
   <thead class="table-light">
     <tr>
       <th>#</th>
-       <th>Company</th>
+       <!-- <th>Company</th> -->
       <th>Bid Title</th>
       <th>Closing date</th>
        <th>Eligibility</th>
@@ -530,12 +530,13 @@
     <% if (visibleTenders.length > 0) { %>
       <% visibleTenders.forEach((tender,index) => { %>
         <tr>
+             <td><%=index + 1 %></td>
           <!-- <td>
             <img src="<%= tender.logo || '/images/default-logo.png' %>" 
                  alt="Logo" width="40" height="40" class="rounded-circle">
-          </td> -->
-          <td><%=index + 1 %></td>
-          <td><%= tender.code || 'N/A' %></td>
+          </td>
+        -->
+          <!-- <td><%= tender.code || 'N/A' %></td> -->
           <td><%= tender.title %></td>
         
           <!-- <td>
@@ -553,6 +554,8 @@
     N/A
   <% } %>
           </td>
+              <td>AGPO</td>
+        <td><a href="#">View</a></td>
         </tr>
       <% }); %>
     <% } else { %>
@@ -560,6 +563,7 @@
         <td colspan="5" class="text-center text-muted py-4">
           No open or drafted tenders available
         </td>
+    
       </tr>
     <% } %>
   <% } else { %>

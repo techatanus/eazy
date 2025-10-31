@@ -137,9 +137,10 @@ router.get('/tenders', async (req, res) => {
   try {
     const user = req.session.user;
     if(!user){
-      res.redirect('/');
+      return res.redirect('/');
     }
-    const [tenders] = await db.query("SELECT * FROM tenders");
+    const stat = 'draft'
+    const [tenders] = await db.query("SELECT * FROM tenders WHERE status = ?",[stat]);
     const [category] = await db.query("SELECT * FROM categories");
     // console.log("✅ Retrieved tenders:", tenders); // Debugging log
     // console.log(category);
@@ -160,8 +161,9 @@ router.get('/preq', async(req,res)=>{
       }
     const [catego] = await db.query("SELECT * FROM categories");
     console.log("✅ Retrieved catego:",catego); // Debugging log
+    const [test] = await db.query("SELECT * FROM clients");
 
-    res.render('preq', { catego });
+    res.render('preq', { catego,test });
   } catch (err) {
     console.error("❌ Error loading closed tenders:", err.message);
     res.status(500).send("Error loading tenders: " + err.message);
@@ -332,7 +334,7 @@ router.get('/rfps',(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+      return  res.redirect('/')
       }
      res.render('rfps')
      } catch (error) {
@@ -345,7 +347,7 @@ router.get('/eoi',(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
-        res.redirect('/')
+      return  res.redirect('/')
       }
      res.render('eoi')
      } catch (error) {

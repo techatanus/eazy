@@ -479,7 +479,7 @@
         <tr>
           <th>#</th>
           <th style="color:#008000;">Category</th>
-          <th style="color:#008000;">Job</th>
+          <!-- <th style="color:#008000;">Job</th> -->
           <th style="color:#008000;">Description</th>
           <th style="color:#008000;">Price</th>
           <th style="color:#008000;">Quantity</th>
@@ -493,11 +493,11 @@
             <tr>
               <td><%= index + 1 %></td>
               <td>
-                <input type="text" name="category[]" value="<%= job.category_name %>" readonly class="form-control-plaintext">
+                <input type="text" name="category[]" value="<%= job.title%>" readonly class="form-control-plaintext">
               </td>
-              <td>
+              <!-- <td>
                 <input type="text" name="item[]" value="<%= job.title %>" readonly class="form-control-plaintext">
-              </td>
+              </td> -->
               <td>
                 <input type="text" name="description[]" value="<%= job.description %>" readonly class="form-control-plaintext">
               </td>

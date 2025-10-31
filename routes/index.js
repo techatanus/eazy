@@ -68,9 +68,6 @@ exports.dashboard = async (req, res) => {
 
 
 
-
-
-
 // post user account info
 router.post('/sign',adminCtrl.createUser);
 
@@ -112,6 +109,18 @@ router.post('/regdetails',upload.single("profile"),adminCtrl.createRegDetails);
 router.post('/sub_stat',adminCtrl.createStatutory);
 // compliance
 router.post("/comply", adminCtrl.createCompliance);
+// new job
+router.post('/create_job',adminCtrl.createNewJob);
+// multi category upload
+router.post(
+  "/multi_upload",
+  adminCtrl.uploadFile,
+  adminCtrl.multiUpload
+);
+
+// quiz upload
+router.post('/quiz', adminCtrl.createQuiz);
+
 
 
 

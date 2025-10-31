@@ -333,45 +333,32 @@
   }
 }
   </style>
+  <!-- ✅ Bootstrap CSS -->
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+/>
+
+<!-- ✅ Bootstrap Icons -->
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  rel="stylesheet"
+/>
+
 </head>
 <body class="bg-light">
 
 
-<div class="content">
+
+  <div class="content">
        <!-- Sidebar (light) -->
    <%- include('partials/sidebar') %>
 
     <!-- Top Navbar (light green) -->
      <%- include('partials/topbar') %>
-  <h2 class="mb-4 text-center text-success">Category Management</h2>
+
 <!-- Main Navigation Tabs -->
-<ul class="nav nav-pills mb-3 justify-content-center" id="adminTabs" role="tablist">
-  <li class="nav-item">
-    <button class="nav-link active" id="job-tab" data-bs-toggle="pill" data-bs-target="#job" type="button" role="tab" aria-controls="job" aria-selected="true">
-      New Job
-    </button>
-  </li>
-  <li class="nav-item">
-    <button class="nav-link" id="form-tab" data-bs-toggle="pill" data-bs-target="#form" type="button" role="tab" aria-controls="form" aria-selected="false">
-      Create Category
-    </button>
-  </li>
-  <li class="nav-item">
-    <button class="nav-link" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload" type="button" role="tab" aria-controls="upload" aria-selected="false">
-      Multiple Upload
-    </button>
-  </li>
-  <li class="nav-item">
-    <button class="nav-link" id="communication-tab" data-bs-toggle="pill" data-bs-target="#communication" type="button" role="tab" aria-controls="communication" aria-selected="false">
-      Questionnaire
-    </button>
-  </li>
-  <li class="nav-item">
-    <button class="nav-link" id="reporting-tab" data-bs-toggle="pill" data-bs-target="#reporting" type="button" role="tab" aria-controls="reporting" aria-selected="false">
-      View Category List
-    </button>
-  </li>
-</ul>
+
 
 <script>
   // Keep only one tab active (blue) at a time
@@ -387,271 +374,249 @@
 
 
   <!-- Tab Content -->
-  <div class="tab-content" id="adminTabsContent">
-<!-- New Job Tab -->
-  <div class="tab-pane fade show active" id="newJob">
-    <h5 class="text-success mb-3">Create New Job</h5>
-    <form action="/create_job" method="post">
-      <div class="mb-3">
-        <label class="form-label">Client</label>
-        <select name="client" class="form-select">
-          <option value="">Select Client</option>
-          <option value="County Government">County Government</option>
-          <option value="Ministry">Ministry</option>
-          <option value="Private Company">Private Company</option>
-          <option value="NGO">NGO</option>
-        </select>
-      </div>
+<div class="tab-content">
+    <h2 class="mb-4 text-center text-success">Category Management</h2>
 
-      <div class="mb-3">
-        <label class="form-label">Bid Title</label>
-        <input type="text" name="bid_title" class="form-control" placeholder="Enter bid title" required>
-      </div>
+    <!-- Tabs -->
+    <ul class="nav nav-pills mb-3 justify-content-center" id="adminTabs" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link active" id="job-tab" data-bs-toggle="pill" data-bs-target="#job" type="button" role="tab">New Job</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="form-tab" data-bs-toggle="pill" data-bs-target="#form" type="button" role="tab">Create Category</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload" type="button" role="tab">Multiple Upload</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="communication-tab" data-bs-toggle="pill" data-bs-target="#communication" type="button" role="tab">Questionnaire</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="reporting-tab" data-bs-toggle="pill" data-bs-target="#reporting" type="button" role="tab">View Category List</button>
+      </li>
+    </ul>
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Start Date & Time</label>
-          <input type="datetime-local" name="start_datetime" class="form-control" required>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Closing Date & Time</label>
-          <input type="datetime-local" name="closing_datetime" class="form-control" required>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Eligibility Criteria</label>
-        <select name="eligibility[]" class="form-select" >
-          <option value="All">All</option>
-          <option value="Youth">Youth</option>
-          <option value="Women">Women</option>
-          <option value="PWDs">PWDs</option>
-        </select>
-        <small class="text-muted">Hold Ctrl (Cmd on Mac) to select multiple options</small>
-      </div>
-
-      <button type="submit" class="btn btn-primary">Create Job</button>
-    </form>
-  </div>
-    <!-- Create Category -->
-    <div class="tab-pane fade show active" id="form" role="tabpanel" aria-labelledby="form-tab">
-      <div class="card p-4 shadow-sm">
-        <h5 class="section-title mb-3">Create Category</h5>
-        <form method="post" action="/add_category">
+    <!-- Tab Contents -->
+    <div class="tab-content" id="adminTabsContent">
+      <!-- New Job -->
+      <div class="tab-pane fade show active" id="job" role="tabpanel" aria-labelledby="job-tab">
+        <h5 class="text-success mb-3">Create New Job</h5>
+        <form id="newJobForm" action="/create_job" method="post">
           <div class="mb-3">
-            <label class="form-label">Category Number</label>
-            <input type="text" class="form-control" name="category_no" placeholder="Enter category number">
-          </div>
-           <div class="mb-3">
-            <label class="form-label">Category Name</label>
-            <input type="text" class="form-control" name="category_name" placeholder="Enter category name">
-          </div>
-           <div class="mb-3">
-            <label class="form-label">Price</label>
-            <input type="number" class="form-control" name="price" placeholder="Enter category name">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control" name="description" placeholder="Enter category description"></textarea>
-          </div>
-          <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-success" id="saveJobBtn">Save</button>
-        <button type="button" class="btn btn-primary next-tab" id="nextTabBtn">Next</button>
-      </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Multiple Upload -->
-    <div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="upload-tab">
-      <div class="card p-4 shadow-sm">
-        <h5 class="section-title mb-3">Multiple Category Upload</h5>
-        <form>
-          <div class="mb-3">
-            <label class="form-label">Upload File</label>
-            <input type="file" class="form-control">
-          </div>
-            <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-success" id="saveJobBtn">upload</button>
-        <button type="button" class="btn btn-primary next-tab" id="nextTabBtn">Next</button>
-      </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Questionnaire -->
-    <div class="tab-pane fade" id="communication" role="tabpanel" aria-labelledby="communication-tab">
-      <div class="card p-4 shadow-sm">
-        <h5 class="section-title mb-3">Questionnaire</h5>
-          <h2>Upload File (CSV)</h2>
-  <input type="file" id="fileInput" accept=".xlsx" />
-
-  <h3>Generated Questionnaire</h3>
-  <form id="questionnaire"></form>
-
-  <!-- <button id="previewBtn">Preview</button> -->
-   <div class="d-flex justify-content-end gap-2">
-        <button type="button" class="btn btn-success" id="previewBtn">Preview</button>
-        <button type="button" class="btn btn-primary next-tab" id="nextTabBtn">Next</button>
-      </div>
-  <div id="previewArea"></div>
-   
-      </div>
-    </div>
-<script>
-document.querySelectorAll('.next-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Find current active tab
-    const activeTab = document.querySelector('#adminTabs .nav-link.active');
-    const nextTabItem = activeTab.parentElement.nextElementSibling;
-    
-    if (nextTabItem) {
-      const nextTabBtn = nextTabItem.querySelector('.nav-link');
-      const nextTab = new bootstrap.Tab(nextTabBtn);
-      nextTab.show();
-    } else {
-      alert("You’ve reached the last section!");
-    }
-  });
-});
-</script>
-<!-- next button -->
- <script>
-document.querySelectorAll('.next-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    // Find current active tab
-    const activeTab = document.querySelector('#adminTabs .nav-link.active');
-    const nextTabItem = activeTab.parentElement.nextElementSibling;
-    
-    if (nextTabItem) {
-      const nextTabBtn = nextTabItem.querySelector('.nav-link');
-      const nextTab = new bootstrap.Tab(nextTabBtn);
-      nextTab.show();
-    } else {
-      alert("You’ve reached the last section!");
-    }
-  });
-});
-</script>
-
-<script>
-  // Handle Save Job
-  document.getElementById("saveJobBtn").addEventListener("click", function () {
-    const form = document.getElementById("newJobForm");
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    const formData = Object.fromEntries(new FormData(form).entries());
-    console.log("Job saved:", formData);
-    alert("Job saved successfully!");
-  });
-
-  // Move to Create Category tab after saving
-  document.getElementById("nextTabBtn").addEventListener("click", function () {
-    const nextTab = document.querySelector('#form-tab');
-    const tabInstance = new bootstrap.Tab(nextTab);
-    tabInstance.show();
-  });
-</script>
-
-
-<script>
-  // Show modal when New Job tab is clicked
-  document.getElementById("job-tab").addEventListener("click", function (e) {
-    e.preventDefault();
-    const modal = new bootstrap.Modal(document.getElementById("newJobModal"));
-    modal.show();
-  });
-
-  // Handle Save button
-  document.getElementById("saveJobBtn").addEventListener("click", function () {
-    const form = document.getElementById("newJobForm");
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    // Example: collect form data
-    const formData = Object.fromEntries(new FormData(form).entries());
-    console.log("Job saved:", formData);
-
-    alert("Job saved successfully!");
-  });
-
-  // Handle Next button — moves to Create Category tab
-  document.getElementById("nextTabBtn").addEventListener("click", function () {
-    const nextTab = document.querySelector('#form-tab');
-    const tabInstance = new bootstrap.Tab(nextTab);
-    tabInstance.show();
-
-    const modalEl = document.getElementById("newJobModal");
-    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-    modalInstance.hide();
-  });
-</script>
-
-    <!-- View Category List -->
-
-    <div class="tab-pane fade" id="reporting" role="tabpanel" aria-labelledby="reporting-tab">
-      <div class="table-card">
-        <div class="table-responsive">
-          <table class="table table-striped align-middle" id="rfxTable">
-            <thead >
-              <tr>
-                <th style="color:#008000;">Code</th>
-                <th style="color:#008000;">Name</th>
-                <th style="color:#008000;">Price</th>
-                <th style="color:#008000;">Description</th>
-                <th style="color:#008000;">Date</th>
-             
-                <th class="text-end" style="color:#008000;" colspan="3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-      
-<tbody>
-  <% if (catego && catego.length > 0) { %>
-    <% catego.forEach(cat => { %>
-      <tr>
-        <td><%= cat.category_no %></td>
-        <td><%= cat.category_name %></td>
-        <td><%= cat.price%></td>
-         <td><%= cat.description %></td>
-       <td>
-  <% if (cat.date) { %>
-    <%= new Date(cat.date).toLocaleString('en-KE', { 
-          dateStyle: 'medium', 
-          timeStyle: 'short' 
-        }) %>
-  <% } else { %>
-    N/A
-  <% } %>
-</td>
-
-       <td class="text-end">
-          <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
-                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Edit</button>
-                 
-                  <button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i>Delete</button>
-        </td>
-      </tr>
+            <label class="form-label">Client</label>
+            <select name="client" class="form-select" required>
+  <option value="">Select Client</option>
+    <% if (test && test.length > 0) { %>
+    <% test.forEach(tests => { %>
+      <option value="<%=tests.name %>"><%=tests.name %></option>
     <% }) %>
   <% } else { %>
-    <tr>
-      <td colspan="6" class="text-center text-muted">No closed catego found</td>
-    </tr>
+    <option disabled>No clients found</option>
   <% } %>
-</tbody>
 
-           
+</select>
 
-            </tbody>
-          </table>
+            
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Bid Title</label>
+            <input type="text" name="bid_title" class="form-control" placeholder="Enter bid title" required />
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Start Date & Time</label>
+              <input type="datetime-local" name="start_datetime" class="form-control" required />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Closing Date & Time</label>
+              <input type="datetime-local" name="closing_datetime" class="form-control" required />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Eligibility Criteria</label>
+            <select name="eligibility" class="form-select">
+              <option value="All">All</option>
+              <option value="Youth">Youth</option>
+              <option value="Women">Women</option>
+              <option value="PWDs">PWDs</option>
+            </select>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button type="submit" class="btn btn-success">Save</button>
+            <button type="button" class="btn btn-primary next-tab">Next</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Create Category -->
+      <div class="tab-pane fade" id="form" role="tabpanel" aria-labelledby="form-tab">
+        <div class="card p-4 shadow-sm">
+          <h5 class="section-title mb-3">Create Category</h5>
+          <form method="post" action="/add_category">
+            <input type="hidden" id="job_id" name="job_id" value="">
+
+                      <div class="mb-3">
+            <label class="form-label">Client</label>
+            <select name="client" class="form-select" required>
+  <option value="">Select Client</option>
+    <% if (test && test.length > 0) { %>
+    <% test.forEach(tests => { %>
+      <option value="<%= tests.name %>"><%= tests.name %></option>
+    <% }) %>
+  <% } else { %>
+    <option disabled>No clients found</option>
+  <% } %>
+
+</select> 
+          </div>
+            <div class="mb-3">
+              <label class="form-label">Category Number</label>
+              <input type="text" class="form-control" name="category_no" placeholder="Enter category number" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Category Name</label>
+              <input type="text" class="form-control" name="category_name" placeholder="Enter category name" required />
+            </div>      
+            <div class="mb-3">
+              <label class="form-label">Price</label>
+              <input type="number" class="form-control" name="price" placeholder="Enter price" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="description" placeholder="Enter description"></textarea>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="submit" class="btn btn-success">Save</button>
+              <button type="button" class="btn btn-primary next-tab">Next</button>
+            </div>
+          </form>
         </div>
       </div>
 
-    </div>
+      <!-- Multiple Upload -->
+      <div class="tab-pane fade" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+  <div class="card p-4 shadow-sm">
+    <h5 class="section-title mb-3">Multiple Category Upload</h5>
 
+    <!-- Make sure enctype is set -->
+    <form action="/multi_upload" method="post" enctype="multipart/form-data">
+      <input type="hidden" id="job_id" name="job_id" value="">
+
+      <div class="mb-3">
+        <label class="form-label">Client</label>
+        <select name="client" class="form-select" required>
+          <option value="">Select Client</option>
+          <% if (test && test.length > 0) { %>
+            <% test.forEach(tests => { %>
+              <option value="<%= tests.name %>"><%= tests.name %></option>
+            <% }) %>
+          <% } else { %>
+            <option disabled>No clients found</option>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Upload File</label>
+        <!-- Added name attribute -->
+        <input type="file" name="excelFile" accept=".xlsx" class="form-control" required />
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <!-- Changed to submit -->
+        <button type="submit" class="btn btn-success">Upload</button>
+        <button type="button" class="btn btn-primary next-tab">Next</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+      <!-- Questionnaire -->
+   <div class="tab-pane fade" id="communication" role="tabpanel" aria-labelledby="communication-tab">
+  <div class="card p-4 shadow-sm">
+    <h5 class="section-title mb-3">Questionnaire</h5>
+
+    <form id="uploadForm" method="post" action="/quiz" enctype="multipart/form-data">
+      <input type="hidden" id="job_id" name="job_id" value="">
+
+      <div class="mb-3">
+        <label class="form-label">Select Category</label>
+        <select name="category" class="form-select" required>
+          <option value="">Select Category</option>
+          <% if (catego && catego.length > 0) { %>
+            <% catego.forEach(c => { %>
+              <option value="<%= c.category_name %>"><%= c.category_name %></option>
+            <% }) %>
+          <% } else { %>
+            <option disabled>No categories found</option>
+          <% } %>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Upload Questionnaire (Excel)</label>
+        <input type="file" id="fileInput" name="file" accept=".xlsx" class="form-control" required />
+      </div>
+
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="button" class="btn btn-success" id="previewBtn">Preview</button>
+        <button type="submit" class="btn btn-primary">Save to DB</button>
+        <button type="button" class="btn btn-secondary" id="closePreviewBtn" style="display:none;">Close Preview</button>
+      </div>
+    </form>
+
+    <div id="previewArea" class="mt-3"></div>
+  </div>
+</div>
+
+
+      <!-- View Category List -->
+      <div class="tab-pane fade" id="reporting" role="tabpanel" aria-labelledby="reporting-tab">
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="table table-striped align-middle">
+              <thead>
+                <tr>
+                  <th style="color:#008000;">Code</th>
+                  <th style="color:#008000;">Name</th>
+                  <th style="color:#008000;">Price</th>
+                  <th style="color:#008000;">Description</th>
+                  <th style="color:#008000;">Date</th>
+                  <th class="text-end" style="color:#008000;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (catego && catego.length > 0) { %>
+                  <% catego.forEach(cat => { %>
+                    <tr>
+                      <td><%= cat.category_no %></td>
+                      <td><%= cat.category_name %></td>
+                      <td><%= cat.price %></td>
+                      <td><%= cat.description %></td>
+                      <td><%= cat.date ? new Date(cat.date).toLocaleString('en-KE', { dateStyle: 'medium', timeStyle: 'short' }) : 'N/A' %></td>
+                      <td class="text-end">
+                        <button class="btn btn-sm btn-outline-secondary me-1"><i class="bi bi-eye"></i></button>
+                        <button class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil-square"></i></button>
+                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6" class="text-center text-muted">No category found</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -676,7 +641,7 @@ document.querySelectorAll('.next-tab').forEach(btn => {
 </script>
 <!-- questionnair script -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
+<!-- <script>
 document.getElementById("fileInput").addEventListener("change", handleFile);
 
 function cleanText(t) {
@@ -860,6 +825,186 @@ document.getElementById("previewBtn").addEventListener("click", function(e) {
   preview += "</ul>";
   document.getElementById("previewArea").innerHTML = preview;
 });
+</script> -->
+<script>
+document.getElementById("fileInput").addEventListener("change", handleFile);
+const previewArea = document.getElementById("previewArea");
+const closeBtn = document.getElementById("closePreviewBtn");
+
+let rows = [];
+
+function cleanText(t) {
+  if (!t) return "";
+  return t
+    .replace(/[_\u2014\u2013]+/g, "") // remove underscores & dashes
+    .replace(/:\s*$/g, "") // trailing colons
+    .replace(/\s{2,}/g, " ") // multiple spaces
+    .trim();
+}
+
+function handleFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// PREVIEW BUTTON
+document.getElementById("previewBtn").addEventListener("click", function (e) {
+  e.preventDefault();
+  if (!rows.length) return alert("Please upload an Excel file first.");
+
+  // Remove header row
+  const contentRows = rows.slice(1);
+  if (!contentRows.length) return alert("No data found in the uploaded file.");
+
+  let html = `<h5 class='text-success mb-3'>Preview Questionnaire</h5>
+              <div id='questionnaire'>`;
+
+  contentRows.forEach((row, index) => {
+    if (!row || row.length < 8) return;
+
+    let [
+      section,
+      questionId,
+      questionTextRaw,
+      answerType,
+      mandatory,
+      optionsOrRule,
+      weight,
+      attachmentRequired
+    ] = row.map((v) => String(v || ""));
+
+    const questionText = questionTextRaw.trim();
+    const cleanedText = cleanText(questionText);
+
+    const isReferenceBlock =
+      /reference/i.test(questionText) ||
+      /organization name/i.test(questionText) ||
+      /contact person/i.test(questionText);
+
+    let field = "";
+
+    if (isReferenceBlock) {
+      field = `
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label class="form-label">Organization Name</label>
+            <input type="text" class="form-control" name="org_name_${index}" placeholder="Organization Name">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Contact Person</label>
+            <input type="text" class="form-control" name="contact_person_${index}" placeholder="Contact Person">
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label class="form-label">Designation/Position</label>
+            <input type="text" class="form-control" name="designation_${index}" placeholder="Designation / Position">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Telephone Number</label>
+            <input type="text" class="form-control" name="phone_${index}" placeholder="Telephone Number">
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col-md-6">
+            <label class="form-label">Email Address</label>
+            <input type="email" class="form-control" name="email_${index}" placeholder="Email Address">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Nature of Goods/Services Supplied</label>
+            <input type="text" class="form-control" name="services_${index}" placeholder="Nature of Goods/Services Supplied">
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Contract Value (approx.)</label>
+          <input type="text" class="form-control" name="contract_value_${index}" placeholder="Contract Value (approx.)">
+        </div>`;
+    } else {
+      switch ((answerType || "").toLowerCase()) {
+        case "text":
+          field = `<textarea name="q${index}" class="form-control mb-2" placeholder="Enter answer"></textarea>`;
+          break;
+        case "number":
+          field = `<input type="number" name="q${index}" class="form-control mb-2" placeholder="Enter number" />`;
+          break;
+        case "date":
+          field = `<input type="date" name="q${index}" class="form-control mb-2" />`;
+          break;
+        case "pass/fail":
+          field = `
+            <select name="q${index}" class="form-control mb-2">
+              <option value="">-- Select --</option>
+              <option value="Pass">Pass</option>
+              <option value="Fail">Fail</option>
+            </select>`;
+          break;
+        case "file":
+          field = `<input type="file" name="q${index}" accept="application/pdf" class="form-control mb-2" />
+                   <small>FileType=PDF, MaxSize=1MB</small>`;
+          break;
+        default:
+          if (optionsOrRule && optionsOrRule.includes("=")) {
+            field = `<select name="q${index}" class="form-control mb-2">
+              ${optionsOrRule
+                .split(",")
+                .map((opt) => {
+                  const [label, val] = opt.split("=");
+                  return `<option value="${val ? val.trim() : label.trim()}">${label.trim()}</option>`;
+                })
+                .join("")}
+            </select>`;
+          } else {
+            field = `<input type="text" name="q${index}" class="form-control mb-2" placeholder="Enter answer" />`;
+          }
+      }
+    }
+
+    const requiredMark =
+      (mandatory || "").toLowerCase() === "y"
+        ? " <span style='color:red'>*</span>"
+        : "";
+
+    let attachmentField = "";
+    if ((attachmentRequired || "").toLowerCase() === "y") {
+      attachmentField = `
+        <input type="file" name="attach${index}" accept="application/pdf" class="form-control mb-2" />
+        <small>FileType=PDF, MaxSize=1MB</small>`;
+    }
+
+    const showQuestionHeading = !isReferenceBlock && cleanedText.length > 0;
+
+    html += `
+      <div class="quiz-card mb-3 p-3 border rounded shadow-sm">
+        <h6 class="text-secondary">${section || ""}${
+      section && questionId ? " - " : ""
+    }${questionId || ""}</h6>
+        ${showQuestionHeading ? `<p><strong>${cleanedText}</strong>${requiredMark}</p>` : ""}
+        ${field}
+        ${attachmentField}
+        <small><em>Weight: ${weight ? weight : ""}</em></small>
+      </div>`;
+  });
+
+  html += "</div>";
+
+  previewArea.innerHTML = html;
+  closeBtn.style.display = "inline-block";
+});
+
+// CLOSE PREVIEW
+closeBtn.addEventListener("click", () => {
+  previewArea.innerHTML = "";
+  closeBtn.style.display = "none";
+});
 </script>
 
 
@@ -973,86 +1118,204 @@ document.getElementById("previewBtn").addEventListener("click", function(e) {
 
   </script>
 
-
-
+<!-- NEXT AND SAVE SCRIPT -->
 <!-- <script>
-  document.getElementById("fileInput").addEventListener("change", handleFile);
+document.getElementById("newJobForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const formObject = Object.fromEntries(formData.entries());
 
-  function handleFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+  try {
+    const response = await fetch(form.action, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(formObject).toString(),
+    });
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      let rows = [];
+    if (response.ok) {
+      alert("✅ Job created successfully!");
 
-      if (file.name.endsWith(".csv")) {
-        // Parse CSV
-        const text = e.target.result;
-        rows = text.replace(/\r\n/g, "\n").split("\n").map(r => r.split(","));
-      } else {
-        // Parse Excel
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+      // Move to next tab
+      const activeTab = document.querySelector(".nav-link.active");
+      const tabs = Array.from(document.querySelectorAll(".nav-link"));
+      const currentIndex = tabs.indexOf(activeTab);
+      if (currentIndex < tabs.length - 1) {
+        const nextTab = tabs[currentIndex + 1];
+        const tabTrigger = new bootstrap.Tab(nextTab);
+        tabTrigger.show();
       }
 
-      // Remove header row
-      rows.shift();
-
-      const questionnaire = document.getElementById("questionnaire");
-      questionnaire.innerHTML = "";
-
-      rows.forEach((row, index) => {
-        if (row.length < 4) return;
-        const [section, quiz, points, fileTypeRaw] = row.map(v => String(v).trim());
-        const fileType = fileTypeRaw.toLowerCase();
-
-        let field = "";
-        if (fileType === "text") {
-          field = `<textarea name="q${index}" placeholder="Answer here" class="form-control mb-2"></textarea>`;
-        } else if (fileType === "file") {
-          field = `<input type="file" name="q${index}" class="form-control mb-2" />`;
-        } else if (fileType === "number") {
-          field = `<input type="number" name="q${index}" class="form-control mb-2" />`;
-        } else if (fileType === "date") {
-          field = `<input type="date" name="q${index}" class="form-control mb-2" />`;
-        } else if (fileType === "email") {
-          field = `<input type="email" name="q${index}" class="form-control mb-2" />`;
-        } else {
-          // fallback
-          field = `<input type="text" name="q${index}" class="form-control mb-2" />`;
-        }
-
-        questionnaire.innerHTML += `
-          <div class="quiz-card mb-3 p-2 border rounded">
-            <h4>${section} - ${quiz} (${points} points)</h4>
-            ${field}
-          </div>
-        `;
-      });
-    };
-
-    // Use correct reader mode
-    if (file.name.endsWith(".csv")) {
-      reader.readAsText(file);
+      form.reset();
     } else {
-      reader.readAsArrayBuffer(file);
+      const err = await response.text();
+      alert("⚠️ " + err);
     }
+  } catch (err) {
+    console.error("❌ Error saving job:", err);
+    alert("Server error: " + err.message);
+  }
+});
+</script> -->
+<!-- job id -->
+
+
+<!-- NEXT + SAVE SCRIPT FOR ALL TABS -->
+<!-- <script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Handle "Next" button clicks (manual tab move)
+  document.querySelectorAll(".next-tab").forEach(button => {
+    button.addEventListener("click", () => {
+      const activeTab = document.querySelector(".nav-link.active");
+      const tabs = Array.from(document.querySelectorAll(".nav-link"));
+      const currentIndex = tabs.indexOf(activeTab);
+      if (currentIndex < tabs.length - 1) {
+        const nextTab = tabs[currentIndex + 1];
+        const tabTrigger = new bootstrap.Tab(nextTab);
+        tabTrigger.show();
+      }
+    });
+  });
+
+  // Apply to all forms inside tab-content
+  document.querySelectorAll(".tab-content form").forEach(form => {
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const enctype = form.getAttribute("enctype");
+      let options = { method: form.method.toUpperCase() };
+
+      // Handle normal and file uploads
+      if (enctype === "multipart/form-data") {
+        options.body = formData; // allow file upload
+      } else {
+        const formObject = Object.fromEntries(formData.entries());
+        options.headers = { "Content-Type": "application/x-www-form-urlencoded" };
+        options.body = new URLSearchParams(formObject).toString();
+      }
+
+      try {
+        const response = await fetch(form.action, options);
+
+        if (response.ok) {
+          const msg = "✅ Data saved successfully!";
+          alert(msg);
+
+          // Move automatically to next tab
+          const activeTab = document.querySelector(".nav-link.active");
+          const tabs = Array.from(document.querySelectorAll(".nav-link"));
+          const currentIndex = tabs.indexOf(activeTab);
+          if (currentIndex < tabs.length - 1) {
+            const nextTab = tabs[currentIndex + 1];
+            const tabTrigger = new bootstrap.Tab(nextTab);
+            tabTrigger.show();
+          }
+
+          // Reset form after success
+          form.reset();
+        } else {
+          const errText = await response.text();
+          alert("⚠️ " + errText);
+        }
+      } catch (err) {
+        console.error("❌ Error submitting form:", err);
+        alert("Server error: " + err.message);
+      }
+    });
+  });
+});
+</script> -->
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  // Fetch job_id from session silently
+  try {
+    const res = await fetch("/api/get-session", { credentials: "include" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.job_id) {
+        // Set the hidden field value for all forms
+        document.querySelectorAll('input[name="job_id"]').forEach(input => {
+          input.value = data.job_id;
+        });
+        console.log("Job ID from session:", data.job_id);
+      }
+    } else {
+      console.warn("No job ID found in session");
+    }
+  } catch (err) {
+    console.error("Error fetching job_id:", err);
   }
 
-  // Preview entered answers
-  document.getElementById("previewBtn").addEventListener("click", function(e) {
-    e.preventDefault();
-    const formData = new FormData(document.getElementById("questionnaire"));
-    let preview = "<h3>Preview Responses</h3><ul>";
-    for (let [key, value] of formData.entries()) {
-      preview += `<li>${key}: ${value instanceof File ? value.name : value}</li>`;
-    }
-    preview += "</ul>";
-    document.getElementById("previewArea").innerHTML = preview;
+  // Handle "Next" button clicks (manual tab move)
+  document.querySelectorAll(".next-tab").forEach(button => {
+    button.addEventListener("click", () => {
+      const activeTab = document.querySelector(".nav-link.active");
+      const tabs = Array.from(document.querySelectorAll(".nav-link"));
+      const currentIndex = tabs.indexOf(activeTab);
+      if (currentIndex < tabs.length - 1) {
+        const nextTab = tabs[currentIndex + 1];
+        const tabTrigger = new bootstrap.Tab(nextTab);
+        tabTrigger.show();
+      }
+    });
   });
-</script> -->
+
+  // Apply to all forms inside tab-content
+  document.querySelectorAll(".tab-content form").forEach(form => {
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const enctype = form.getAttribute("enctype");
+      let options = { method: form.method.toUpperCase() };
+
+      // Handle normal and file uploads
+      if (enctype === "multipart/form-data") {
+        options.body = formData; // allow file upload
+      } else {
+        const formObject = Object.fromEntries(formData.entries());
+        options.headers = { "Content-Type": "application/x-www-form-urlencoded" };
+        options.body = new URLSearchParams(formObject).toString();
+      }
+
+      try {
+        const response = await fetch(form.action, options);
+
+        if (response.ok) {
+          alert("✅ Data saved successfully!");
+
+          // Move automatically to next tab
+          const activeTab = document.querySelector(".nav-link.active");
+          const tabs = Array.from(document.querySelectorAll(".nav-link"));
+          const currentIndex = tabs.indexOf(activeTab);
+          if (currentIndex < tabs.length - 1) {
+            const nextTab = tabs[currentIndex + 1];
+            const tabTrigger = new bootstrap.Tab(nextTab);
+            tabTrigger.show();
+          }
+
+          // Reset form after success
+          form.reset();
+
+          // Re-assign job_id to the hidden input again
+          document.querySelectorAll('input[name="job_id"]').forEach(input => {
+            input.value = data.job_id;
+          });
+
+        } else {
+          const errText = await response.text();
+          alert("⚠️ " + errText);
+        }
+      } catch (err) {
+        console.error("❌ Error submitting form:", err);
+        // alert("Server error: " + err.message);
+      }
+    });
+  });
+});
+</script>
+
+
+
 </body>
 </html>

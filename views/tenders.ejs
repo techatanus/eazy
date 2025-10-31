@@ -349,7 +349,7 @@
 
     <!-- MAIN CONTENT -->
     <main class="content">
-       <h3 class="mb-0" style="color:#008000; padding: 4px;">Tender jobs you have paid for</h3>
+       <!-- <h3 class="mb-0" style="color:#008000; padding: 4px;">Tender jobs you have paid for</h3> -->
       <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
           <h5 class="mb-0" style="color:#008000; padding: 14px;">Tenders</h5>
@@ -376,8 +376,8 @@
             <thead >
               <tr>
                 <th style="color:#008000;">Buyer</th>
-                <th style="color:#008000;">Job</th>
-                <th style="color:#008000;">Category</th>
+                <th style="color:#008000;">Bid Title</th>
+                <!-- <th style="color:#008000;">Category</th> -->
                 <th style="color:#008000;">Closing Time</th>
                 <!-- <th style="color:#008000;">Status</th> -->
              
@@ -393,7 +393,8 @@
         <td></td>
       
         <td><%= tender.title %></td>
-        <td></td>
+         <!-- <td><%= tender.category %></td> -->
+       
        <td>
   <% if (tender.closing_date) { %>
     <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
@@ -417,8 +418,8 @@
 
         <td class="text-end">
           <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
-                  <!-- <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Apply</button>
-                  <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i>QA</button> -->
+                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Pay</button>
+                <!--   <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i>QA</button> -->
                   <!-- <a href="/deltend:id?=<%tender.code%>"><button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button></a> -->
         </td>
       </tr>
@@ -526,8 +527,8 @@
         <div class="modal-body">
           <dl class="row">
             <!-- <dt class="col-sm-3">Code</dt><dd class="col-sm-9" id="v-code"></dd> -->
-            <dt class="col-sm-3">Title</dt><dd class="col-sm-9" id="v-title"></dd>
-            <!-- <dt class="col-sm-3">Type</dt><dd class="col-sm-9" id="v-type"></dd> -->
+            <dt class="col-sm-3">Job</dt><dd class="col-sm-9" id="v-title"></dd>
+            <!-- <dt class="col-sm-3">Category</dt><dd class="col-sm-9" id="v-category"></dd> -->
             <dt class="col-sm-3">Closing</dt><dd class="col-sm-9" id="v-closing"></dd>
             <!-- <dt class="col-sm-3">Status</dt><dd class="col-sm-9" id="v-status"></dd> -->
             <dt class="col-sm-3">Created By</dt><dd class="col-sm-9" id="v-created"></dd>
@@ -660,7 +661,7 @@
     const cells = row.querySelectorAll('td');
     // document.getElementById('v-code').textContent = cells[0].textContent.trim();
     document.getElementById('v-title').textContent = cells[1].textContent.trim();
-    // document.getElementById('v-type').textContent = cells[2].textContent.trim();
+    // document.getElementById('v-category').textContent = cells[2].textContent.trim();
     document.getElementById('v-closing').textContent = cells[3].textContent.trim();
    // document.getElementById('v-status').textContent = cells[4].textContent.trim();
    document.getElementById('v-created').textContent = 'System Admin'; // replace with actual creator if available
