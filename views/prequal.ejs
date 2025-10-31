@@ -515,7 +515,7 @@
 </header>
 
 <div class="content">
-  <h3 style="color: #008000;">Prequalification jobs you have paid for</h3>
+  <!-- <h3 style="color: #008000;">Prequalification jobs you have paid for</h3> -->
   <div class="card p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class=" fw-bold mb-0" style="color: #008000;">
@@ -536,12 +536,12 @@
       <table class="table table-hover align-middle" id="applicationsTable">
         <thead>
           <tr>
+          
             <th>#</th>
-            <th>Buyer</th>
-             <th>Job</th>
-            <th>Category</th>
-             <th>Closing Time</th>
-           
+            <th>categorycode</th>
+             <th>category</th>
+            <th>closing time</th>
+             <th>amount</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -551,13 +551,14 @@
             <td>1</td>
             <td>ABC LTD</td>
             <td>Supply of Office Furniture</td>
-            <td>Procurement</td>
+            
             <td>2025-11-15</td>
+            <td>3000</td>
             <!-- <td><span class="badge bg-warning text-dark">Pending</span></td> -->
             <td>
               <div class="d-flex gap-2">
                 <a href="/report/1" class="btn btn-sm btn-info">
-                  <i class="bi bi-file-earmark-text"></i> Report
+                  <i class="bi bi-envelope-fill"></i>Pay
                 </a>
                 <a href="/admin/qas" class="btn btn-sm btn-success">
                   <i class="bi bi-pencil-square"></i> Questionnaire

@@ -456,7 +456,7 @@
         <div class="stat-card" data-card="Open Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #012441 !important">
           <div class="stat-icon c-open"><i class="bi bi-folder2-open"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Open jobs</p>
+            <p class="stat-title" style="color: white;">Current Listings</p>
             <p class="stat-value" style="color: white;"><%= totals.openJobs %></p>
           </div>
         </div> 
@@ -464,7 +464,7 @@
         <div class="stat-card" data-card="Closed Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #550b86 !important">
           <div class="stat-icon c-closed"><i class="bi bi-lock-fill"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Closed jobs</p>
+            <p class="stat-title" style="color: white;">Closed bids</p>
             <p class="stat-value" style="color: white;"><%= totals.closedJobs %></p>
           </div>
         </div>
@@ -480,7 +480,7 @@
         <div class="stat-card" data-card="Approved Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #2196F3 !important">
           <div class="stat-icon c-approved"><i class="bi bi-patch-check-fill"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Pending</p>
+            <p class="stat-title" style="color: white;">Drafts</p>
             <p class="stat-value" style="color: white;"> <%= totals.clients %></p>
           </div>
         </div>
@@ -490,13 +490,13 @@
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-3" id="supplierTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active text-success" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">Open jobs</button>
+      <button class="nav-link active text-success" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">Current Listings</button>
     </li>
     <!-- <li class="nav-item" role="presentation">
       <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">Rejected</button>
     </li> -->
     <li class="nav-item" role="presentation">
-      <button class="nav-link text-success" id="closed-tab" data-bs-toggle="tab" data-bs-target="#closed" type="button" role="tab">Closed closed</button>
+      <button class="nav-link text-success" id="closed-tab" data-bs-toggle="tab" data-bs-target="#closed" type="button" role="tab">Closed bids</button>
     </li>
   </ul>
 
