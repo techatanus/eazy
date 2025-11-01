@@ -17,7 +17,30 @@ exports.dashboard = async (req, res) => {
  
 
     const [openTendersRows] = await db.query( "SELECT * FROM tenders WHERE status IN ('open', 'Draft','closed') ORDER BY closing_date ASC LIMIT 10" );
-
+// open jobs -approved
+const [currentListingRows] = await db.query(`
+ SELECT 
+    j.id AS job_id,
+    j.client,
+    j.bid_title,
+    j.closing_datetime,
+    j.eligibility,
+    j.status,
+    c.category_no,
+    c.category_name,
+    c.price,
+    c.description,
+    u.file
+  FROM jobs j
+  JOIN categories c 
+    ON j.id = c.job_id
+  LEFT JOIN uploads u 
+    ON c.job_id = u.job_id 
+    AND c.category_name = u.category
+  WHERE j.status = 'approved'
+  ORDER BY j.closing_datetime ASC
+`);
+   
     // Get open jobs (open or draft tenders)
   const [openJobsCountRows] = await db.query(
       "SELECT COUNT(*) as total FROM tenders WHERE status IN ('open', 'Draft')"
@@ -46,6 +69,7 @@ exports.dashboard = async (req, res) => {
       },
      // closed tenders
       openTenders: openTendersRows,
+      openJobs:currentListingRows,
       category,
       user,
       message,
@@ -78,6 +102,31 @@ const [categoryStatusCounts] = await db.query(`
   ORDER BY COUNT(id) DESC
 `);
 
+// current listing
+const [currentListingRows] = await db.query(`
+SELECT 
+    j.id AS job_id,
+    j.client,
+    j.reason,
+    j.bid_title,
+    j.start_datetime, 
+    j.closing_datetime,
+    j.eligibility,
+    j.status,
+    c.category_no,
+    c.category_name,
+    c.price,
+    c.description,
+    u.file
+  FROM jobs j
+  JOIN categories c 
+    ON j.id = c.job_id
+  LEFT JOIN uploads u 
+    ON c.job_id = u.job_id 
+    AND c.category_name = u.category
+  WHERE j.status = 'approved'
+  ORDER BY j.closing_datetime ASC
+`);
 
     // Count total by status for pie chart
     const [statusCounts] = await db.query(`
@@ -118,6 +167,7 @@ const [category] = await db.query("SELECT * FROM categories"); user = req.sessio
         closedJobs: closedJobsCountRows[0].total
       },
       openTenders:openTendersRows,
+      openJobs:currentListingRows,
       statusCounts: statusCounts[0],
       categoryStatusCounts, // <— send grouped data to frontend
       user,
@@ -139,8 +189,77 @@ exports.dashboardc = async (req, res) => {
     const [clientsRows] = await db.query("SELECT COUNT(*) as c FROM clients");
     const [suppliersRows] = await db.query("SELECT COUNT(*) as c FROM suppliers");
  
+// open bids
+const [openTendersRows] = await db.query(`
+  SELECT 
+    j.client,
+    j.bid_title,
+    j.closing_datetime,
+    j.eligibility,
+    j.status,
+    c.category_no,
+    c.category_name,
+    c.price,
+    c.description,
+    u.file
+  FROM jobs j
+  JOIN categories c 
+    ON j.id = c.job_id
+  LEFT JOIN uploads u 
+    ON c.job_id = u.job_id 
+    AND c.category_name = u.category
+  WHERE j.status = 'open'
+  ORDER BY j.closing_datetime ASC
+`);
+// draft bids
+const [draftTendersRows] = await db.query(`
+  SELECT 
+    j.client,
+    j.bid_title,
+    j.closing_datetime,
+    j.eligibility,
+    j.status,
+    c.category_no,
+    c.category_name,
+    c.price,
+    c.description,
+    u.file
+  FROM jobs j
+  JOIN categories c 
+    ON j.id = c.job_id
+  LEFT JOIN uploads u 
+    ON c.job_id = u.job_id 
+    AND c.category_name = u.category
+  WHERE j.status = 'draft'
+  ORDER BY j.closing_datetime ASC
+`);
 
-    const [openTendersRows] = await db.query( "SELECT * FROM tenders WHERE status IN ('approved','closed') ORDER BY closing_date ASC LIMIT 10" );
+//current listing jobs
+const [currentListingRows] = await db.query(`
+SELECT 
+    j.id AS job_id,
+    j.client,
+    j.reason,
+    j.bid_title,
+    j.closing_datetime,
+    j.eligibility,
+    j.status,
+    c.category_no,
+    c.category_name,
+    c.price,
+    c.description,
+    u.file
+  FROM jobs j
+  JOIN categories c 
+    ON j.id = c.job_id
+  LEFT JOIN uploads u 
+    ON c.job_id = u.job_id 
+    AND c.category_name = u.category
+  WHERE j.status IN ('approved','rejected')
+  ORDER BY j.closing_datetime ASC
+`);
+   
+
       
   // ✅ Count tenders per category and status
 const [categoryStatusCounts] = await db.query(`
@@ -165,11 +284,20 @@ const [categoryStatusCounts] = await db.query(`
         SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
         SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected,
         SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) AS Approved
-      FROM tenders
+      FROM jobs
     `);
     // Get open jobs (open or draft tenders)
   const [openJobsCountRows] = await db.query(
-      "SELECT COUNT(*) as total FROM tenders WHERE status IN ('open', 'Draft')"
+      "SELECT COUNT(*) as total FROM jobs WHERE status = 'approved'"
+    );
+    // draftJObs
+      const [draftJobs] = await db.query(
+      "SELECT COUNT(*) as total FROM jobs WHERE status = 'draft'"
+    );
+
+    // approved jobs
+         const [approvedJobs] = await db.query(
+      "SELECT COUNT(*) as total FROM jobs WHERE status = 'approved'"
     );
     // Get closed jobs (closed tenders)
      const [closedJobsCountRows] = await db.query(
@@ -189,12 +317,16 @@ const [categoryStatusCounts] = await db.query(`
       totals: {
         admins: adminsRows[0].c,
         clients: clientsRows[0].c,
+        draft:draftJobs[0].total,
+        approved:approvedJobs[0].total,
         suppliers: suppliersRows[0].c,
         openJobs: openJobsCountRows[0].total,
         closedJobs: closedJobsCountRows[0].total
       },
      // closed tenders
       openTenders: openTendersRows,
+      draftbids:draftTendersRows,
+      openJobs:currentListingRows,
       statusCounts: statusCounts[0],
       categoryStatusCounts,
       category,
@@ -1340,7 +1472,7 @@ exports.createNewJob = async (req, res) => {
     // Insert new job and get inserted ID
     const sql = `
       INSERT INTO jobs (client, bid_title, start_datetime, closing_datetime, eligibility, status)
-      VALUES (?, ?, ?, ?, ?, 'open')
+      VALUES (?, ?, ?, ?, ?, 'draft')
     `;
     const [result] = await db.query(sql, [
       client,

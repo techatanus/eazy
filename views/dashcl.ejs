@@ -473,7 +473,7 @@
           <div class="stat-icon c-applied"><i class="bi bi-send-check"></i></div>
           <div class="stat-body">
             <p class="stat-title" style="color: white;">Approved</p>
-            <p class="stat-value" style="color: white;"> <%= totals.suppliers %> </p>
+            <p class="stat-value" style="color: white;"> <%= totals.approved %> </p>
           </div>
         </div>
 
@@ -481,7 +481,7 @@
           <div class="stat-icon c-approved"><i class="bi bi-patch-check-fill"></i></div>
           <div class="stat-body">
             <p class="stat-title" style="color: white;">Drafts</p>
-            <p class="stat-value" style="color: white;"> <%= totals.clients %></p>
+            <p class="stat-value" style="color: white;"> <%= totals.draft %></p>
           </div>
         </div>
       </div>
@@ -519,34 +519,34 @@
   </thead>
 
 <tbody id="supplierTablePending">
-  <% if (openTenders && openTenders.length > 0) { %>
+<% if (openJobs && openJobs.length > 0) { %>
     <% 
       // Filter tenders to include only open or draft
-      const visibleTenders = openTenders.filter(t => 
-        t.status === 'approved' || t.status === 'draft'
+      const visibleTenders = openJobs.filter(t => 
+        t.status === 'approved' 
       ); 
     %>
 
     <% if (visibleTenders.length > 0) { %>
-      <% visibleTenders.forEach((tender,index) => { %>
+      <% visibleTenders.forEach(tender => { %>
         <tr>
-             <td><%=index + 1 %></td>
-          <!-- <td>
+          <td>
             <img src="<%= tender.logo || '/images/default-logo.png' %>" 
                  alt="Logo" width="40" height="40" class="rounded-circle">
+                 <%=tender.client%>
           </td>
-        -->
           <!-- <td><%= tender.code || 'N/A' %></td> -->
-          <td><%= tender.title %></td>
-        
+          <td><%= tender.bid_title %></td>
+          <!-- <td><%= tender.type%></td>
+          <td><%= tender.description %></td> -->
           <!-- <td>
             <span class="badge bg-<%= tender.status === 'open' ? 'success' : 'warning' %>">
               <%= tender.status.charAt(0).toUpperCase() + tender.status.slice(1) %>
             </span>
           </td> -->
           <td>
-              <% if (tender.closing_date) { %>
-    <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
+              <% if (tender.closing_datetime) { %>
+    <%= new Date(tender.closing_datetime).toLocaleString('en-KE', { 
           dateStyle: 'medium', 
           timeStyle: 'short' 
         }) %>
@@ -554,8 +554,9 @@
     N/A
   <% } %>
           </td>
-              <td>AGPO</td>
-        <td><a href="#">View</a></td>
+          <td><%=tender.eligibility%></td>
+        
+          <td><a href="#">View</a></td>
         </tr>
       <% }); %>
     <% } else { %>
@@ -563,7 +564,6 @@
         <td colspan="5" class="text-center text-muted py-4">
           No open or drafted tenders available
         </td>
-    
       </tr>
     <% } %>
   <% } else { %>
@@ -629,7 +629,7 @@
         <tr>
             <td><%=index + 1%></td>
           <td></td>
-          <td><%= tender.title %></td>
+          <td><%= tender.bid_title %></td>
        
           <td>
             <!-- <span class="badge bg-<%= tender.status === 'closed' ? 'success' : 'secondary' %>">
@@ -637,8 +637,8 @@
             </span> -->
           </td>
           <td>
-              <% if (tender.closing_date) { %>
-    <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
+              <% if (tender.closing_datetime) { %>
+    <%= new Date(tender.closing_datetime).toLocaleString('en-KE', { 
           dateStyle: 'medium', 
           timeStyle: 'short' 
         }) %>

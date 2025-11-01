@@ -588,6 +588,7 @@
                 <!-- <th style="color:#008000;">Category Code</th> -->
                 <th style="color:#008000;">Closing Date</th>
                   <th style="color:#008000;">Eligibility</th>
+                   <th style="color:#008000;">Countdown</th>
                   <th style="color:#008000;">Action</th>
 
      
@@ -595,67 +596,157 @@
   </thead>
 
 <tbody id="supplierTablePending">
-  <% if (openTenders && openTenders.length > 0) { %>
-    <% 
-      // Filter tenders to include only open or draft
-      const visibleTenders = openTenders.filter(t => 
-        t.status === 'open' || t.status === 'draft'
-      ); 
-    %>
+  <% if (openJobs && openJobs.length > 0) { %>
+    <% const now = new Date(); %>
 
-    <% if (visibleTenders.length > 0) { %>
-      <% visibleTenders.forEach(tender => { %>
-        <tr>
+    <% openJobs.forEach(tender => { %>
+      <% if (tender.status === 'approved') { %>
+        <tr class="tender-row">
           <td>
             <img src="<%= tender.logo || '/images/default-logo.png' %>" 
                  alt="Logo" width="40" height="40" class="rounded-circle">
+            <%= tender.client %>
           </td>
-          
-          <td><%= tender.title %></td>
-         <!-- <td><%= tender.code || 'N/A' %></td> -->
-        
-          <td>
-              <% if (tender.closing_date) { %>
-    <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
-          dateStyle: 'medium', 
-          timeStyle: 'short' 
-        }) %>
-  <% } else { %>
-    N/A
-  <% } %>
-          </td>
-          <td>All</td>
-         <!-- <td> -->
-  <!-- <button 
-    class="btn btn-sm btn-success add-to-cart" 
-    data-id="<%= tender.id %>"
-    data-title="<%= tender.title %>"
-    data-company="<%= tender.company %>"
-    data-code="<%= tender.code %>"
-  >
-    <i class="bi bi-cart-plus"></i> Add to Cart
-  </button> -->
-  <td title="proceed to list of categories"><a href="#">Proceed ></a></td>
-<!-- </td> -->
 
-         
+          <td><%= tender.bid_title %></td>
+
+          <td>
+            <% if (tender.closing_datetime) { %>
+              <%= new Date(tender.closing_datetime).toLocaleString('en-KE', { 
+                dateStyle: 'medium', 
+                timeStyle: 'short' 
+              }) %>
+            <% } else { %>
+              N/A
+            <% } %>
+          </td>
+
+          <td><%= tender.eligibility %></td>
+
+          <!-- Countdown -->
+          <td>
+            <span 
+              class="countdown-timer" 
+              data-start="<%= tender.start_datetime %>" 
+              data-end="<%= tender.closing_datetime %>">
+            </span>
+          </td>
+
+          <!-- Proceed Button -->
+          <td>
+            <button 
+              class="btn btn-primary btn-sm proceed-btn" 
+              data-start="<%= tender.start_datetime %>" 
+              data-end="<%= tender.closing_datetime %>" 
+              data-id="<%= tender.job_id %>" 
+              disabled>
+              Proceed
+            </button>
+          </td>
         </tr>
-      <% }); %>
-    <% } else { %>
-      <tr>
-        <td colspan="5" class="text-center text-muted py-4">
-          No open  Jobs available at the moment
-        </td>
-      </tr>
-    <% } %>
+      <% } %>
+    <% }); %>
+
   <% } else { %>
     <tr>
-      <td colspan="5" class="text-center text-muted py-4">
+      <td colspan="6" class="text-center text-muted py-4">
         No tenders available
       </td>
     </tr>
   <% } %>
 </tbody>
+
+<!-- JS Countdown Script -->
+<script>
+  function updateCountdowns() {
+    const now = new Date().getTime();
+
+    document.querySelectorAll('.countdown-timer').forEach((el, i) => {
+      const start = new Date(el.dataset.start).getTime();
+      const end = new Date(el.dataset.end).getTime();
+      const proceedBtn = document.querySelectorAll('.proceed-btn')[i];
+      const row = el.closest('.tender-row'); // reference to the tender row
+
+      let diff, label;
+
+      // Before start time — countdown to live
+      if (now < start) {
+        diff = start - now;
+        label = "Goes live in: ";
+        proceedBtn.disabled = true;
+        proceedBtn.classList.remove("btn-success");
+        proceedBtn.classList.add("btn-secondary");
+      } 
+      // Active tender — countdown to close
+      else if (now >= start && now < end) {
+        diff = end - now;
+        label = "Closes in: ";
+        proceedBtn.disabled = false;
+        proceedBtn.classList.remove("btn-secondary");
+        proceedBtn.classList.add("btn-success");
+      } 
+      // Closed — hide row from supplier
+      else {
+        row.style.display = "none"; // ✅ hides closed tender row
+        return;
+      }
+
+      // Countdown calculations
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      el.innerHTML = `${label} <strong>${days}d ${hours}h ${minutes}m ${seconds}s</strong>`;
+    });
+  }
+
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
+</script>
+
+<style>
+  .btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+</style>
+
+
+<!-- JS Countdown Script -->
+<script>
+  function updateCountdowns() {
+    const now = new Date().getTime();
+    document.querySelectorAll('.countdown-timer').forEach(el => {
+      const start = new Date(el.dataset.start).getTime();
+      const end = new Date(el.dataset.end).getTime();
+
+      let diff, label;
+
+      if (now < start) {
+        diff = start - now;
+        label = "Goes live in: ";
+      } else if (now >= start && now < end) {
+        diff = end - now;
+        label = "Closes in: ";
+      } else {
+        el.innerHTML = "<span class='text-danger fw-bold'>Closed</span>";
+        return;
+      }
+
+      // Calculate time parts
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      el.innerHTML = `${label} <strong>${days}d ${hours}h ${minutes}m ${seconds}s</strong>`;
+    });
+  }
+
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
+</script>
 
 </table>
 

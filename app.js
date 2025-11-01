@@ -38,8 +38,8 @@ app.get("/t_approve", async (req, res) => {
     const { id } = req.query;
     if (!id) return res.status(400).send("Tender ID missing");
 
-    await db.query("UPDATE tenders SET status = 'approved', reason = NULL WHERE id = ?", [id]);
-    res.redirect("approve"); // redirect to tender list after update
+    await db.query("UPDATE jobs SET status = 'approved', reason = NULL WHERE id = ?", [id]);
+    res.redirect("/admin/approve"); // redirect to tender list after update
   } catch (error) {
     console.error("Error approving tender:", error);
     res.status(500).send("Server error approving tender");
@@ -54,7 +54,7 @@ app.post("/t_reject", async (req, res) => {
     if (!reason || reason.trim() === "")
       return res.status(400).send("Please provide a rejection reason");
 
-    await db.query("UPDATE tenders SET status = 'rejected', reason = ? WHERE id = ?", [reason, id]);
+    await db.query("UPDATE jobs SET status = 'rejected', reason = ? WHERE id = ?", [reason, id]);
     res.json({ success: true, message: "Tender rejected successfully" });
   } catch (error) {
     console.error("Error rejecting tender:", error);

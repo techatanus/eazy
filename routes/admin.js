@@ -447,22 +447,45 @@ router.get('/approve',async(req,res)=>{
       if(!user){
         return res.redirect('/')
       };
-      const status = 'draft';
-      const status1 = 'rejected'
-    
-      const status2 = 'approved';
+//       const status = 'draft';
+//       const status1 = 'rejected'
+//       const status2 = 'approved';
 
 
-      // pending tenders
-   const [tenders] = await db.query("SELECT * FROM tenders WHERE status = ?",[status]);
-//approved tenders
-     const [tender] = await db.query("SELECT * FROM tenders WHERE status = ?",[status2]);
+//       // pending tenders
+//    const [tenders] = await db.query("SELECT * FROM tenders WHERE status = ?",[status]);
+// //approved tenders
+//      const [tender] = await db.query("SELECT * FROM tenders WHERE status = ?",[status2]);
 
-     const [reject] = await db.query("SELECT * FROM tenders WHERE status = ?",[status1]);
+//      const [reject] = await db.query("SELECT * FROM tenders WHERE status = ?",[status1]);
  
-   console.log(tender);
+//    console.log(tender);
+
+// draft bids
+const [draftTendersRows] = await db.query(`
+ SELECT 
+    j.id AS job_id,
+    j.client,
+    j.bid_title,
+    j.closing_datetime,
+    j.eligibility,
+    j.status,
+    c.category_no,
+    c.category_name,
+    c.price,
+    c.description,
+    u.file
+  FROM jobs j
+  JOIN categories c 
+    ON j.id = c.job_id
+  LEFT JOIN uploads u 
+    ON c.job_id = u.job_id 
+    AND c.category_name = u.category
+  WHERE j.status IN ('draft', 'approved', 'rejected')
+  ORDER BY j.closing_datetime ASC
+`);
    
-            res.render('approval',{tenders,tender,reject});
+            res.render('approval',{draftTendersRows});
     } catch (error) {
       
     }

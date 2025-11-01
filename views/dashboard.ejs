@@ -381,7 +381,7 @@
         <div class="stat-card" data-card="Open Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #012441 !important">
           <div class="stat-icon c-open"><i class="bi bi-folder2-open"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Open jobs</p>
+            <p class="stat-title" style="color: white;">Current Listings</p>
             <p class="stat-value" style="color: white;"><%= totals.openJobs %></p>
           </div>
         </div> 
@@ -389,7 +389,7 @@
         <div class="stat-card" data-card="Closed Tenders" data-bs-toggle="modal" data-bs-target="#detailModal" style=" background: #550b86 !important">
           <div class="stat-icon c-closed"><i class="bi bi-lock-fill"></i></div>
           <div class="stat-body">
-            <p class="stat-title" style="color: white;">Closed jobs</p>
+            <p class="stat-title" style="color: white;">Closed bids</p>
             <p class="stat-value" style="color: white;"><%= totals.closedJobs %></p>
           </div>
         </div>
@@ -415,13 +415,13 @@
   <!-- Tabs -->
   <ul class="nav nav-tabs mb-3" id="supplierTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active text-success" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">Open jobs</button>
+      <button class="nav-link active text-success" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">Current Listings</button>
     </li>
     <!-- <li class="nav-item" role="presentation">
       <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">Rejected</button>
     </li> -->
     <li class="nav-item" role="presentation">
-      <button class="nav-link text-success" id="closed-tab" data-bs-toggle="tab" data-bs-target="#closed" type="button" role="tab">Closed closed</button>
+      <button class="nav-link text-success" id="closed-tab" data-bs-toggle="tab" data-bs-target="#closed" type="button" role="tab">Closed bids</button>
     </li>
   </ul>
 
@@ -443,11 +443,11 @@
   </thead>
 
 <tbody id="supplierTablePending">
-  <% if (openTenders && openTenders.length > 0) { %>
+  <% if (openJobs && openJobs.length > 0) { %>
     <% 
       // Filter tenders to include only open or draft
-      const visibleTenders = openTenders.filter(t => 
-        t.status === 'open' || t.status === 'draft'
+      const visibleTenders = openJobs.filter(t => 
+        t.status === 'approved' 
       ); 
     %>
 
@@ -457,9 +457,10 @@
           <td>
             <img src="<%= tender.logo || '/images/default-logo.png' %>" 
                  alt="Logo" width="40" height="40" class="rounded-circle">
+                 <%=tender.client%>
           </td>
           <!-- <td><%= tender.code || 'N/A' %></td> -->
-          <td><%= tender.title %></td>
+          <td><%= tender.bid_title %></td>
           <!-- <td><%= tender.type%></td>
           <td><%= tender.description %></td> -->
           <!-- <td>
@@ -468,8 +469,8 @@
             </span>
           </td> -->
           <td>
-              <% if (tender.closing_date) { %>
-    <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
+              <% if (tender.closing_datetime) { %>
+    <%= new Date(tender.closing_datetime).toLocaleString('en-KE', { 
           dateStyle: 'medium', 
           timeStyle: 'short' 
         }) %>
@@ -477,7 +478,8 @@
     N/A
   <% } %>
           </td>
-          <td><a href="#">preview</a></td>
+          <td><%=tender.eligibility%></td>
+        
           <td><a href="#">View</a></td>
         </tr>
       <% }); %>
@@ -559,7 +561,7 @@
           </td>
           <td>
               <% if (tender.closing_date) { %>
-    <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
+    <%= new Date(tender.closing_datetime).toLocaleString('en-KE', { 
           dateStyle: 'medium', 
           timeStyle: 'short' 
         }) %>
