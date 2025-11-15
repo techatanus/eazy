@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require("multer");
 const adminCtrl = require('../controllers/adminController');
-
+//const stk = require('../controllers/tokens');
 
 
 router.use(express.json()); // handles JSON body
@@ -118,9 +118,14 @@ router.post(
   adminCtrl.multiUpload
 );
 
+// que jobs for payment
+// POST route to set que = 1
+
+
 // quiz upload
 router.post('/quiz', adminCtrl.createQuiz);
 
+// payment stk
 
 
 

@@ -466,9 +466,7 @@
     <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
       <i class="bi bi-bell-fill"></i>
     </div>
-    <div class="nav-icon icon-badge" id="cartIcon" title="Cart" data-count="0">
-  <i class="bi bi-cart-fill"></i>
-</div>
+
 
   <!-- 👤 Profile Dropdown -->
 <div class="dropdown">
@@ -943,155 +941,10 @@
 
 </div>
 
-  <!-- 🛒 CART MODAL -->
-<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-success text-white">
-        <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-fill"></i> My Cart</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div id="cartTableContainer">
-          <table class="table table-bordered table-hover align-middle">
-            <thead class="table-success">
-              <tr>
-                <th>#</th>
-                <th>Job Title</th>
-                <th>Code</th>
-                <th>Company</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="cartItemsBody">
-              <tr><td colspan="5" class="text-center text-muted">No jobs added to cart.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="modal-footer d-flex justify-content-between">
-        <button id="clearCartBtn" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Clear Cart</button>
-        <button id="payBtn" class="btn btn-success">
-          <i class="bi bi-phone-fill"></i> Pay with M-Pesa
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+
   <!-- Bootstrap JS (for modal) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- script for cat login -->
-<script>
-  // --- CART SYSTEM ---
-  const cartIcon = document.getElementById("cartIcon");
-  const cartModal = new bootstrap.Modal(document.getElementById("cartModal"));
-  const cartBody = document.getElementById("cartItemsBody");
-  const clearCartBtn = document.getElementById("clearCartBtn");
-  const payBtn = document.getElementById("payBtn");
-  let cart = JSON.parse(localStorage.getItem("tenderCart")) || [];
 
-  // Update cart badge count
-  function updateCartBadge() {
-    cartIcon.setAttribute("data-count", cart.length);
-  }
-
-  // Render cart items in modal
-  function renderCart() {
-    cartBody.innerHTML = "";
-    if (cart.length === 0) {
-      cartBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No jobs added to cart.</td></tr>`;
-      return;
-    }
-
-    cart.forEach((item, index) => {
-      cartBody.innerHTML += `
-        <tr>
-          <td>${index + 1}</td>
-          <td>${item.title}</td>
-          <td>${item.code}</td>
-          <td>${item.company}</td>
-          <td>
-            <button class="btn btn-sm btn-danger remove-item" data-id="${item.id}">
-              <i class="bi bi-x-circle"></i> Remove
-            </button>
-          </td>
-        </tr>`;
-    });
-  }
-
-  // Add to Cart Logic
-  document.addEventListener("click", function(e) {
-    if (e.target.closest(".add-to-cart")) {
-      const btn = e.target.closest(".add-to-cart");
-      const tender = {
-        id: btn.dataset.id,
-        title: btn.dataset.title,
-        company: btn.dataset.company,
-        code: btn.dataset.code
-      };
-
-      // Check if already added
-      if (cart.some(item => item.id === tender.id)) {
-        alert("This job is already in your cart!");
-        return;
-      }
-
-      cart.push(tender);
-      localStorage.setItem("tenderCart", JSON.stringify(cart));
-      updateCartBadge();
-      renderCart();
-
-      btn.innerHTML = '<i class="bi bi-check2-circle"></i> Added';
-      btn.classList.replace('btn-success', 'btn-secondary');
-      btn.disabled = true;
-    }
-  });
-
-  // Remove single job
-  document.addEventListener("click", function(e) {
-    if (e.target.closest(".remove-item")) {
-      const id = e.target.closest(".remove-item").dataset.id;
-      cart = cart.filter(item => item.id !== id);
-      localStorage.setItem("tenderCart", JSON.stringify(cart));
-      updateCartBadge();
-      renderCart();
-    }
-  });
-
-  // Clear entire cart
-  clearCartBtn.addEventListener("click", () => {
-    if (confirm("Are you sure you want to clear all jobs from your cart?")) {
-      cart = [];
-      localStorage.removeItem("tenderCart");
-      updateCartBadge();
-      renderCart();
-    }
-  });
-
-  // Simulate M-Pesa STK Push
-  payBtn.addEventListener("click", () => {
-    if (cart.length === 0) {
-      alert("Please add jobs to your cart before paying.");
-      return;
-    }
-
-    // Simulated STK Push
-    const phone = prompt("Enter your M-Pesa phone number (e.g. 2547XXXXXXXX):");
-    if (phone) {
-      alert(`📲 Initiating M-Pesa STK Push to ${phone}...\nPlease complete payment on your phone.`);
-      // TODO: Call your Node.js STK Push API endpoint here.
-    }
-  });
-
-  // Show modal when cart icon is clicked
-  cartIcon.addEventListener("click", () => {
-    renderCart();
-    cartModal.show();
-  });
-
-  // Initial load
-  updateCartBadge();
-</script>
 
   <script>
     // Sidebar submenu toggles (preserve initial markup, only enhance)
@@ -1200,5 +1053,39 @@
     window.addEventListener('resize', closeAllFloating);
 
   </script>
+  <!-- Handle proceed action -->
+   <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const proceedButtons = document.querySelectorAll(".proceed-btn");
+
+    proceedButtons.forEach(button => {
+      button.addEventListener("click", async () => {
+        const jobId = button.getAttribute("data-id");
+
+        if (!confirm("Are you sure you want to proceed with this Job?")) return;
+
+        try {
+          const response = await fetch(`/admin/proceed/${jobId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            alert("JOb queued successfully!");
+            button.disabled = true;
+            button.textContent = "Queued";
+          } else {
+            alert("Failed to queue job: " + data.message);
+          }
+        } catch (err) {
+          console.error(err);
+          alert("An error occurred while processing your request.");
+        }
+      });
+    });
+  });
+</script>
+
 </body>
 </html>

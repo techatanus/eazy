@@ -413,19 +413,44 @@ router.get('/auction',(req,res)=>{
 
 
 // suplier-prequal
-router.get('/prequal', (req, res) => {
+router.get('/prequal', async (req, res) => {
   try {
     const user = req.session.user;
     if (!user) {
       return res.redirect('/'); // ✅ return stops further execution
     }
 
-    res.render('prequal'); // runs only if user exists
+    const [ques] = await db.query(`
+      SELECT 
+        j.id AS job_id,
+        j.client,
+        j.bid_title,
+        j.closing_datetime,
+        j.eligibility,
+        j.status,
+        j.que,
+        c.category_no,
+        c.category_name,
+        c.price,
+        c.description,
+        u.file
+      FROM jobs j
+      JOIN categories c 
+        ON j.id = c.job_id
+      LEFT JOIN uploads u 
+        ON c.job_id = u.job_id 
+        AND c.category_name = u.category
+      WHERE j.que = '1'
+      ORDER BY j.closing_datetime ASC
+    `);
+
+    res.render('prequal', { ques }); // ✅ simplified
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 // qa
 router.get('/qas',(req,res)=>{
@@ -613,6 +638,22 @@ router.get('/archive_client',(req,res)=>{
 //   }
 // });
 
+router.post("/proceed/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.query("UPDATE jobs SET que = 1 WHERE id = ?", [id]);
+
+    if (result.affectedRows > 0) {
+      res.json({ success: true, message: "job queued successfully." });
+    } else {
+      res.json({ success: false, message: "job not found." });
+    }
+  } catch (error) {
+    console.error("Error updating job queue:", error);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+});
 
 
 

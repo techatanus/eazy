@@ -507,6 +507,9 @@
     <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
       <i class="bi bi-bell-fill"></i>
     </div>
+        <div class="nav-icon icon-badge" id="cartIcon" title="Cart" data-count="0">
+  <i class="bi bi-cart-fill"></i>
+</div>
     <div class="nav-icon" id="profileIcon" title="Profile">
       <i class="bi bi-person-circle"></i>
     </div>
@@ -547,15 +550,31 @@
         </thead>
         <tbody id="bidsBody">
           <!-- Example Row (to be dynamically generated) -->
-          <tr>
-            <td>1</td>
-            <td>ABC LTD</td>
-            <td>Supply of Office Furniture</td>
+          <% if (ques && ques.length > 0){ %>
+			  <% ques.forEach((que , index) =>{%>
+				  
+				    <tr>
+            <td><%=index + 1 %></td>
+            <td><%=que.category_no %></td>
+            <td><%=que.category_name %></td>
             
-            <td>2025-11-15</td>
-            <td>3000</td>
+           <td><%= new Date(que.closing_datetime).toLocaleString() %></td>
+
+            <td><%=que.price %></td>
+            <td class="text-center">
+  <button 
+    class="btn btn-sm btn-success add-to-cart"
+    data-id="<%=que.id %>"
+    data-title="<%=que.category_name %>"
+    data-code="<%=que.category_no %>"
+    data-price="<%=que.price %>"
+  >
+    <i class="bi bi-cart-plus"></i> Add to Cart
+  </button>
+</td>
+
             <!-- <td><span class="badge bg-warning text-dark">Pending</span></td> -->
-            <td>
+            <!-- <td>
               <div class="d-flex gap-2">
                 <a href="/report/1" class="btn btn-sm btn-info">
                   <i class="bi bi-envelope-fill"></i>Pay
@@ -564,11 +583,82 @@
                   <i class="bi bi-pencil-square"></i> Questionnaire
                 </a>
               </div>
-            </td>
+            </td> -->
           </tr>
+				  
+				  <%})%>
+			  <%} else{ %>
+				  
+				  <tr>
+					  <td>No Jobs Queued at the moment</td>
+				  </tr>
+				  
+				 <% }%>
           <!-- More rows will be inserted dynamically -->
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+ <!-- 🛒 CART MODAL -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="cartModalLabel"><i class="bi bi-cart-fill"></i> My Cart</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="cartTableContainer">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="table-success">
+              <tr>
+                <th>#</th>
+                <th>Job Title</th>
+                <th>Code</th>
+               
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="cartItemsBody">
+              <tr><td colspan="5" class="text-center text-muted">No jobs added to cart.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <button id="clearCartBtn" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Clear Cart</button>
+        <button id="payBtn" class="btn btn-success">
+          <i class="bi bi-phone-fill"></i> Pay with M-Pesa
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+ <!-- 💵 M-PESA PAYMENT FORM MODAL -->
+<div class="modal fade" id="mpesaModal" tabindex="-1" aria-labelledby="mpesaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-success">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="mpesaModalLabel"><i class="bi bi-phone-fill"></i> M-Pesa Payment</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="mpesaForm" action="/stk_push" method="post">
+          <div class="mb-3">
+            <label class="form-label">Phone Number</label>
+            <input type="text" name="tel" class="form-control" id="mpesaPhone" placeholder="e.g. 2547XXXXXXXX" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Total Amount</label>
+            <input type="text" name="amount" class="form-control" id="mpesaAmount" readonly>
+          </div>
+          <input type="hidden" name="jobids" id="jobIds">
+          <div class="text-end">
+            <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Confirm Payment</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>
@@ -709,5 +799,202 @@
     window.addEventListener('resize', closeAllFloating);
 
   </script>
+  <!-- script for cat login -->
+<script>
+// -------------------------------
+// CART + M-PESA PAYMENT SYSTEM (CATEGORY CODES)
+// -------------------------------
+
+// Core elements
+const cartIcon = document.getElementById("cartIcon");
+const cartModal = new bootstrap.Modal(document.getElementById("cartModal"));
+const cartBody = document.getElementById("cartItemsBody");
+const clearCartBtn = document.getElementById("clearCartBtn");
+const payBtn = document.getElementById("payBtn");
+
+// M-PESA modal elements
+const mpesaModal = new bootstrap.Modal(document.getElementById("mpesaModal"));
+const mpesaForm = document.getElementById("mpesaForm");
+const mpesaPhone = document.getElementById("mpesaPhone");
+const mpesaAmount = document.getElementById("mpesaAmount");
+const jobIdsInput = document.getElementById("jobIds"); // hidden input
+
+// Load cart from localStorage
+let cart = JSON.parse(localStorage.getItem("tenderCart")) || [];
+
+// -------------------------------
+// Update cart badge
+// -------------------------------
+function updateCartBadge() {
+    cartIcon.setAttribute("data-count", cart.length);
+}
+
+// -------------------------------
+// Render cart items in modal
+// -------------------------------
+function renderCart() {
+    cartBody.innerHTML = "";
+    if (cart.length === 0) {
+        cartBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No jobs added.</td></tr>`;
+        return;
+    }
+
+    cart.forEach((item, index) => {
+        cartBody.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${item.title}</td>
+            <td>${item.code}</td>
+            <td>
+                <button class="btn btn-sm btn-danger remove-item" data-id="${item.id}">
+                    <i class="bi bi-x-circle"></i> Remove
+                </button>
+            </td>
+        </tr>`;
+    });
+}
+
+// -------------------------------
+// Add to cart logic
+// -------------------------------
+document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".add-to-cart");
+    if (!btn) return;
+
+    const tender = {
+        id: btn.dataset.id,
+        title: btn.dataset.title,
+        code: btn.dataset.code,
+        price: parseFloat(btn.dataset.price) || 0
+    };
+
+    if (cart.some(item => item.id == tender.id)) {
+        alert("This job is already in your cart!");
+        return;
+    }
+
+    cart.push(tender);
+    localStorage.setItem("tenderCart", JSON.stringify(cart));
+    updateCartBadge();
+    renderCart();
+
+    btn.innerHTML = '<i class="bi bi-check2-circle"></i> Added';
+    btn.classList.replace("btn-success", "btn-secondary");
+    btn.disabled = true;
+});
+
+// -------------------------------
+// Remove single item
+// -------------------------------
+document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".remove-item");
+    if (!btn) return;
+
+    const id = btn.dataset.id;
+    cart = cart.filter(item => item.id != id);
+    localStorage.setItem("tenderCart", JSON.stringify(cart));
+    updateCartBadge();
+    renderCart();
+});
+
+// -------------------------------
+// Clear entire cart
+// -------------------------------
+clearCartBtn.addEventListener("click", () => {
+    if (!confirm("Clear all jobs from your cart?")) return;
+
+    cart = [];
+    localStorage.removeItem("tenderCart");
+    updateCartBadge();
+    renderCart();
+});
+
+// -------------------------------
+// Open M-PESA modal
+// -------------------------------
+payBtn.addEventListener("click", () => {
+    if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+
+    mpesaAmount.value = total.toFixed(2);
+
+    // ✅ Use category codes instead of job IDs
+    jobIdsInput.value = cart.map(item => item.code).join(",");
+
+    mpesaModal.show();
+});
+
+// -------------------------------
+// Handle M-PESA form submission
+// -------------------------------
+mpesaForm.addEventListener("submit", async (e) => {
+    e.preventDefault(); // prevent default form submit
+
+    const phone = mpesaPhone.value.trim();
+    const amount = mpesaAmount.value;
+
+    // ✅ Use category codes
+    const categoryCodes = cart.map(item => item.code).join(",");
+    jobIdsInput.value = categoryCodes;
+
+    if (!phone.match(/^2547\d{8}$/)) {
+        alert("Enter a valid phone number starting with 2547");
+        return;
+    }
+
+    try {
+        const response = await fetch("/stk_push", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                tel: phone,
+                amount: amount,
+                jobids: categoryCodes
+            })
+        });
+
+        const data = await response.json();
+        console.log("Server response:", data);
+
+        if (data.success) {
+            alert(`📲 Payment initiated for Categories: ${categoryCodes} | KES ${amount}`);
+
+            // ✅ Clear cart only after successful submission
+            cart = [];
+            localStorage.removeItem("tenderCart");
+            updateCartBadge();
+            renderCart();
+
+            mpesaModal.hide();
+            cartModal.hide();
+        } else {
+            alert("❌ Payment failed: " + data.message);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("❌ An error occurred while submitting the payment.");
+    }
+});
+
+// -------------------------------
+// Show cart modal
+// -------------------------------
+cartIcon.addEventListener("click", () => {
+    renderCart();
+    cartModal.show();
+});
+
+// -------------------------------
+// INITIAL LOAD
+// -------------------------------
+updateCartBadge();
+</script>
+
+
+
 </body>
 </html>
