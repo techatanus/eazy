@@ -2,118 +2,240 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Supplier Questionnaire</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Questionnaire Page</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Custom CSS -->
   <style>
-    body { background-color: #f8f9fa; }
-    .question-card { border-left: 4px solid #198754; }
-    .progress-bar { transition: width 0.3s ease; }
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      color: #343a40;
+      font-weight: 600;
+    }
+
+    .card {
+      border-radius: 0.75rem;
+    }
+
+    .quiz-card {
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .quiz-card h6 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .quiz-card p {
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+      border-radius: 0.5rem;
+    }
+
+    .btn {
+      border-radius: 0.5rem;
+    }
+
+    #previewArea {
+      background: #e9ecef;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      min-height: 50px;
+    }
   </style>
 </head>
 <body>
-
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-success">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" href="#">Supplier Portal</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a href="/tenders" class="nav-link">Tenders</a></li>
-          <li class="nav-item"><a href="/rfq" class="nav-link">RFQ</a></li>
-          <li class="nav-item"><a href="/rfp" class="nav-link">RFP</a></li>
-          <li class="nav-item"><a href="/eoi" class="nav-link">EOI</a></li>
-          <li class="nav-item"><a href="/rfi" class="nav-link">RFI</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Section -->
-  <div class="container py-4">
-    <h4 class="fw-bold text-success mb-3">Supplier Questionnaire</h4>
-
-    <div class="card shadow-sm border-0 mb-4">
-      <div class="card-body">
-        <h5 class="fw-bold text-secondary mb-2" id="projectTitle">RFP-203: Hospital Management System</h5>
-        <p class="text-muted">Please complete the questionnaire below to support your proposal submission. All questions are mandatory unless otherwise stated.</p>
-      </div>
-    </div>
-
-    <!-- Progress bar -->
-    <div class="mb-4">
-      <div class="progress" style="height: 20px;">
-        <div class="progress-bar bg-success" id="progressBar" style="width: 0%">0%</div>
-      </div>
-    </div>
-
-    <!-- Questionnaire -->
-    <form id="questionnaireForm" class="bg-white p-4 rounded shadow-sm">
-      <div id="questionsList"></div>
-
-      <div class="text-end mt-4">
-        <button type="submit" class="btn btn-success btn-lg">Submit Questionnaire</button>
-      </div>
-    </form>
+<div class="container py-5">
+<!-- Available Questionnaires -->
+<div class="card p-4 shadow-sm mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="section-title mb-0 text-success">Available Questionnaires</h5>
+    <p class="mb-0 text-end">
+      <a href="/admin/dashcl" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+    </p>
   </div>
 
-  <script>
-    // Example questionnaire data
-    const questions = [
-      { id: 1, text: "Is your company legally registered?", type: "radio", options: ["Yes", "No"] },
-      { id: 2, text: "How many years of experience do you have in similar projects?", type: "text" },
-      { id: 3, text: "Attach your company registration certificate.", type: "file" },
-      { id: 4, text: "Do you have a valid tax compliance certificate?", type: "radio", options: ["Yes", "No"] },
-      { id: 5, text: "Briefly describe your company’s technical capacity.", type: "textarea" }
-    ];
+  <% if (uploads && uploads.length > 0) { %>
+    <div class="d-flex flex-wrap gap-2">
+      <% uploads.forEach(u => { %>
+        <button class="btn btn-outline-primary loadQBtn text-success"
+                data-job="<%= u.job_id %>"
+                data-category="<%= u.category %>"
+                data-file="<%= u.file %>">
+          Answer Questionnaire - <%= u.category %>
+        </button>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <p>No questionnaires available</p>
+  <% } %>
+</div>
 
-    const questionsList = document.getElementById('questionsList');
-    const progressBar = document.getElementById('progressBar');
 
-    // Render questions dynamically
-    questions.forEach((q, i) => {
-      let inputHtml = "";
-      if (q.type === "radio") {
-        inputHtml = q.options.map(opt => `
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="q${q.id}" value="${opt}" required>
-            <label class="form-check-label">${opt}</label>
-          </div>`).join('');
-      } else if (q.type === "text") {
-        inputHtml = `<input type="text" class="form-control" name="q${q.id}" required>`;
-      } else if (q.type === "file") {
-        inputHtml = `<input type="file" class="form-control" name="q${q.id}" required>`;
-      } else if (q.type === "textarea") {
-        inputHtml = `<textarea class="form-control" name="q${q.id}" rows="3" required></textarea>`;
-      }
 
-      questionsList.innerHTML += `
-        <div class="card mb-3 question-card p-3 shadow-sm">
-          <h6 class="fw-bold text-secondary">Q${i + 1}. ${q.text}</h6>
-          <div>${inputHtml}</div>
-        </div>`;
-    });
+  <!-- Hidden Form Area -->
+  <div class="card p-4 shadow-sm">
+ <h5 class="section-title mb-3 text-success" id="questionnaireTitle">Questionnaire</h5>
+   <form id="uploadForm" 
+      method="post" 
+      action="/admin/submit_questionnaire" 
+      enctype="multipart/form-data">
 
-    // Progress tracking
-    const totalQuestions = questions.length;
-    document.getElementById('questionnaireForm').addEventListener('input', () => {
-      const answered = Array.from(document.querySelectorAll('input, textarea')).filter(el => el.value).length;
-      const progress = Math.min(100, (answered / totalQuestions) * 100);
-      progressBar.style.width = `${progress}%`;
-      progressBar.textContent = `${Math.round(progress)}%`;
-    });
+    <input type="hidden" id="job_id" name="job_id" value="">
+    <input type="hidden" id="category" name="category" value="">
+    <input type="hidden" id="fileInput" name="file" value="">
 
-    // Handle submission
-    document.getElementById('questionnaireForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      alert("✅ Questionnaire submitted successfully!");
-      e.target.reset();
-      progressBar.style.width = "0%";
-      progressBar.textContent = "0%";
-    });
-  </script>
+    <div id="questionnaire"></div>
+
+    <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="button" class="btn btn-success" id="previewBtn">Preview</button>
+        <button type="submit" class="btn btn-primary">Save to DB</button>
+        <button type="button" class="btn btn-secondary" id="closePreviewBtn" style="display:none;">Close Preview</button>
+    </div>
+</form>
+
+    <div id="previewArea" class="mt-3"></div>
+  </div>
+
+</div>
+
+<!-- JS Dependencies -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+const previewArea = document.getElementById("previewArea");
+const closeBtn = document.getElementById("closePreviewBtn");
+const questionnaireDiv = document.getElementById("questionnaire");
+const jobIdInput = document.getElementById("job_id");
+const categoryInput = document.getElementById("category");
+const fileInputHidden = document.getElementById("fileInput");
+
+let rows = [];
+
+// Load questionnaire
+document.querySelectorAll(".loadQBtn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const jobId = btn.dataset.job;
+    const category = btn.dataset.category;
+    const filePath = btn.dataset.file;
+
+    jobIdInput.value = jobId;
+    categoryInput.value = category;
+    fileInputHidden.value = filePath;
+
+    const response = await fetch(`/uploads/${filePath}`);
+    const blob = await response.blob();
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+      const contentRows = rows.slice(1);
+      questionnaireDiv.innerHTML = "";
+
+      contentRows.forEach((row, index) => {
+        if (!row || row.length < 8) return;
+
+        let [
+          section,
+          questionId,
+          questionTextRaw,
+          answerType,
+          mandatory,
+          options,
+          weight,
+          attachmentRequired
+        ] = row.map(v => String(v || ""));
+
+        const cleanedText = questionTextRaw.trim();
+        const isRequired = mandatory.toLowerCase() === "y" ? "required" : "";
+
+        let field = "";
+
+        // Trade references block
+        if (cleanedText.toLowerCase().includes("trade references") || cleanedText.toLowerCase().includes("reference")) {
+          field = `
+            <div class="row g-2 mb-2">
+              <div class="col-md"><input type="text" name="orgName" class="form-control" placeholder="Organization Name" ${isRequired} /></div>
+              <div class="col-md"><input type="text" name="contactPerson" class="form-control" placeholder="Contact Person" ${isRequired} /></div>
+              <div class="col-md"><input type="text" name="designation" class="form-control" placeholder="Designation/Position" ${isRequired} /></div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md"><input type="tel" name="telephone" class="form-control" placeholder="Telephone Number" ${isRequired} /></div>
+              <div class="col-md"><input type="email" name="email" class="form-control" placeholder="Email Address" ${isRequired} /></div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md"><input type="text" name="goods" class="form-control" placeholder="Nature of Goods/Services Supplied" ${isRequired} /></div>
+              <div class="col-md"><input type="text" name="contractValue" class="form-control" placeholder="Contract Value (approx.)" ${isRequired} /></div>
+            </div>
+          `;
+        } else {
+          // Handle options / validation rule
+          if (options && options.includes(",")) {
+            const optionItems = options.split(",").map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join("");
+            field = `<select name="q${index}" class="form-select mb-2" ${isRequired}>${optionItems}</select>`;
+          } else {
+            // Handle basic types
+            if (answerType.toLowerCase() === "text") field = `<textarea name="q${index}" class="form-control mb-2" ${isRequired}></textarea>`;
+            else if (answerType.toLowerCase() === "number") field = `<input type="number" name="q${index}" class="form-control mb-2" ${isRequired} />`;
+            else if (answerType.toLowerCase() === "date") field = `<input type="date" name="q${index}" class="form-control mb-2" ${isRequired} />`;
+            else field = `<input type="text" name="q${index}" class="form-control mb-2" ${isRequired} />`;
+          }
+        }
+
+        // Attachment input
+        if (attachmentRequired.toLowerCase() === "y") {
+          field += `<input type="file" name="attachment${index}" class="form-control mb-2" ${isRequired} />`;
+        }
+
+        questionnaireDiv.innerHTML += `
+          <div class="quiz-card mb-3 p-3 border rounded">
+            <h6>${section} - ${questionId}</h6>
+            <p><strong>${cleanedText}</strong>${isRequired ? " *" : ""}</p>
+            ${field}
+          </div>
+        `;
+      });
+
+      closeBtn.style.display = "inline-block";
+    };
+
+    reader.readAsArrayBuffer(blob);
+  });
+});
+
+// Update title
+const questionnaireTitle = document.getElementById("questionnaireTitle");
+document.querySelectorAll(".loadQBtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const category = btn.dataset.category;
+    questionnaireTitle.textContent = `Questionnaire: ${category}`;
+  });
+});
+
+// Close preview
+closeBtn.addEventListener("click", () => {
+  questionnaireDiv.innerHTML = "";
+  previewArea.innerHTML = "";
+  closeBtn.style.display = "none";
+});
+</script>
+
 </body>
 </html>

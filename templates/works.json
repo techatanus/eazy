@@ -1,0 +1,166 @@
+{
+  "category": "works",
+  "module": "Works Technical Proposal Module",
+  "description": "Construction / Civil Engineering and related works",
+  "sections": [
+    {
+      "title": "Methodology & Execution Plan",
+      "questions": [
+        {
+          "id": "1.1",
+          "title": "Method Statement",
+          "mandatory": true,
+          "input_type": "file",
+          "description": "Upload a detailed Method Statement describing how the works will be executed.",
+          "scoring": "Entity configurable 10-20"
+        },
+        {
+          "id": "1.2",
+          "title": "Work Programme / Gantt Chart",
+          "mandatory": true,
+          "input_type": "file",
+          "description": "Provide a detailed work schedule showing sequence, duration and dependencies."
+        },
+        {
+          "id": "1.3",
+          "title": "Health & Safety Plan",
+          "mandatory": true,
+          "input_type": "file",
+          "description": "OSHA-compliant plan"
+        },
+        {
+          "id": "1.4",
+          "title": "Quality Assurance / Quality Control Plan",
+          "mandatory": true,
+          "input_type": "file"
+        },
+        {
+          "id": "1.5",
+          "title": "Environmental & Social Management Plan",
+          "mandatory": false,
+          "input_type": "file"
+        }
+      ]
+    },
+    {
+      "title": "Personnel & Staffing",
+      "questions": [
+        {
+          "id": "2.1",
+          "title": "Key Personnel Table",
+          "mandatory": true,
+          "input_type": "table",
+          "fields": ["Name", "Position", "Qualification", "Years of Experience", "Attach CV", "Attach Certificates"],
+          "description": "Dynamic table; positions: Engineer, PM, QS, Clerk of Works, etc."
+        },
+        {
+          "id": "2.2",
+          "title": "Project Organogram",
+          "mandatory": true,
+          "input_type": "file",
+          "description": "Attach organogram indicating reporting and site management structure."
+        }
+      ]
+    },
+    {
+      "title": "Equipment & Machinery",
+      "questions": [
+        {
+          "id": "3.1",
+          "title": "Equipment to Be Deployed",
+          "mandatory": true,
+          "input_type": "table",
+          "fields": ["Equipment Type", "Quantity", "Ownership Status", "Proof Document"]
+        },
+        {
+          "id": "3.2",
+          "title": "Mobilization Plan",
+          "mandatory": false,
+          "input_type": "file"
+        }
+      ]
+    },
+    {
+      "title": "Similar Experience & Past Performance",
+      "questions": [
+        {
+          "id": "4.1",
+          "title": "Completed Projects (Last 5 Years)",
+          "mandatory": true,
+          "input_type": "table",
+          "fields": ["Project Name", "Client", "Contract Value", "Completion Year", "Contact Person", "Completion Certificate", "Award Letter/Contract"]
+        },
+        {
+          "id": "4.2",
+          "title": "Ongoing Projects",
+          "mandatory": false,
+          "input_type": "table",
+          "fields": ["Project Name", "Client", "Value", "Progress %"]
+        }
+      ]
+    },
+    {
+      "title": "Technical Compliance with Drawings & Specifications",
+      "questions": [
+        {
+          "id": "5.1",
+          "title": "Technical Approach Summary",
+          "mandatory": true,
+          "input_type": "textbox",
+          "character_limit": "250-300",
+          "description": "Summarize technical approach to meet specifications."
+        },
+        {
+          "id": "5.2",
+          "title": "Manufacturer Certificates",
+          "mandatory": false,
+          "input_type": "file",
+          "description": "For materials: steel, solar equipment, mechanical components, etc."
+        }
+      ]
+    },
+    {
+      "title": "Financial & Capacity Proofs",
+      "questions": [
+        {
+          "id": "6.1",
+          "title": "Audited Accounts",
+          "mandatory": true,
+          "input_type": "file",
+          "description": "Upload past 2–3 years audited financial statements."
+        },
+        {
+          "id": "6.2",
+          "title": "Bank Statements / Credit Line",
+          "mandatory": true,
+          "input_type": "file"
+        },
+        {
+          "id": "6.3",
+          "title": "Tax & Legal Documents",
+          "mandatory": false,
+          "input_type": "auto",
+          "description": "Auto-pulled from Vendor Master Profile: Incorporation, CR12/CR13, Tax compliance, Business permits."
+        }
+      ]
+    }
+  ],
+  "system_features": {
+    "entity_toggle": true,
+    "mandatory_toggle": true,
+    "scoring": true,
+    "dynamic_tables": true,
+    "evaluation_matrix_auto": true,
+    "file_type_validation": true,
+    "reusable_documents": true
+  },
+  "scoring_suggestion": {
+    "Methodology & Execution": "20-40",
+    "Personnel & Staffing": "20-30",
+    "Equipment & Machinery": "10-20",
+    "Similar Experience": "20-30",
+    "Technical Compliance": "10-20",
+    "Financial Capacity": "5-10",
+    "Total": 100
+  }
+}

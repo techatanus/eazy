@@ -2,6 +2,42 @@ const express = require('express');
 const router = express.Router();
 const adminCtrl = require('../controllers/adminController');
 const db = require('../config/db');
+const multer = require("multer");
+const fs = require('fs');
+const path = require('path');
+
+// Path to templates folder
+const templatesDir = path.join(__dirname, '..', 'templates');
+
+// Function to safely load a JSON file
+function loadTemplate(fileName) {
+  const filePath = path.join(templatesDir, fileName);
+  if (!fs.existsSync(filePath)) {
+    console.error(`Template file not found: ${filePath}`);
+    return null;
+  }
+  const rawData = fs.readFileSync(filePath, 'utf8');
+  return JSON.parse(rawData);
+}
+
+// Load all templates
+const goodsTemplate = loadTemplate('goods.json');
+const servicesTemplate = loadTemplate('service.json');
+const worksTemplate = loadTemplate('works.json');
+
+console.log('Goods template loaded:', goodsTemplate ? '✅' : '❌');
+console.log('Services template loaded:', servicesTemplate ? '✅' : '❌');
+console.log('Works template loaded:', worksTemplate ? '✅' : '❌');
+
+// Now goodsTemplate.sections contains all questions to render dynamically
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) { cb(null, "uploads/"); },
+  filename: function (req, file, cb) { cb(null, Date.now() + "-" + file.originalname); },
+});
+const upload = multer({ storage });
+
 
 // Dashboard
 router.get('/dashboard', adminCtrl.dashboard);
@@ -274,13 +310,25 @@ router.get('/doc', async (req, res) => {
 });
 
 // rfq
-router.get('/rfq',(req,res)=>{
+router.get('/rfq',async(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
       return  res.redirect('/')
       }
-     res.render('rfq')
+       const [test] = await db.query("SELECT * FROM clients");
+       const [rfqs] = await db.query(
+       `
+       SELECT 
+    rfqs.*, 
+    jobs.client, 
+    jobs.bid_title
+FROM rfqs
+LEFT JOIN jobs 
+    ON jobs.id = rfqs.job_id;
+       
+       `);
+     res.render('rfq',{test,rfqs})
      } catch (error) {
       
      }
@@ -317,13 +365,22 @@ router.get('/rfqs',async(req,res)=>{
   
 })
 // rfp
-router.get('/rfp',(req,res)=>{
+router.get('/rfp',async(req,res)=>{
        try {
       const user = req.session.user;
       if(!user){
        return res.redirect('/')
       }
-     res.render('rfp')
+      
+      const [test] = await db.query("SELECT * FROM clients");
+      const [rfps] = await db.query(`SELECT 
+    j.client,
+    j.bid_title,
+    r.*
+FROM rfp_submissions r
+JOIN jobs j ON r.job_id = j.id;
+`)
+     res.render('rfp',{test,rfps})
      } catch (error) {
       
      }
@@ -443,8 +500,10 @@ router.get('/prequal', async (req, res) => {
       WHERE j.que = '1'
       ORDER BY j.closing_datetime ASC
     `);
+    
+    const[paid] = await db.query(`SELECT * FROM transactions WHERE status ='success'`);
 
-    res.render('prequal', { ques }); // ✅ simplified
+    res.render('prequal', { ques, paid}); // ✅ simplified
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -453,17 +512,25 @@ router.get('/prequal', async (req, res) => {
 
 
 // qa
-router.get('/qas',(req,res)=>{
-    try {
-      const user = req.session.user;
-      if(!user){
-        return res.redirect('/')
-      }
-      res.render('qa');
-    } catch (error) {
-      
-    }
-})
+// Assuming you already have router and db configured
+router.get('/qas', async (req, res) => {
+  try {
+    const user = req.session.user;
+    if (!user) return res.redirect('/');
+
+    // Fetch uploaded questionnaires from DB
+    const [uploads] = await db.query("SELECT * FROM uploads");
+
+    // You can also fetch categories if needed
+    const [catego] = await db.query("SELECT DISTINCT category_name FROM categories");
+
+    res.render('qa', { uploads, catego });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
+  }
+});
+
 
 // client approval
 router.get('/approve',async(req,res)=>{
@@ -585,74 +652,121 @@ router.get('/archive_client',(req,res)=>{
   res.render('archive_client')
 })
 
-// submeet quatation
-
-// POST /submit_jobs
-// router.post("/submit_jobs", async (req, res) => {
-//   try {
-//     const {
-//       category,
-//       item,
-//       description,
-//       price,
-//       quantity,
-//       total_price,
-//       comments,
-//       total_amount,
-//     } = req.body;
-
-//     // Ensure we have data
-//     if (!category || category.length === 0) {
-//       return res.status(400).send("No quotation data submitted.");
-//     }
-
-//     // Prepare an array of records
-//     const quotes = [];
-//     for (let i = 0; i < category.length; i++) {
-//       quotes.push([
-//         category[i],
-//         item[i],
-//         description[i],
-//         parseFloat(price[i]) || 0,
-//         parseFloat(quantity[i]) || 0,
-//         parseFloat(total_price[i]) || 0,
-//         comments[i] || "",
-//         parseFloat(total_amount) || 0,
-//       ]);
-//     }
-
-//     // Insert into MySQL (bulk insert)
-//     const sql = `
-//       INSERT INTO supplier_quotes 
-//       (category, item, description, price, quantity, total_price, comments, total_amount) 
-//       VALUES ?
-//     `;
-
-//     await db.query(sql, [quotes]);
-
-//     console.log("Quotation saved successfully.");
-//     res.redirect("/thankyou"); // or send JSON if using AJAX
-//   } catch (error) {
-//     console.error("Error saving quotation:", error);
-//     res.status(500).send("Server error while saving quotation.");
-//   }
-// });
-
-router.post("/proceed/:id", async (req, res) => {
-  const { id } = req.params;
-
+// POST route for submitting questionnaire (NO MULTER)
+router.post("/submit_questionnaire", async (req, res) => {
   try {
-    const [result] = await db.query("UPDATE jobs SET que = 1 WHERE id = ?", [id]);
+    console.log("🔥 POST /submit_questionnaire hit");
+    console.log("Form Body:", req.body);
 
-    if (result.affectedRows > 0) {
-      res.json({ success: true, message: "job queued successfully." });
-    } else {
-      res.json({ success: false, message: "job not found." });
+    const supplierId = req.session.supplierId;
+    const jobId = req.body.job_id;
+    const category = req.body.category;
+
+    if (!supplierId) return res.status(401).send("Unauthorized supplier.");
+    if (!jobId || !category) return res.status(400).send("Invalid submission.");
+
+    // Fetch questions for this job/category
+    const [questions] = await db.query(
+      `SELECT * FROM questionnaires 
+       WHERE job_id = ? AND category = ? 
+       ORDER BY question_index ASC`,
+      [jobId, category]
+    );
+
+    if (!questions.length)
+      return res.status(400).send("No questions found for this questionnaire.");
+
+    console.log("Loaded questions:", questions.length);
+
+    // ⛳ Detect if trade references appear in this questionnaire
+    const containsTradeRef = questions.some(q =>
+      q.question_text.toLowerCase().includes("trade reference")
+    );
+
+    // ⭐ Save Trade Reference block ONCE (if exists)
+    if (containsTradeRef) {
+      await db.query(
+        `INSERT INTO supplier_trade_references
+         (supplier_id, org_name, contact_person, designation, telephone, email, goods, contract_value)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          supplierId,
+          req.body.orgName || null,
+          req.body.contactPerson || null,
+          req.body.designation || null,
+          req.body.telephone || null,
+          req.body.email || null,
+          req.body.goods || null,
+          req.body.contractValue || null
+        ]
+      );
+
+      console.log("Saved trade reference block");
     }
-  } catch (error) {
-    console.error("Error updating job queue:", error);
-    res.status(500).json({ success: false, message: "Server error." });
+
+    // ⭐ Loop through each question and save answer
+    for (let i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      const answer = req.body[`q${i}`];
+
+      // Mandatory check
+      if (q.mandatory === "Y" && (!answer || answer.trim() === "")) {
+        return res.status(400).send(`Mandatory Question Missing: ${q.question_text}`);
+      }
+
+      await db.query(
+        `INSERT INTO supplier_responses
+         (supplier_id, questionnaire_id, answer_text)
+         VALUES (?, ?, ?)`,
+        [supplierId, q.id, answer || null]
+      );
+    }
+
+    console.log(`✅ Supplier ${supplierId} submitted questionnaire for Job ${jobId}`);
+    res.redirect("/admin/qas");
+
+  } catch (err) {
+    console.error("❌ Error submitting questionnaire:", err);
+    res.status(500).send("Server error while saving questionnaire.");
   }
+});
+
+// Utility function to load a template
+function loadTemplate(fileName) {
+  const filePath = path.join(templatesDir, fileName);
+  if (!fs.existsSync(filePath)) {
+    return null;
+  }
+  const rawData = fs.readFileSync(filePath, 'utf8');
+  return JSON.parse(rawData);
+}
+
+// Serve supplier form based on category
+router.get('/template/:category/form', (req, res) => {
+  const category = req.params.category.toLowerCase();
+
+  let templateFile;
+  switch (category) {
+    case 'goods':
+      templateFile = 'goods.json';
+      break;
+    case 'services':
+      templateFile = 'service.json';
+      break;
+    case 'works':
+      templateFile = 'works.json';
+      break;
+    default:
+      return res.status(400).send('Invalid category');
+  }
+
+  const template = loadTemplate(templateFile);
+  if (!template) {
+    return res.status(404).send('Template not found');
+  }
+
+  // Render EJS page
+  res.render('rfpqa', { template });
 });
 
 

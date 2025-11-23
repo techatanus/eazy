@@ -561,17 +561,34 @@
            <td><%= new Date(que.closing_datetime).toLocaleString() %></td>
 
             <td><%=que.price %></td>
-            <td class="text-center">
+<td class="text-center">
+  <% 
+    // Check if this specific job has a successful transaction
+    const isPaidForJob = paid.some(p => p.job_id === que.job_id && p.status === 'Success'); 
+  %>
+
+  <!-- ADD TO CART BUTTON (hidden if paid) -->
   <button 
-    class="btn btn-sm btn-success add-to-cart"
-    data-id="<%=que.id %>"
-    data-title="<%=que.category_name %>"
-    data-code="<%=que.category_no %>"
-    data-price="<%=que.price %>"
+    class="btn btn-sm btn-success add-to-cart <%= isPaidForJob ? 'd-none' : '' %>"
+    data-id="<%= que.id %>"
+    data-title="<%= que.category_name %>"
+    data-code="<%= que.category_no %>"
+    data-price="<%= que.price %>"
+    id="addCartBtn_<%= que.id %>"
   >
     <i class="bi bi-cart-plus"></i> Add to Cart
   </button>
+
+  <!-- QUESTIONNAIRE BUTTON (shown only if paid) -->
+  <a 
+    href="/admin/prequal?job=<%= que.category_no %>"
+    class="btn btn-sm btn-primary questionnaire-btn <%= isPaidForJob ? '' : 'd-none' %>"
+    id="questionnaireBtn_<%= que.id %>"
+  >
+    <i class="bi bi-pencil-square"></i> Questionnaire
+  </a>
 </td>
+
 
             <!-- <td><span class="badge bg-warning text-dark">Pending</span></td> -->
             <!-- <td>
@@ -597,6 +614,7 @@
           <!-- More rows will be inserted dynamically -->
         </tbody>
       </table>
+
     </div>
   </div>
 </div>
@@ -799,7 +817,8 @@
     window.addEventListener('resize', closeAllFloating);
 
   </script>
-  <!-- script for cat login -->
+<!-- script for cat login -->
+<!-- script for cat login -->
 <script>
 // -------------------------------
 // CART + M-PESA PAYMENT SYSTEM (CATEGORY CODES)
@@ -845,6 +864,7 @@ function renderCart() {
             <td>${index + 1}</td>
             <td>${item.title}</td>
             <td>${item.code}</td>
+            <td>${item.price.toFixed(2)}</td>
             <td>
                 <button class="btn btn-sm btn-danger remove-item" data-id="${item.id}">
                     <i class="bi bi-x-circle"></i> Remove
@@ -858,43 +878,50 @@ function renderCart() {
 // Add to cart logic
 // -------------------------------
 document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".add-to-cart");
-    if (!btn) return;
+    // Add to cart
+    const addBtn = e.target.closest(".add-to-cart");
+    if (addBtn) {
+        const tender = {
+            id: addBtn.dataset.id,
+            title: addBtn.dataset.title,
+            code: addBtn.dataset.code,
+            price: parseFloat(addBtn.dataset.price) || 0
+        };
 
-    const tender = {
-        id: btn.dataset.id,
-        title: btn.dataset.title,
-        code: btn.dataset.code,
-        price: parseFloat(btn.dataset.price) || 0
-    };
+        if (cart.some(item => item.id == tender.id)) {
+            alert("This job is already in your cart!");
+            return;
+        }
 
-    if (cart.some(item => item.id == tender.id)) {
-        alert("This job is already in your cart!");
+        cart.push(tender);
+        localStorage.setItem("tenderCart", JSON.stringify(cart));
+        updateCartBadge();
+        renderCart();
+
+        addBtn.innerHTML = '<i class="bi bi-check2-circle"></i> Added';
+        addBtn.classList.replace("btn-success", "btn-secondary");
+        addBtn.disabled = true;
         return;
     }
 
-    cart.push(tender);
-    localStorage.setItem("tenderCart", JSON.stringify(cart));
-    updateCartBadge();
-    renderCart();
+    // Remove item from cart
+    const removeBtn = e.target.closest(".remove-item");
+    if (removeBtn) {
+        const id = removeBtn.dataset.id;
+        cart = cart.filter(item => item.id != id);
+        localStorage.setItem("tenderCart", JSON.stringify(cart));
+        updateCartBadge();
+        renderCart();
 
-    btn.innerHTML = '<i class="bi bi-check2-circle"></i> Added';
-    btn.classList.replace("btn-success", "btn-secondary");
-    btn.disabled = true;
-});
-
-// -------------------------------
-// Remove single item
-// -------------------------------
-document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".remove-item");
-    if (!btn) return;
-
-    const id = btn.dataset.id;
-    cart = cart.filter(item => item.id != id);
-    localStorage.setItem("tenderCart", JSON.stringify(cart));
-    updateCartBadge();
-    renderCart();
+        // Re-enable the Add button for removed job
+        const reAddBtn = document.querySelector(`.add-to-cart[data-id="${id}"]`);
+        if (reAddBtn) {
+            reAddBtn.disabled = false;
+            reAddBtn.classList.replace("btn-secondary", "btn-success");
+            reAddBtn.innerHTML = 'Add';
+        }
+        return;
+    }
 });
 
 // -------------------------------
@@ -902,6 +929,15 @@ document.addEventListener("click", (e) => {
 // -------------------------------
 clearCartBtn.addEventListener("click", () => {
     if (!confirm("Clear all jobs from your cart?")) return;
+
+    cart.forEach(item => {
+        const btn = document.querySelector(`.add-to-cart[data-id="${item.id}"]`);
+        if (btn) {
+            btn.disabled = false;
+            btn.classList.replace("btn-secondary", "btn-success");
+            btn.innerHTML = 'Add';
+        }
+    });
 
     cart = [];
     localStorage.removeItem("tenderCart");
@@ -919,10 +955,9 @@ payBtn.addEventListener("click", () => {
     }
 
     const total = cart.reduce((sum, item) => sum + item.price, 0);
-
     mpesaAmount.value = total.toFixed(2);
 
-    // ✅ Use category codes instead of job IDs
+    // Use category codes instead of job IDs
     jobIdsInput.value = cart.map(item => item.code).join(",");
 
     mpesaModal.show();
@@ -932,12 +967,10 @@ payBtn.addEventListener("click", () => {
 // Handle M-PESA form submission
 // -------------------------------
 mpesaForm.addEventListener("submit", async (e) => {
-    e.preventDefault(); // prevent default form submit
+    e.preventDefault();
 
     const phone = mpesaPhone.value.trim();
     const amount = mpesaAmount.value;
-
-    // ✅ Use category codes
     const categoryCodes = cart.map(item => item.code).join(",");
     jobIdsInput.value = categoryCodes;
 
@@ -963,7 +996,16 @@ mpesaForm.addEventListener("submit", async (e) => {
         if (data.success) {
             alert(`📲 Payment initiated for Categories: ${categoryCodes} | KES ${amount}`);
 
-            // ✅ Clear cart only after successful submission
+            // Clear cart after successful submission
+            cart.forEach(item => {
+                const btn = document.querySelector(`.add-to-cart[data-id="${item.id}"]`);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.classList.replace("btn-secondary", "btn-success");
+                    btn.innerHTML = 'Add';
+                }
+            });
+
             cart = [];
             localStorage.removeItem("tenderCart");
             updateCartBadge();
@@ -992,8 +1034,8 @@ cartIcon.addEventListener("click", () => {
 // INITIAL LOAD
 // -------------------------------
 updateCartBadge();
+renderCart();
 </script>
-
 
 
 </body>

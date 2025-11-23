@@ -1,36 +1,45 @@
+//1. Pesapal Consumer key: ShtW7tyvGJX9NrzKIIjKNvSeYzMIlSKN
+//2. Pesapal Consumer Secret key: Z/tpCRPekGsU4Dh9nk2oDbBPu5U=
+
+
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const axios = require('axios')
+const axios = require("axios")
 require('dotenv').config();
-const db = require('./config/db');
+const db = require('./config/db')
 
 const indexRouter = require('./routes/index');
 const adminRouter = require('./routes/admin');
 
-
-
 const app = express();
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
+// STATIC FILES
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static('uploads'));
+
+// BODY PARSERS (before routes)
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: true }));
+app.use(express.json());
 
+// SESSION (apply ONCE and before routes)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+  })
+);
 
+// ROUTES
 app.use('/', indexRouter);
 app.use('/admin', adminRouter);
 
-app.use(
-  session({
-    secret:process.env.SESSION_SECRET, // put in .env
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false }, // set to true if using HTTPS
-  })
-);
 
 
 // --- APPROVE Tender ---
@@ -72,12 +81,6 @@ app.get("/api/get-session", (req, res) => {
     return res.status(404).json({ message: "No job ID found in session" });
   }
 });
-
-
-// Express route for handling form submission
-// app.post('/stk_push', (req, res) => {
-//     console.log("REQ BODY => ", req.body);
-// });
 // Your Safaricom sandbox details
 const shortCode = "174379"; // Replace with your sandbox shortcode
 let token = "";
@@ -149,7 +152,7 @@ const stkPush = async (req, res) => {
             PartyA: tel,
             PartyB: shortCode,
             PhoneNumber: tel,
-            CallBackURL: "https://4c318528a1f5.ngrok-free.app/mpesa/callback", // replace with your callback
+            CallBackURL: "https://2b2f99c23e44.ngrok-free.app/mpesa/callback", // replace with your callback
             AccountReference:"BuniSource",
             TransactionDesc: "Pay for Job to bid"
         };
@@ -277,6 +280,7 @@ app.post("/mpesa/callback", async (req, res) => {
         res.status(500).json({ error: "Failed to save callback" });
     }
 });
+
 
 
 const PORT = process.env.PORT || 3000;

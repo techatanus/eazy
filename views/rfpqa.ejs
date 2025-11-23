@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supplier Form</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+:root{
+  --sidebar-width: 260px;
+  --navbar-height: 64px;
+  --accent: #0d6efd;
+  --muted: #6c757d;
+}
+html,body { height: 100%; margin: 0; font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial; background: #f8f9fa; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background: #f1f5f2;
+  padding: 18px 12px;
+  padding-top: calc(var(--navbar-height) + 14px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.04);
+  z-index: 1050;
+}
+.sidebar .nav-section { margin-bottom: 6px; }
+.sidebar .nav-link { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 10px; color: #213426; border-radius: 8px; text-decoration: none; margin-bottom: 4px; transition: background .18s; }
+.sidebar .nav-link:hover { background: #e6f0e6; color: orange; }
+.sidebar .nav-left { display: flex; gap: 10px; align-items: center; }
+.sidebar .nav-left .bi { font-size: 1.05rem; color: var(--accent); }
+.submenu { max-height: 0; overflow: hidden; transition: max-height .32s ease, padding .2s ease; padding-left: 36px; }
+.submenu.show { max-height: 420px; padding-top: 8px; padding-bottom: 8px; }
+.submenu a { display:block; padding:8px 12px; text-decoration:none; color:#183f28; border-radius:6px; margin-bottom:4px; }
+.submenu a:hover { background:#e6f0e6; color:orange; }
+
+/* Topbar */
+.topbar {
+  height: var(--navbar-height);
+  background: #008000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  position: fixed;
+  left: var(--sidebar-width);
+  right: 0;
+  top: 0;
+  z-index: 1100;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.topbar .brand { font-weight: 700; color: #fff; font-size: 1.2rem; }
+.nav-actions { display: flex; align-items: center; gap: 15px; }
+.nav-icon { cursor: pointer; font-size: 1.2rem; position: relative; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 8px; color: #fff; transition: background .2s; }
+.nav-icon:hover { background: rgba(255,255,255,0.2); }
+
+/* Content */
+.content { margin-left: var(--sidebar-width); margin-top: var(--navbar-height); padding: 22px; flex: 1; transition: margin-left .28s ease; }
+
+/* Form styling */
+form { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); margin-top: 20px; }
+fieldset { border: 1px solid #d1d5db; padding: 15px 20px; border-radius: 8px; margin-bottom: 18px; }
+legend { font-weight: 600; font-size: 1.1rem; }
+label { display: block; margin-top: 12px; font-weight: 500; }
+textarea { width: 100%; }
+input[type="text"], input[type="file"], textarea { border: 1px solid #ced4da; border-radius: 6px; padding: 6px 10px; }
+button.submit-btn { background: #0d6efd; color: #fff; padding: 10px 20px; border: none; border-radius: 8px; font-size: 1rem; margin-top: 10px; }
+button.submit-btn:hover { background: #084298; }
+
+/* Tabs */
+.nav-tabs .nav-link.active { background-color: #0d6efd; color: #fff; border-color: #0d6efd; }
+.nav-tabs .nav-link { font-weight: 500; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content { margin-left: 0; padding: 14px; }
+  .sidebar { transform: translateX(-110%); position: fixed; z-index:1300; }
+  .sidebar.visible { transform: translateX(0); }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+    <a href="/admin/dashsup">
+      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
+    </a>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashsup" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Supplier</span></div>
+    </a>
+  </div>
+
+  <!-- Permissions & Roles -->
+  <!-- <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="permSub">
+      <div class="nav-left"><i class="bi bi-shield-lock-fill" style="color: green;"></i><span class="ms-2">Permissions & Roles</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="permSub" class="submenu">
+      <a href="/admin/permissions"><i class="bi bi-key-fill me-2" style="color: green;"></i> Permissions</a>
+      <a href="/admin/roles"><i class="bi bi-award-fill me-2"></i> Roles</a>
+    </div>
+  </div> -->
+
+  <!-- Manage Users -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="usersSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">Manage Suplier</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="usersSub" class="submenu">
+      <a href="/admin/mysuplier"><i class="bi bi-truck me-2" style="color: green;"></i> Manage Suppliers</a>
+    </div>
+  </div>
+  <!-- statutory -->
+  <div class="nav-section">
+    <a href="/admin/doc" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Statutory Rquirement</span></div>
+    </a>
+  </div>
+  <!-- Alerts -->
+  <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#alertModal">
+    <div class="nav-left"><i class="bi bi-bell-fill" style="color: green;"></i><span class="ms-2">Alerts</span></div>
+  </a>
+    <!-- supplier prequalification -->
+       <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="msgSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">prequalification</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="msgSub" class="submenu">
+      <a href="/admin/prequal"><i class="bi bi-person-badge me-2" style="color: green;"></i> My Applications</a>
+     
+    </div>
+  </div>
+
+  <!-- tenders -->
+     <div class="nav-section">
+    <a href="/admin/tenders"  class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Tender</span></div>
+    </a>
+  </div>
+   <!-- rfx -->
+         <div class="nav-section">
+    <a href="/admin/rfqs" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFQ</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfps"class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFP</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/eois" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">EOI</span></div>
+    </a>
+  </div>
+       <div class="nav-section">
+    <a href="/admin/rfis" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFI</span></div>
+    </a>
+  </div>
+         <div class="nav-section">
+    <a href="/admin/auction " class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Reverse Auction</span></div>
+    </a>
+  </div>
+
+ 
+ 
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2">Archive</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/reports"><i class="bi bi-check2-circle me-2" style="color: green;"></i>Reports</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Topbar -->
+<header class="topbar">
+  <div class="brand">Supplier Portal</div>
+  <div class="nav-actions">
+    <div class="nav-icon"><i class="bi bi-bell-fill"></i></div>
+    <div class="nav-icon dropdown">
+      <i class="bi bi-person-circle" data-bs-toggle="dropdown"></i>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="/admin/sup_profile">Profile</a></li>
+        <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<!-- Main content -->
+<div class="content">
+  <h2>Supplier Proposal Form</h2>
+
+  <!-- Category Tabs -->
+  <ul class="nav nav-tabs" id="categoryTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="goods-tab" data-bs-toggle="tab" data-bs-target="#goods" type="button" role="tab">Goods</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" type="button" role="tab">Services</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="works-tab" data-bs-toggle="tab" data-bs-target="#works" type="button" role="tab">Works</button>
+    </li>
+  </ul>
+
+  <div class="tab-content mt-3">
+    <!-- Goods Tab -->
+    <div class="tab-pane fade show active" id="goods" role="tabpanel">
+      <form action="/submit-proposal" method="POST" enctype="multipart/form-data">
+        <h4><%= template.module %></h4>
+        <% template.sections.forEach(section => { %>
+          <fieldset>
+            <legend><%= section.title %></legend>
+            <% section.questions.forEach(q => { %>
+              <label><%= q.id %>: <%= q.title %> <%= q.mandatory ? '*' : '' %></label>
+              <% if(q.input_type === 'file') { %>
+                <input type="file" name="<%= q.id %>" <%= q.mandatory ? 'required' : '' %> />
+              <% } else if(q.input_type === 'multi-file') { %>
+                <input type="file" name="<%= q.id %>" multiple <%= q.mandatory ? 'required' : '' %> />
+              <% } else if(q.input_type === 'textbox') { %>
+                <textarea name="<%= q.id %>" rows="4" maxlength="<%= q.character_limit ? q.character_limit.split('-')[1] : 500 %>" <%= q.mandatory ? 'required' : '' %> ></textarea>
+              <% } else if(q.input_type === 'table') { %>
+                <% q.fields.forEach(f => { %>
+                  <label><%= f %>: <input type="text" name="<%= q.id + '-' + f %>" /></label>
+                <% }) %>
+              <% } %>
+              <% if(q.description) { %>
+                <small class="text-muted"><%= q.description %></small>
+              <% } %>
+            <% }) %>
+          </fieldset>
+        <% }) %>
+        <button type="submit" class="submit-btn">Submit Proposal</button>
+      </form>
+    </div>
+
+    <!-- Services Tab -->
+    <div class="tab-pane fade" id="services" role="tabpanel">
+      <p>Select Services category to fill the form.</p>
+    </div>
+
+    <!-- Works Tab -->
+    <div class="tab-pane fade" id="works" role="tabpanel">
+      <p>Select Works category to fill the form.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!--script>
+document.querySelectorAll('[data-toggle="submenu"]').forEach(el => {
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.getElementById(el.dataset.target);
+    target.classList.toggle('show');
+  });
+});
+// Tab click handler: render and update URL
+document.querySelectorAll('#categoryTabs button[data-bs-toggle="tab"]').forEach(tab => {
+  tab.addEventListener('shown.bs.tab', e => {
+    const category = e.target.getAttribute('data-bs-target').substring(1);
+    renderCategory(category);
+    history.pushState(null, '', `/admin/template/${category}/form`);
+  });
+});
+
+// Load correct tab on page load based on URL
+window.addEventListener('DOMContentLoaded', () => {
+  const pathParts = window.location.pathname.split('/');
+  const category = pathParts[3]; // /admin/template/:category/form
+  if(category) {
+    const tabButton = document.querySelector(`#${category}-tab`);
+    if(tabButton) new bootstrap.Tab(tabButton).show();
+    renderCategory(category);
+  } else {
+    renderCategory('goods');
+  }
+});
+</script>
+
+</body>
+</html>

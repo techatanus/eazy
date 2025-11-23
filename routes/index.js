@@ -36,9 +36,6 @@ router.get('/', (req, res) => {
   res.render('home');
 });
 
-
-
-
 // Dashboard
 exports.dashboard = async (req, res) => {
   try {
@@ -66,8 +63,6 @@ exports.dashboard = async (req, res) => {
   }
 };
 
-
-
 // post user account info
 router.post('/sign',adminCtrl.createUser);
 
@@ -90,7 +85,11 @@ router.post('/create_rfq',adminCtrl.createRFQ);
 router.post("/sups", upload.single("profilePicture"), adminCtrl.createAdmin);
 
 // post rfps
-router.post('/create_rfp',adminCtrl.createRFP)
+router.post(
+  "/create_rfp",
+  upload.fields([{ name: "f_prop", maxCount: 1 }]),
+  adminCtrl.createRFP
+)
 // create eoi
 router.post('/create_eoi',adminCtrl.createEOI);
 // create rfi buyer
@@ -109,8 +108,12 @@ router.post('/regdetails',upload.single("profile"),adminCtrl.createRegDetails);
 router.post('/sub_stat',adminCtrl.createStatutory);
 // compliance
 router.post("/comply", adminCtrl.createCompliance);
-// new job
+// new job-prequla
 router.post('/create_job',adminCtrl.createNewJob);
+//newJob-rfq
+router.post('/create_jobrfq',adminCtrl.createNewJobRfq);
+//newJob-rfq
+router.post('/create_jobrfp',adminCtrl.createNewJobRfq);
 // multi category upload
 router.post(
   "/multi_upload",
@@ -125,7 +128,6 @@ router.post(
 // quiz upload
 router.post('/quiz', adminCtrl.createQuiz);
 
-// payment stk
 
 
 

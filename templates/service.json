@@ -1,0 +1,163 @@
+{
+  "category": "service",
+  "module": "Services Technical Proposal Module",
+  "description": "Dynamic Template with Modular Sub-Sections for All Service Types",
+  "sections": [
+    {
+      "title": "Methodology, Approach & Work Plan",
+      "questions": [
+        {
+          "id": "1.1",
+          "title": "Detailed Methodology",
+          "mandatory": true,
+          "input_type": "file",
+          "description": "Provide a detailed methodology outlining your approach, execution plan, resource allocation, and risk management."
+        },
+        {
+          "id": "1.2",
+          "title": "Work Plan / Gantt Chart / Activity Schedule",
+          "mandatory": true,
+          "input_type": "file",
+          "description": "Description varies by service type."
+        },
+        {
+          "id": "1.3",
+          "title": "Service Delivery Plan",
+          "mandatory": true,
+          "input_type": "textbox",
+          "character_limit": "300-500",
+          "description": "To give evaluators a quick compliance view."
+        },
+        {
+          "id": "1.4",
+          "title": "Risk Assessment & Mitigation Plan",
+          "mandatory": false,
+          "input_type": "file",
+          "description": "Optional / Entity Decision"
+        },
+        {
+          "id": "1.5",
+          "title": "Quality Assurance / Service Standards",
+          "mandatory": false,
+          "input_type": "file",
+          "description": "Useful for: cleaning, security, ICT, maintenance, catering, healthcare services."
+        }
+      ]
+    },
+    {
+      "title": "Personnel, Team Composition & Qualifications",
+      "questions": [
+        {
+          "id": "2.1",
+          "title": "Key Experts / Staff",
+          "mandatory": true,
+          "input_type": "table",
+          "fields": ["Name", "Role", "Area of Expertise", "Experience (Years)", "Academic Qualification", "Professional Qualification", "Attach CV", "Attach Certificates"]
+        },
+        {
+          "id": "2.2",
+          "title": "Staffing Levels",
+          "mandatory": true,
+          "input_type": "table",
+          "fields": ["Role", "Number of Staff", "Shift Pattern", "Experience", "Relevant Certifications"]
+        },
+        {
+          "id": "2.3",
+          "title": "Project Organogram",
+          "mandatory": false,
+          "input_type": "file"
+        }
+      ]
+    },
+    {
+      "title": "Tools, Equipment & Resources",
+      "questions": [
+        {
+          "id": "3.1",
+          "title": "Tools & Equipment List",
+          "mandatory": false,
+          "input_type": "table",
+          "fields": ["Equipment/Tool", "Quantity", "Ownership Status", "Proof of Ownership/Lease"]
+        },
+        {
+          "id": "3.2",
+          "title": "Software Licenses / ICT Tools",
+          "mandatory": false,
+          "input_type": "file",
+          "examples": ["Antivirus", "System monitoring tools", "Configuration tools", "SLA compliance tools"]
+        }
+      ]
+    },
+    {
+      "title": "Past Performance & Experience",
+      "questions": [
+        {
+          "id": "4.1",
+          "title": "Similar Assignments Delivered",
+          "mandatory": true,
+          "input_type": "table",
+          "fields": ["Assignment Name", "Client", "Year", "Contract Value", "Contact Person", "Completion Certificate", "Contract/Award Letter"]
+        },
+        {
+          "id": "4.2",
+          "title": "Ongoing Assignments",
+          "mandatory": false,
+          "input_type": "table",
+          "fields": ["Description", "Client", "Value", "Progress %"]
+        }
+      ]
+    },
+    {
+      "title": "Compliance with Terms of Reference (TOR)",
+      "questions": [
+        {
+          "id": "5.1",
+          "title": "Technical Response to TOR",
+          "mandatory": true,
+          "input_type": "textbox",
+          "character_limit": "300-500",
+          "description": "To explain exactly how the bidder meets TOR requirements."
+        },
+        {
+          "id": "5.2",
+          "title": "Compliance Matrix",
+          "mandatory": false,
+          "input_type": "file",
+          "description": "Used in ICT, specialized consultancy, professional audits."
+        },
+        {
+          "id": "5.3",
+          "title": "Certifications / Accreditation",
+          "mandatory": false,
+          "input_type": "file",
+          "examples": ["IRA licensing", "ICPAK", "NITA", "NCA", "ISO standards"]
+        }
+      ]
+    },
+    {
+      "title": "Financial Capacity & Legal Compliance",
+      "questions": [
+        {
+          "id": "6.1",
+          "title": "Audited Accounts",
+          "mandatory": true,
+          "input_type": "file",
+          "years": "Last 2-3 years"
+        },
+        {
+          "id": "6.2",
+          "title": "Bank Statements / Line of Credit",
+          "mandatory": true,
+          "input_type": "file"
+        },
+        {
+          "id": "6.3",
+          "title": "Auto-Pulled Legal Docs",
+          "mandatory": false,
+          "input_type": "auto",
+          "description": "Pulled from supplier profile: Incorporation, Tax compliance, CR12, Business permits, Professional practice licenses."
+        }
+      ]
+    }
+  ]
+}

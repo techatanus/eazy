@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const axios = require('axios');
 const nodemailer = require("nodemailer");
 const multer = require("multer");
 const { resolveSoa } = require('dns');
@@ -361,32 +362,6 @@ exports.createPermission = async (req, res) => {
   }
 };
 
-// exports.rolesList = async (req, res) => {
-//   try {
-//     const [rows] = await db.query(
-//       'SELECT r.*, u.name as created_by_name FROM roles r LEFT JOIN admins u ON r.created_by=u.id'
-//     );
-//     res.render('role', { roles: rows });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send('Server Error in Roles');
-//   }
-// };
-
-// exports.createRole = async (req, res) => {
-//   try {
-//     const { name, description, is_admin, is_supervised } = req.body;
-//     await db.query(
-//       'INSERT INTO roles (name, description, is_admin, is_supervised, created_by) VALUES (?, ?, ?, ?, ?)',
-//       [name, description, is_admin ? 1 : 0, is_supervised ? 1 : 0, req.session.adminId || 1]
-//     );
-//     res.redirect('/admin/role');
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send('Error creating role');
-//   }
-// };
-
 // create user
 exports.createUser = async (req, res) => {
   try {
@@ -507,62 +482,6 @@ exports.verifyUser = async (req, res) => {
 };
 
 
-// Login check (must be verified)
-// exports.loginUser = async (req, res) => {
-//   const { email, pass } = req.body;
-
-//   try {
-//     // Find user in suppliers or clients
-// let [user] = await db.query(
-//   `
-//   SELECT email, pass,person, verified FROM admins WHERE email = ?
-//   UNION
-//   SELECT email, pass,person, verified FROM suppliers WHERE email = ?
-//   UNION
-//   SELECT email, pass,person, verified FROM clients WHERE email = ?
-//   `,
-//   [email, email, email]
-// );
-
-//     if (user.length === 0) {
-//       return res.render("home", { 
-//         message: "Invalid email or password", 
-//         status: "error" 
-//       });
-//     }
-
-//     user = user[0];
-//     req.session.user = user;
-
-//     if (!user.verified) {
-//       return res.render("home", { 
-//         message: "Please verify your email first", 
-//         status: "error" 
-//       });
-//     }
-
-//     const isMatch = await bcrypt.compare(pass, user.pass);
-//     if (!isMatch) {
-//       return res.render("home", { 
-//         message: "Invalid email or password", 
-//         status: "error" 
-//       });
-//     }
-
-//     console.log("Logged in as:", user.person);
-
-//     // ✅ On success, redirect to dashboard
-//     res.redirect("/dashboard");
-
-//   } catch (err) {
-//     console.error(err);
-//     res.render("home", { 
-//       message: "Server error", 
-//       status: "error" 
-//     });
-//   }
-// };
-
 exports.loginUser = async (req, res) => {
   const { email, pass } = req.body;
 
@@ -658,8 +577,6 @@ exports.loginUser = async (req, res) => {
     });
   }
 };
-
-
 
 // fetch admins
 exports.admins = (req, res) => {
@@ -810,7 +727,6 @@ exports.createAdmin = async (req, res) => {
   }
 };
 
-
 // new categories
 exports.create_category = async (req, res) => {
   try {
@@ -840,117 +756,135 @@ exports.create_category = async (req, res) => {
     res.status(500).send("Database error while creating category.");
   }
 };
-
-
-
-
 // rfqs
 exports.createRFQ = async (req, res) => {
   try {
     const {
       title,
       specifications,
+      delivery_timeline,
+      payment_terms,
+      item_description,
       quantity,
       unit_price,
       vat,
-      total_price,
-      delivery_timeline,
-      payment_terms
+      total_price
     } = req.body;
 
-    console.log("Received body:", req.body);
+    const jobId = req.session.jobId;
+    if (!jobId) return res.status(400).send("Job ID missing in session.");
 
-    // 🧩 Basic validation
-    if (!title || !quantity || !unit_price) {
-      return res.status(400).send("❌ Title, Quantity, and Unit Price are required.");
+    if (!title || !item_description || item_description.length === 0) {
+      return res.status(400).send("Title and at least one item are required.");
     }
 
-    // 🧩 Step 1: Check if RFQ already exists
-    const [existing] = await db.query("SELECT * FROM rfqs WHERE title = ?", [title]);
+    // Check if RFQ already exists for this job & title
+    const [existing] = await db.query(
+      "SELECT * FROM rfqs WHERE job_id = ? AND title = ?",
+      [jobId, title]
+    );
 
     if (existing.length > 0) {
-      console.log("RFQ already exists:", existing[0]);
-      return res.status(400).send("❌ RFQ with this title already exists.");
+      return res.status(400).send("❌ RFQ with this title already exists for this job.");
     }
 
-    // 🧩 Step 2: Insert new RFQ
-    const insertSql = `
-      INSERT INTO rfqs 
-      (title, specifications, quantity, unit_price, vat, total_price, delivery_timeline, payment_terms)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    const [result] = await db.query(insertSql, [
-      title,
+    // Prepare rows for insertion
+    const rows = item_description.map((desc, i) => [
+      jobId,
       specifications,
-      quantity,
-      unit_price,
-      vat,
-      total_price,
-      delivery_timeline,
-      payment_terms
+      title,
+      parseFloat(quantity[i]),
+      parseFloat(unit_price[i]),
+      parseFloat(vat[i] || 0),
+      parseFloat(total_price[i] || 0),
+      delivery_timeline || null,
+      payment_terms || null
     ]);
 
-    console.log("✅ RFQ created successfully:", result);
-    res.status(201).send("✅ RFQ created successfully!");
-    // or redirect: res.redirect("/rfqs");
+    const insertSql = `
+      INSERT INTO rfqs 
+        (job_id, specifications, title, quantity, unit_price, vat, total_price, delivery_timeline, payment_terms)
+      VALUES ?
+    `;
 
-  } catch (error) {
-    console.error("❌ Error creating RFQ:", error);
-    res.status(500).send("Server error while creating RFQ.");
+    await db.query(insertSql, [rows]);
+        res.redirect('/admin/rfq')
+   // return res.status(201).send("✅ RFQ and items created successfully!");
+  } catch (err) {
+    console.error("❌ Error creating RFQ:", err);
+    return res.status(500).send("Server error while creating RFQ.");
   }
 };
+
 
 // rfp
 exports.createRFP = async (req, res) => {
   try {
     const {
-    p_title ,
-    t_prop ,
-    f_prop ,
-    duration ,
-    budget 
+      p_title,
+      template,
+      description,
+      duration,
+      budget
+      
     } = req.body;
 
-    console.log("Received body:", req.body);
+    const jobId = req.session.jobId; // ✅ GET jobId from session
 
-    // 🧩 Basic validation
-    if (!p_title || !t_prop || !f_prop || !duration || !budget ) {
-      return res.status(400).send("❌ Title, Quantity, and Unit Price are required.");
+    console.log("SESSION JOB ID:", jobId);
+
+    // Validate before inserting
+    if (!jobId) {
+      return res.status(400).send("❌ No job found! Create a job first.");
     }
 
-    // 🧩 Step 1: Check if RFQ already exists
-    const [existing] = await db.query("SELECT * FROM rfp_submissions WHERE P_title = ?", [p_title]);
+    // Handle files from multer
+    const f_prop = req.files?.f_prop ? req.files.f_prop[0].filename : null;
+
+    console.log("FILES RECEIVED:", req.files);
+
+    if (!p_title || !template || !description|| !f_prop || !duration || !budget) {
+      return res.status(400).send("❌ All fields are required.");
+    }
+
+    // Check if RFP already exists
+    const [existing] = await db.query(
+      "SELECT * FROM rfp_submissions WHERE p_title = ? AND job_id = ?",
+      [p_title, jobId]
+    );
 
     if (existing.length > 0) {
-      console.log("RFQ already exists:", existing[0]);
-      return res.status(400).send("❌ RFP with this title already exists.");
+      return res.status(400).send("❌ RFP with this title already exists for this job.");
     }
 
-    // 🧩 Step 2: Insert new RFQ
+    // INSERT RFP including jobId
     const insertSql = `
       INSERT INTO rfp_submissions 
-      (p_title ,t_prop ,f_prop ,duration ,budget)
-      VALUES (?, ?, ?, ?, ?)
+      (job_id, p_title,template,description, f_prop, duration, budget)
+      VALUES (?, ?, ?, ?, ?, ?,?)
     `;
 
     const [result] = await db.query(insertSql, [
-    p_title ,
-    t_prop ,
-    f_prop ,
-    duration ,
-    budget 
+      jobId,
+      p_title,
+      template,
+      description,
+      f_prop,
+      duration,
+      budget
     ]);
 
     console.log("✅ RFP created successfully:", result);
-    res.status(201).send("✅ RFP created successfully!");
-    // or redirect: res.redirect("/rfqs");
+
+    // Redirect back to admin/rfp
+    res.redirect("/admin/rfp");
 
   } catch (error) {
-    console.error("❌ Error creating RFQ:", error);
+    console.error("❌ Error creating RFP:", error);
     res.status(500).send("Server error while creating RFP.");
   }
 };
+
 
 // eoi submission
 exports.createEOI = async (req, res) => {
@@ -983,7 +917,7 @@ exports.createEOI = async (req, res) => {
 
     console.log("✅ EOI created successfully:", result);
     res.status(201).send("✅ EOI created successfully!");
-    // or redirect: res.redirect("/rfqs");
+  
 
   } catch (error) {
     console.error("❌ Error creating EOI:", error);
@@ -1023,7 +957,7 @@ exports.createRFIB = async (req, res) => {
 
     console.log("✅ RFI created successfully:", result);
     res.status(201).send("✅ RFI created successfully!");
-    // or redirect: res.redirect("/rfqs");
+  
 
   } catch (error) {
     console.error("❌ Error creating RFI:", error);
@@ -1063,7 +997,7 @@ exports.createRFIS = async (req, res) => {
 
     console.log("✅ RFI created successfully:", result);
     res.status(201).send("✅ RFI created successfully!");
-    // or redirect: res.redirect("/rfqs");
+    
 
   } catch (error) {
     console.error("❌ Error creating RFI:", error);
@@ -1110,7 +1044,7 @@ exports.createTender = async (req, res) => {
 
     console.log("✅ Tender created successfully:", result);
     res.status(201).send("✅ Tender created successfully!");
-    // Optional redirect: res.redirect("/rfqs");
+  
 
   } catch (error) {
     console.error("❌ Error creating tender:", error);
@@ -1149,7 +1083,7 @@ exports.createAlert = async (req, res) => {
 
     console.log("✅ You have successfully! subscribe for this alerts:", result);
     res.status(201).send("✅ You have successfully! subscribe for this alerts");
-    // Optional redirect: res.redirect("/rfqs");
+   
 
   } catch (error) {
     console.error("❌ Error creating Alert:", error);
@@ -1188,18 +1122,13 @@ exports.createNotification = async (req, res) => {
 
     console.log("✅ You have successfully! created a notification:", result);
     res.status(201).send("✅ You have successfully! created a notification");
-    // Optional redirect: res.redirect("/rfqs");
+   
 
   } catch (error) {
     console.error("❌ Error creating notification:", error);
     res.status(500).send("Server error while creating notification.");
   }
 };
-
-
-
-
-
 // create registration details
 exports.createRegDetails = async (req, res) => {
   try {
@@ -1344,10 +1273,7 @@ exports.createStatutory = async (req, res) => {
     res.status(500).send("Server error while creating information.");
   }
 };
-
-
 // compliance
-
 exports.createCompliance = async (req, res) => {
   try {
     const tableName = "compliance";
@@ -1448,7 +1374,7 @@ exports.createCompliance = async (req, res) => {
   }
 };
 
-// create new job
+// create new job - preqqual
 exports.createNewJob = async (req, res) => {
   try {
     const { client, bid_title, start_datetime, closing_datetime, eligibility } = req.body;
@@ -1505,9 +1431,115 @@ exports.createNewJob = async (req, res) => {
   }
 };
 
+// create new job - rfq
+exports.createNewJobRfq = async (req, res) => {
+  try {
+    const { client, bid_title, start_datetime, closing_datetime, eligibility } = req.body;
+
+    // Validate form data
+    if (!client || !bid_title || !start_datetime || !closing_datetime) {
+      return res.status(400).json({ success: false, message: "All fields are required." });
+    }
+
+    // Check if job already exists
+    const [existingJob] = await db.query(
+      "SELECT * FROM jobs WHERE client = ? AND bid_title = ?",
+      [client, bid_title]
+    );
+
+    if (existingJob.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "Job with this title already exists for the selected client."
+      });
+    }
+
+    // Insert new job
+    const sql = `
+      INSERT INTO jobs (client, bid_title, start_datetime, closing_datetime, eligibility, status)
+      VALUES (?, ?, ?, ?, ?, 'draft')
+    `;
+    const [result] = await db.query(sql, [
+      client,
+      bid_title,
+      start_datetime,
+      closing_datetime,
+      eligibility,
+    ]);
+
+    const newJobId = result.insertId;
+
+    // Store session
+    req.session.jobId = newJobId;
+    req.session.jobTitle = bid_title;
+    req.session.client = client;
+
+res.redirect("/admin/rfq");
 
 
-// multi category upload
+  } catch (err) {
+    console.error("❌ Error creating new job:", err.message);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// create new job - rfp
+exports.createNewJobRfp= async (req, res) => {
+  try {
+    const { client, bid_title, start_datetime, closing_datetime, eligibility } = req.body;
+
+    // Validate form data
+    if (!client || !bid_title || !start_datetime || !closing_datetime) {
+      return res.status(400).send("All fields are required.");
+    }
+
+    // Check if job already exists
+    const [existingJob] = await db.query(
+      "SELECT * FROM jobs WHERE client = ? AND bid_title = ?",
+      [client, bid_title]
+    );
+
+    if (existingJob.length > 0) {
+      console.log("⚠️ Job already exists:", bid_title);
+      return res.status(409).send("Job with this title already exists for the selected client.");
+    }
+
+    // Insert new job and get inserted ID
+    const sql = `
+      INSERT INTO jobs (client, bid_title, start_datetime, closing_datetime, eligibility, status)
+      VALUES (?, ?, ?, ?, ?, 'draft')
+    `;
+    const [result] = await db.query(sql, [
+      client,
+      bid_title,
+      start_datetime,
+      closing_datetime,
+      eligibility,
+    ]);
+
+    const newJobId = result.insertId;
+    console.log(`✅ New job created: ${bid_title} (ID: ${newJobId}) for ${client}`);
+
+    // ✅ Store job ID in session
+    req.session.jobId = newJobId;
+    req.session.jobTitle = bid_title;
+    req.session.client = client;
+
+    console.log("🧠 Stored in session:", {
+      jobId: req.session.jobId,
+      jobTitle: req.session.jobTitle,
+      client: req.session.client,
+    });
+
+    // Redirect after success
+    res.redirect("/admin/rfp");
+
+  } catch (err) {
+    console.error("❌ Error creating new job:", err.message);
+    res.status(500).send("Server error: " + err.message);
+  }
+};
+
 // Configure multer for file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -1586,11 +1618,6 @@ exports.multiUpload = async (req, res) => {
   }
 };
 
-
-// Configure Multer for file uploads
-
-
-
 // --- MAIN FUNCTION ---
 exports.createQuiz = [
   upload.single('file'),
@@ -1639,6 +1666,9 @@ exports.createQuiz = [
     }
   }
 ];
+
+
+
 
 
 
