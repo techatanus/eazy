@@ -261,7 +261,7 @@
   <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#alertModal">
     <div class="nav-left"><i class="bi bi-bell-fill" style="color: green;"></i><span class="ms-2">Alerts</span></div>
   </a>
-    <!-- supplier prequalification -->
+  <!-- supplier prequalification -->
        <div class="nav-section">
     <a href="#" class="nav-link" data-toggle="submenu" data-target="msgSub">
       <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">prequalification</span></div>
@@ -269,35 +269,160 @@
     </a>
     <div id="msgSub" class="submenu">
       <a href="/admin/prequal"><i class="bi bi-person-badge me-2" style="color: green;"></i> My Applications</a>
+       <a href="#"><i class="bi bi-bag-check" style="color: green;"></i> My purchased</a>
      
     </div>
   </div>
 
   <!-- tenders -->
-     <div class="nav-section">
-    <a href="/admin/tender"  class="nav-link">
-      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Tender</span></div>
-    </a>
+<!-- tenders -->
+<div class="nav-section">
+
+  <!-- Main Menu Title -->
+  <div class="nav-link d-flex justify-content-between align-items-center"
+       data-bs-toggle="collapse" 
+       data-bs-target="#tenderMenu" 
+       style="cursor: pointer;">
+
+    <div class="nav-left">
+      <i class="bi bi-speedometer2" style="color: green;"></i>
+      <span class="ms-2">Tender</span>
+    </div>
+
+    <!-- Plus icon -->
+     <i class="bi bi-plus-lg"></i>
+
   </div>
+
+  <!-- Nested menu -->
+  <div id="tenderMenu" class="collapse ms-4">
+
+    <a href="/admin/tenders" class="nav-link small">
+      <i class="bi bi-check-circle"></i>
+      <span class="ms-2">My Applications</span>
+    </a>
+
+    <a href="/admin/my-purchased" class="nav-link small">
+      <i class="bi bi-bag-check"></i>
+      <span class="ms-2">My Purchased</span>
+    </a>
+
+  </div>
+
+</div>
+
    <!-- rfx -->
-       <div class="nav-section">
-    <a href="/admin/rfqs" class="nav-link">
-      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFQ</span></div>
+         <div class="nav-section">
+  <div class="nav-link d-flex justify-content-between align-items-center"
+       data-bs-toggle="collapse" 
+       data-bs-target="#rfqMenu" 
+       style="cursor: pointer;">
+
+    <div class="nav-left">
+      <i class="bi bi-speedometer2" style="color: green;"></i>
+      <span class="ms-2">RFQ</span>
+    </div>
+
+ <i class="bi bi-plus-lg"></i>
+
+  </div>
+
+  <div id="rfqMenu" class="collapse ms-4">
+    <a href="/admin/rfqs" class="nav-link small">
+      <i class="bi bi-check-circle"></i>
+      <span class="ms-2">My Applications</span>
+    </a>
+
+    <a href="#" class="nav-link small">
+      <i class="bi bi-bag-check"></i>
+      <span class="ms-2">My Purchased</span>
     </a>
   </div>
-       <div class="nav-section">
-    <a href="/admin/rfps"class="nav-link">
-      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFP</span></div>
+</div>
+
+<!-- RFP -->
+<div class="nav-section">
+  <div class="nav-link d-flex justify-content-between align-items-center"
+       data-bs-toggle="collapse" 
+       data-bs-target="#rfpMenu" 
+       style="cursor: pointer;">
+
+    <div class="nav-left">
+      <i class="bi bi-speedometer2" style="color: green;"></i>
+      <span class="ms-2">RFP</span>
+    </div>
+
+     <i class="bi bi-plus-lg"></i>
+
+  </div>
+
+  <div id="rfpMenu" class="collapse ms-4">
+    <a href="/admin/rfps" class="nav-link small">
+      <i class="bi bi-check-circle"></i>
+      <span class="ms-2">My Applications</span>
+    </a>
+
+    <a href="#" class="nav-link small">
+      <i class="bi bi-bag-check"></i>
+      <span class="ms-2">My Purchased</span>
     </a>
   </div>
-       <div class="nav-section">
-    <a href="/admin/eois" class="nav-link">
-      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">EOI</span></div>
+</div>
+
+<!-- EOI -->
+<div class="nav-section">
+  <div class="nav-link d-flex justify-content-between align-items-center"
+       data-bs-toggle="collapse" 
+       data-bs-target="#eoiMenu" 
+       style="cursor: pointer;">
+
+    <div class="nav-left">
+      <i class="bi bi-speedometer2" style="color: green;"></i>
+      <span class="ms-2">EOI</span>
+    </div>
+
+ <i class="bi bi-plus-lg"></i>
+
+  </div>
+
+  <div id="eoiMenu" class="collapse ms-4">
+    <a href="/admin/eois" class="nav-link small">
+      <i class="bi bi-check-circle"></i>
+      <span class="ms-2">My Applications</span>
+    </a>
+
+    <a href="#" class="nav-link small">
+      <i class="bi bi-bag-check"></i>
+      <span class="ms-2">My Purchased</span>
     </a>
   </div>
-       <div class="nav-section">
-    <a href="/admin/rfis" class="nav-link">
-      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">RFI</span></div>
+</div>
+
+<!-- RFI -->
+<div class="nav-section">
+  <div class="nav-link d-flex justify-content-between align-items-center"
+       data-bs-toggle="collapse" 
+       data-bs-target="#rfiMenu" 
+       style="cursor: pointer;">
+
+    <div class="nav-left">
+      <i class="bi bi-speedometer2" style="color: green;"></i>
+      <span class="ms-2">RFI</span>
+    </div>
+
+    <i class="bi bi-plus-lg"></i>
+
+  </div>
+
+  <div id="rfiMenu" class="collapse ms-4">
+    <a href="/admin/rfis" class="nav-link small">
+      <i class="bi bi-check-circle"></i>
+      <span class="ms-2">My Applications</span>
+    </a>
+
+    <a href="#" class="nav-link small">
+      <i class="bi bi-bag-check"></i>
+      <span class="ms-2">My Purchased</span>
     </a>
   </div>
          <div class="nav-section">
@@ -375,9 +500,9 @@
           <table class="table table-striped align-middle" id="rfxTable">
             <thead >
               <tr>
-                <th style="color:#008000;">Buyer</th>
+                <th style="color:#008000;">Company</th>
                 <th style="color:#008000;">Bid Title</th>
-                <!-- <th style="color:#008000;">Category</th> -->
+                <th style="color:#008000;">Description</th>
                 <th style="color:#008000;">Closing Time</th>
                 <!-- <th style="color:#008000;">Status</th> -->
              
@@ -390,14 +515,14 @@
   <% if (tenders && tenders.length > 0) { %>
     <% tenders.forEach(tender => { %>
       <tr>
-        <td></td>
+        <td><%=tender.client%></td>
       
-        <td><%= tender.title %></td>
-         <!-- <td><%= tender.category %></td> -->
+        <td><%= tender.bid_title %></td>
+         <td><%= tender.description %></td>
        
        <td>
-  <% if (tender.closing_date) { %>
-    <%= new Date(tender.closing_date).toLocaleString('en-KE', { 
+  <% if (tender.closing_datetime) { %>
+    <%= new Date(tender.closing_datetime).toLocaleString('en-KE', { 
           dateStyle: 'medium', 
           timeStyle: 'short' 
         }) %>

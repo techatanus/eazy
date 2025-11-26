@@ -119,6 +119,7 @@ const generateToken = async (req, res, next) => {
 const stkPush = async (req, res) => {
     try {
         const { tel, amount, jobids } = req.body; // receive phone, amount, category codes
+        console.log(req.body);
 
         if (!tel || !amount || !jobids) {
             return res.status(400).json({ success: false, message: "Phone and amount are required" });
@@ -152,7 +153,7 @@ const stkPush = async (req, res) => {
             PartyA: tel,
             PartyB: shortCode,
             PhoneNumber: tel,
-            CallBackURL: "https://2b2f99c23e44.ngrok-free.app/mpesa/callback", // replace with your callback
+            CallBackURL: "https://eb277ea5fcd7.ngrok-free.app/mpesa/callback", // replace with your callback
             AccountReference:"BuniSource",
             TransactionDesc: "Pay for Job to bid"
         };
@@ -196,81 +197,65 @@ app.post("/mpesa/callback", async (req, res) => {
     console.log(JSON.stringify(req.body, null, 2));
 
     const cb = req.body?.Body?.stkCallback;
+    if (!cb) return res.status(400).json({ error: "Invalid callback" });
 
-    const resultCode = cb?.ResultCode;
-    const resultDesc = cb?.ResultDesc;
-    const merchantRequestId = cb?.MerchantRequestID;
-    const checkoutRequestId = cb?.CheckoutRequestID;
+    const resultCode = cb.ResultCode;
+    const resultDesc = cb.ResultDesc;
+    const checkoutRequestId = cb.CheckoutRequestID;
 
     const amount = cb?.CallbackMetadata?.Item?.find(i => i.Name === "Amount")?.Value || 0;
     const mpesaReceipt = cb?.CallbackMetadata?.Item?.find(i => i.Name === "MpesaReceiptNumber")?.Value || "";
     const phone = cb?.CallbackMetadata?.Item?.find(i => i.Name === "PhoneNumber")?.Value || "";
-    
-    // Retrieve job_id stored during STK push
-    const job_id = req.session.lastJobID;     // ❤️ This comes from STK push
-    const phoneStored = req.session.lastPhone; // ❤️ This also comes from STK push
 
     try {
-        // 1️⃣ Check if a transaction already exists
+        // 1️⃣ Find the original STK push by checkout_request_id
+        const [initRows] = await db.query(
+            "SELECT * FROM mpesa_init WHERE checkout_request_id = ?",
+            [checkoutRequestId]
+        );
+
+        if (initRows.length === 0) {
+            console.error("❌ No initial STK push record found for this callback");
+            return res.status(404).json({ error: "Transaction not found" });
+        }
+
+        const { job_id, phone: storedPhone } = initRows[0];
+
+        // 2️⃣ Check if transaction already exists
         const [existing] = await db.query(
             "SELECT * FROM transactions WHERE job_id = ? AND phone = ?",
-            [job_id, phoneStored]
+            [job_id, storedPhone]
         );
 
         if (existing.length > 0) {
             const record = existing[0];
-
-            // 2️⃣ Prevent replacing a successful transaction
             if (record.status === "Success") {
-                console.log("⚠️ Payment already successful. Ignoring callback update.");
-
-                return res.json({
-                    message: "Payment was already successful — duplicate payment ignored",
-                    status: "duplicate_success"
-                });
+                console.log("⚠️ Payment already successful. Ignoring callback.");
+                return res.json({ message: "Payment already successful", status: "duplicate_success" });
             }
 
-            // 3️⃣ Update only if previous transaction failed
+            // Update failed transaction
             await db.query(
                 `UPDATE transactions
                  SET amount = ?, mpesa_receipt_number = ?, status = ?, 
-                     checkout_request_id = ?, merchant_request_id = ?, 
-                     response_description = ?, transaction_date = NOW()
+                     checkout_request_id = ?, response_description = ?, transaction_date = NOW()
                  WHERE job_id = ? AND phone = ?`,
-                [
-                    amount,
-                    mpesaReceipt,
-                    resultCode === 0 ? "Success" : "Failed",
-                    checkoutRequestId,
-                    merchantRequestId,
-                    resultDesc,
-                    job_id,
-                    phoneStored
-                ]
+                [amount, mpesaReceipt, resultCode === 0 ? "Success" : "Failed",
+                 checkoutRequestId, resultDesc, job_id, storedPhone]
             );
 
-            return res.json({
-                message: "Failed transaction updated successfully",
-                status: "updated_failed"
-            });
+            return res.json({ message: "Failed transaction updated", status: "updated_failed" });
         }
 
-        // 4️⃣ No existing record — insert normally
+        // 3️⃣ Insert new transaction
         await db.query(
             `INSERT INTO transactions 
              (job_id, phone, amount, mpesa_receipt_number, transaction_date, status,
-             checkout_request_id, merchant_request_id, response_description)
-             VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?)`,
-            [
-                job_id,
-                phoneStored,
-                amount,
-                mpesaReceipt,
-                resultCode === 0 ? "Success" : "Failed",
-                checkoutRequestId,
-                merchantRequestId,
-                resultDesc
-            ]
+             checkout_request_id, response_description)
+             VALUES (?, ?, ?, ?, NOW(), ?, ?, ?)`,
+            [job_id, storedPhone, amount, mpesaReceipt,
+             resultCode === 0 ? "Success" : "Failed",
+             checkoutRequestId, resultDesc]
         );
 
         res.json({ message: "New transaction created", status: "inserted" });
@@ -280,7 +265,6 @@ app.post("/mpesa/callback", async (req, res) => {
         res.status(500).json({ error: "Failed to save callback" });
     }
 });
-
 
 
 const PORT = process.env.PORT || 3000;

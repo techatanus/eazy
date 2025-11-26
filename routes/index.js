@@ -113,7 +113,10 @@ router.post('/create_job',adminCtrl.createNewJob);
 //newJob-rfq
 router.post('/create_jobrfq',adminCtrl.createNewJobRfq);
 //newJob-rfq
-router.post('/create_jobrfp',adminCtrl.createNewJobRfq);
+router.post('/create_jobrfp',adminCtrl.createNewJobRfp);
+//new job tender
+router.post('/create_jobtnd',adminCtrl.createNewJobTnd);
+
 // multi category upload
 router.post(
   "/multi_upload",

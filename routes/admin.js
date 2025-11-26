@@ -154,13 +154,19 @@ router.get('/tender', async (req, res) => {
     if(!user){
     return  res.redirect('/');
     }
-    const [tenders] = await db.query("SELECT * FROM tenders");
+     const [test] = await db.query("SELECT * FROM clients");
+    const [tenders] = await db.query(`SELECT 
+    t.*,        -- all columns from tenders
+    j.client    -- client from jobs
+FROM tenders t
+LEFT JOIN jobs j ON j.id = t.job_id;
+`);
     const [category] = await db.query("SELECT * FROM categories");
     // console.log("✅ Retrieved tenders:", tenders); // Debugging log
     // console.log(category);
     
 
-    res.render('tender', { tenders,category });
+    res.render('tender', { tenders,category,test });
   } catch (err) {
     console.error("❌ Error loading closed tenders:", err.message);
     res.status(500).send("Error loading tenders: " + err.message);
@@ -175,8 +181,23 @@ router.get('/tenders', async (req, res) => {
     if(!user){
       return res.redirect('/');
     }
-    const stat = 'draft'
-    const [tenders] = await db.query("SELECT * FROM tenders WHERE status = ?",[stat]);
+    //const stat = 'draft'
+    const [tenders] = await db.query(`
+    SELECT 
+    j.client,
+    j.bid_title,
+    j.closing_datetime,
+    t.job_id,
+    t.category,
+    t.description,
+    t.type
+FROM jobs j
+INNER JOIN tenders t
+    ON t.job_id = j.id
+ORDER BY j.closing_datetime ASC;
+
+    
+    `);
     const [category] = await db.query("SELECT * FROM categories");
     // console.log("✅ Retrieved tenders:", tenders); // Debugging log
     // console.log(category);
@@ -474,9 +495,10 @@ router.get('/prequal', async (req, res) => {
   try {
     const user = req.session.user;
     if (!user) {
-      return res.redirect('/'); // ✅ return stops further execution
+      return res.redirect('/');
     }
 
+    // 1️⃣ Fetch jobs with categories and uploads
     const [ques] = await db.query(`
       SELECT 
         j.id AS job_id,
@@ -500,15 +522,25 @@ router.get('/prequal', async (req, res) => {
       WHERE j.que = '1'
       ORDER BY j.closing_datetime ASC
     `);
-    
-    const[paid] = await db.query(`SELECT * FROM transactions WHERE status ='success'`);
 
-    res.render('prequal', { ques, paid}); // ✅ simplified
+    // 2️⃣ Get paid transactions for this user (by phone or user id)
+    const [paid] = await db.query(
+      "SELECT job_id FROM transactions WHERE status = 'Success' ",
+      
+    );
+
+    // 3️⃣ Build a Set for easy lookup in EJS
+    const paidJobIds = new Set(paid.map(p => p.job_id));
+
+    // 4️⃣ Render the page
+    res.render('prequal', { ques, paidJobIds });
+
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 
 // qa
@@ -539,42 +571,23 @@ router.get('/approve',async(req,res)=>{
       if(!user){
         return res.redirect('/')
       };
-//       const status = 'draft';
-//       const status1 = 'rejected'
-//       const status2 = 'approved';
-
-
-//       // pending tenders
-//    const [tenders] = await db.query("SELECT * FROM tenders WHERE status = ?",[status]);
-// //approved tenders
-//      const [tender] = await db.query("SELECT * FROM tenders WHERE status = ?",[status2]);
-
-//      const [reject] = await db.query("SELECT * FROM tenders WHERE status = ?",[status1]);
- 
-//    console.log(tender);
-
-// draft bids
 const [draftTendersRows] = await db.query(`
- SELECT 
-    j.id AS job_id,
-    j.client,
-    j.bid_title,
-    j.closing_datetime,
-    j.eligibility,
-    j.status,
-    c.category_no,
-    c.category_name,
-    c.price,
-    c.description,
-    u.file
+
+  SELECT
+      j.id AS job_id,
+      j.client,
+      j.bid_title,
+      j.closing_datetime,
+      COALESCE(t.description, rfp.description, rfq.description) AS description,
+      rfq.item_description,
+      j.eligibility,
+      j.status
   FROM jobs j
-  JOIN categories c 
-    ON j.id = c.job_id
-  LEFT JOIN uploads u 
-    ON c.job_id = u.job_id 
-    AND c.category_name = u.category
-  WHERE j.status IN ('draft', 'approved', 'rejected')
-  ORDER BY j.closing_datetime ASC
+  LEFT JOIN tenders t       ON t.job_id = j.id
+  LEFT JOIN rfp_submissions rfp ON rfp.job_id = j.id
+  LEFT JOIN rfqs rfq        ON rfq.job_id = j.id
+  WHERE j.status IN ('draft','approved','rejected')
+  ORDER BY j.closing_datetime ASC;
 `);
    
             res.render('approval',{draftTendersRows});
@@ -770,6 +783,42 @@ router.get('/template/:category/form', (req, res) => {
 });
 
 
+//que jobs
+router.post('/proceed/:jobId', async (req, res) => {
+  try {
+    const jobId = req.params.jobId;
+
+    if (!jobId) {
+      return res.json({ success: false, message: "Missing job ID" });
+    }
+
+    // 1️⃣ Check if job is already queued
+    const [rows] = await db.query(
+      "SELECT que FROM jobs WHERE id = ? LIMIT 1",
+      [jobId]
+    );
+
+    if (rows.length === 0) {
+      return res.json({ success: false, message: "Job not found" });
+    }
+
+    if (rows[0].que === 1) {
+      return res.json({ success: false, message: "Job already queued" });
+    }
+
+    // 2️⃣ Queue the job (update que = 1)
+    await db.query(
+      "UPDATE jobs SET que = 1 WHERE id = ?",
+      [jobId]
+    );
+
+    return res.json({ success: true, message: "Job queued successfully" });
+
+  } catch (error) {
+    console.error("PROCEED ERROR:", error);
+    return res.json({ success: false, message: "Server error" });
+  }
+});
 
 
 module.exports = router;

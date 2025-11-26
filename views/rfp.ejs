@@ -697,26 +697,25 @@
 
   </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
 
   /********* AUTO TAB SWITCH FUNCTION *********/
   function switchToTab(tabId) {
     const trigger = document.querySelector(`[data-bs-target="${tabId}"]`);
     if (trigger) {
-      const bsTab = new bootstrap.Tab(trigger);
-      bsTab.show();
+      new bootstrap.Tab(trigger).show();
     }
   }
 
-  /********* WHEN PAGE LOADS — CHECK IF A TAB WAS SET *********/
-// Only run tab switching if the tabs exist
-const tabContainer = document.querySelector('#rfpTabs');
-if (tabContainer && goToTab) {
-  setTimeout(() => {
-    switchToTab(goToTab);
-    sessionStorage.removeItem('goToTab');
-  }, 80);
-}
+  /********* WHEN PAGE LOADS — CHECK IF A TAB SHOULD OPEN *********/
+  const goToTab = sessionStorage.getItem('goToTab');   // <-- FIXED (was undefined)
+
+  if (goToTab) {
+    setTimeout(() => {
+      switchToTab(goToTab);
+      sessionStorage.removeItem('goToTab'); // clear after use
+    }, 80);
+  }
 
   /********* NEW JOB FORM → GO TO CREATE RFP TAB *********/
   const newJobForm = document.querySelector('#newJob form');

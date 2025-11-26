@@ -251,16 +251,19 @@
       </div>
 
       <div class="modal-body">
-        <form action="/create_job" method="post" id="createJobForm">
+        <form action="/create_jobtnd" method="post" id="createJobForm">
           
           <div class="mb-3">
             <label class="form-label">Client</label>
             <select name="client" class="form-select" required>
               <option value="">Select Client</option>
-              <option value="County Government">County Government</option>
-              <option value="Ministry">Ministry</option>
-              <option value="Private Company">Private Company</option>
-              <option value="NGO">NGO</option>
+               <% if (test && test.length > 0) { %>
+            <% test.forEach(t => { %>
+              <option value="<%= t.name %>"><%= t.name %></option>
+            <% }) %>
+          <% } else { %>
+            <option disabled>No clients found</option>
+          <% } %>
             </select>
           </div>
 
@@ -338,6 +341,7 @@
            <td>
             <img src="<%= tender.logo || '/images/default-logo.png' %>" 
                  alt="Logo" width="40" height="40" class="rounded-circle">
+                 <%= tender.client %>
           </td>
         <!-- <td><%= tender.code %></td> -->
         <td><%= tender.title %></td>
@@ -397,8 +401,8 @@
 <div class="modal fade" id="createRfxModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      
-      <form action="/create_tender" method="POST" id="createForm" >
+
+      <form action="/create_tender" method="POST" id="createForm">
         <div class="modal-header bg-success text-white">
           <h5 class="modal-title">Create Tender</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -406,32 +410,38 @@
 
         <div class="modal-body">
           <div class="row g-3">
-               <div class="col-md-12">
-              <label class="form-label">Select Category</label> <br>
-             <select class="col-md-4" name="category" id="" style="height: 40%;">
-                <% if(category && category.length > 0){ %>
-                       <% category.forEach(categ =>{ %>
-                        <option value="<%=categ.category_name %>"><%=categ.category_name %></option>
-                       <% }) %>
-              
-               <% }else{ %>
-  <option > No categories found</option>
-              <% } %>
-             </select>
-             <label for="">Select Job</label>
-             <select class="col-md-4" name="" id="">
-              <option value=""></option>
-             </select>
+
+            <!-- Category -->
+            <div class="col-md-6">
+              <label class="form-label">Select Category</label>
+              <select name="category" class="form-select" required>
+                <option value="">-- Select Category --</option>
+                <% if (category && category.length > 0) { %>
+                  <% category.forEach(categ => { %>
+                    <option value="<%= categ.category_name %>">
+                      <%= categ.category_name %>
+                    </option>
+                  <% }) %>
+                <% } else { %>
+                  <option disabled>No categories found</option>
+                <% } %>
+              </select>
             </div>
-            <div class="col-md-4">
+
+            <!-- Code -->
+            <div class="col-md-6">
               <label class="form-label">Code</label>
               <input name="code" class="form-control" placeholder="RFx-YYYY-XXX" required>
             </div>
-            <div class="col-md-8">
+
+            <!-- Title -->
+            <div class="col-md-6">
               <label class="form-label">Title</label>
               <input name="title" class="form-control" required>
             </div>
-            <div class="col-md-4">
+
+            <!-- Type -->
+            <div class="col-md-6">
               <label class="form-label">Type</label>
               <select name="type" class="form-select">
                 <option>Goods</option>
@@ -439,22 +449,21 @@
                 <option>Services</option>
               </select>
             </div>
-            <div class="col-md-4">
+
+            <!-- Closing Date -->
+            <div class="col-md-12">
               <label class="form-label">Closing Date</label>
-              <input  name="closingDate" class="form-control" type="datetime-local" required>
+              <input name="closingDate" class="form-control" type="datetime-local" required>
             </div>
-            <div class="col-md-4">
-              <label class="form-label">Status</label>
-              <select name="status" class="form-select">
-                <option>Draft</option>
-                <option>Open</option>
-                <option>Closed</option>
-              </select>
-            </div>
+
+     
+
+            <!-- Description (full row) -->
             <div class="col-12">
               <label class="form-label">Description</label>
               <textarea name="description" class="form-control" rows="3"></textarea>
             </div>
+
           </div>
         </div>
 
@@ -467,6 +476,7 @@
     </div>
   </div>
 </div>
+
   <!-- VIEW Modal -->
   <div class="modal fade" id="viewRfxModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">

@@ -63,7 +63,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h5 class="section-title mb-0 text-success">Available Questionnaires</h5>
     <p class="mb-0 text-end">
-      <a href="/admin/dashcl" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
+      <a href="/admin/dashsup" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
     </p>
   </div>
 
@@ -114,7 +114,6 @@
 <!-- JS Dependencies -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
 const previewArea = document.getElementById("previewArea");
 const closeBtn = document.getElementById("closePreviewBtn");
@@ -164,12 +163,13 @@ document.querySelectorAll(".loadQBtn").forEach(btn => {
         ] = row.map(v => String(v || ""));
 
         const cleanedText = questionTextRaw.trim();
+        const lowerText = cleanedText.toLowerCase();
         const isRequired = mandatory.toLowerCase() === "y" ? "required" : "";
 
         let field = "";
 
         // Trade references block
-        if (cleanedText.toLowerCase().includes("trade references") || cleanedText.toLowerCase().includes("reference")) {
+        if (lowerText.includes("trade references") || lowerText.includes("reference")) {
           field = `
             <div class="row g-2 mb-2">
               <div class="col-md"><input type="text" name="orgName" class="form-control" placeholder="Organization Name" ${isRequired} /></div>
@@ -185,23 +185,37 @@ document.querySelectorAll(".loadQBtn").forEach(btn => {
               <div class="col-md"><input type="text" name="contractValue" class="form-control" placeholder="Contract Value (approx.)" ${isRequired} /></div>
             </div>
           `;
-        } else {
-          // Handle options / validation rule
-          if (options && options.includes(",")) {
-            const optionItems = options.split(",").map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join("");
-            field = `<select name="q${index}" class="form-select mb-2" ${isRequired}>${optionItems}</select>`;
-          } else {
-            // Handle basic types
-            if (answerType.toLowerCase() === "text") field = `<textarea name="q${index}" class="form-control mb-2" ${isRequired}></textarea>`;
-            else if (answerType.toLowerCase() === "number") field = `<input type="number" name="q${index}" class="form-control mb-2" ${isRequired} />`;
-            else if (answerType.toLowerCase() === "date") field = `<input type="date" name="q${index}" class="form-control mb-2" ${isRequired} />`;
-            else field = `<input type="text" name="q${index}" class="form-control mb-2" ${isRequired} />`;
+        } 
+        // Number of employees dropdown
+        else if (lowerText.includes("number of employees")) {
+          let optionsHtml = `<option value="">Select number of employees</option>`;
+          for (let i = 1; i <= 100; i++) {
+            optionsHtml += `<option value="${i}">${i}</option>`;
           }
-        }
-
-        // Attachment input
-        if (attachmentRequired.toLowerCase() === "y") {
-          field += `<input type="file" name="attachment${index}" class="form-control mb-2" ${isRequired} />`;
+          field = `<select name="q${index}" class="form-select mb-2" ${isRequired}>${optionsHtml}</select>`;
+        } 
+        // YES/NO dropdown
+        else if (answerType.toLowerCase() === "yes/no") {
+          field = `
+            <select name="q${index}" class="form-select mb-2" ${isRequired}>
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          `;
+        } 
+        // Number dropdown from options/validation rule
+        else if (answerType.toLowerCase() === "number" && options.trim() !== "") {
+          const optionItems = options.split(",").map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join("");
+          field = `<select name="q${index}" class="form-select mb-2" ${isRequired}>${optionItems}</select>`;
+        } 
+        // File input only
+        else if (attachmentRequired.toLowerCase() === "y") {
+          field = `<input type="file" name="attachment${index}" class="form-control mb-2" ${isRequired} />`;
+        } 
+        // Default textarea
+        else {
+          field = `<textarea name="q${index}" class="form-control mb-2" ${isRequired}></textarea>`;
         }
 
         questionnaireDiv.innerHTML += `
@@ -236,6 +250,8 @@ closeBtn.addEventListener("click", () => {
   closeBtn.style.display = "none";
 });
 </script>
+
+
 
 </body>
 </html>

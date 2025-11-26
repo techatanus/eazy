@@ -17,38 +17,54 @@ exports.dashboard = async (req, res) => {
     const [suppliersRows] = await db.query("SELECT COUNT(*) as c FROM suppliers");
  
 
-    const [openTendersRows] = await db.query( "SELECT * FROM tenders WHERE status IN ('open', 'Draft','closed') ORDER BY closing_date ASC LIMIT 10" );
+    const [openTendersRows] = await db.query( `
+    SELECT 
+  t.*, 
+  j.status AS job_status
+FROM tenders t
+LEFT JOIN jobs j ON t.job_id = j.id
+WHERE j.status IN ('open', 'Draft', 'closed')
+ORDER BY t.closing_date ASC
+LIMIT 10;
+
+    ` );
 // open jobs -approved
 const [currentListingRows] = await db.query(`
- SELECT 
-    j.id AS job_id,
+ SELECT
     j.client,
     j.bid_title,
     j.closing_datetime,
+    -- Pick the first available description from tenders, RFPs, or RFQs
+    COALESCE(t.description, rfp.description, rfq.description) AS description,
     j.eligibility,
-    j.status,
-    c.category_no,
-    c.category_name,
-    c.price,
-    c.description,
-    u.file
-  FROM jobs j
-  JOIN categories c 
-    ON j.id = c.job_id
-  LEFT JOIN uploads u 
-    ON c.job_id = u.job_id 
-    AND c.category_name = u.category
-  WHERE j.status = 'approved'
-  ORDER BY j.closing_datetime ASC
+    j.status
+FROM jobs j
+-- Join tenders
+LEFT JOIN tenders t
+    ON t.job_id = j.id
+-- Join RFP submissions
+LEFT JOIN rfp_submissions rfp
+    ON rfp.job_id = j.id
+-- Join RFQs
+LEFT JOIN rfqs rfq
+    ON rfq.job_id = j.id
+WHERE j.status = 'approved'
+ORDER BY j.closing_datetime ASC;
 `);
    
     // Get open jobs (open or draft tenders)
-  const [openJobsCountRows] = await db.query(
-      "SELECT COUNT(*) as total FROM tenders WHERE status IN ('open', 'Draft')"
+     const [openJobsCountRows] = await db.query(
+      "SELECT COUNT(*) as total FROM jobs WHERE status = 'approved'"
     );
     // Get closed jobs (closed tenders)
      const [closedJobsCountRows] = await db.query(
-      "SELECT COUNT(*) as total FROM tenders WHERE status = 'closed'"
+    `
+    SELECT 
+  COUNT(*) AS total
+FROM tenders t
+LEFT JOIN jobs j ON t.job_id = j.id
+WHERE j.status = 'closed';
+    `
     );
 
   const [category] = await db.query("SELECT * FROM categories");
@@ -91,42 +107,57 @@ exports.dashboards = async (req, res) => {
 
   // ✅ Count tenders per category and status
 const [categoryStatusCounts] = await db.query(`
-  SELECT 
-    category,
-    SUM(CASE WHEN status = 'Draft' THEN 1 ELSE 0 END) AS Draft,
-    SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS Open,
-    SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
-    SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected,
-    SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) AS Approved
-  FROM tenders
-  GROUP BY category
-  ORDER BY COUNT(id) DESC
+SELECT
+  c.id                 AS category_id,
+  c.job_id,
+  c.category_no,
+  c.category_name,
+  c.price,
+  c.description,
+  c.date,
+
+  COUNT(j.id) AS jobs_count, -- 1 when job exists for this category, 0 if not
+
+  SUM(CASE WHEN LOWER(j.status) = 'draft'    THEN 1 ELSE 0 END) AS Draft,
+  SUM(CASE WHEN LOWER(j.status) = 'open'     THEN 1 ELSE 0 END) AS Open,
+  SUM(CASE WHEN LOWER(j.status) = 'closed'   THEN 1 ELSE 0 END) AS Closed,
+  SUM(CASE WHEN LOWER(j.status) = 'rejected' THEN 1 ELSE 0 END) AS Rejected,
+  SUM(CASE WHEN LOWER(j.status) = 'approved' THEN 1 ELSE 0 END) AS Approved
+
+FROM categories c
+LEFT JOIN jobs j
+  ON j.id = c.job_id
+
+GROUP BY c.id
+ORDER BY c.id;
+
 `);
 
 // current listing
 const [currentListingRows] = await db.query(`
-SELECT 
-    j.id AS job_id,
+ SELECT
+     j.id AS job_id, 
     j.client,
-    j.reason,
     j.bid_title,
-    j.start_datetime, 
+    j.start_datetime,
     j.closing_datetime,
+    -- Pick the first available description from tenders, RFPs, or RFQs
+    COALESCE(t.description, rfp.description, rfq.description) AS description,
     j.eligibility,
-    j.status,
-    c.category_no,
-    c.category_name,
-    c.price,
-    c.description,
-    u.file
-  FROM jobs j
-  JOIN categories c 
-    ON j.id = c.job_id
-  LEFT JOIN uploads u 
-    ON c.job_id = u.job_id 
-    AND c.category_name = u.category
-  WHERE j.status = 'approved'
-  ORDER BY j.closing_datetime ASC
+    j.status
+FROM jobs j
+-- Join tenders
+LEFT JOIN tenders t
+    ON t.job_id = j.id
+-- Join RFP submissions
+LEFT JOIN rfp_submissions rfp
+    ON rfp.job_id = j.id
+-- Join RFQs
+LEFT JOIN rfqs rfq
+    ON rfq.job_id = j.id
+WHERE j.status = 'approved' AND que = '0'
+ORDER BY j.closing_datetime ASC;
+
 `);
 
     // Count total by status for pie chart
@@ -137,18 +168,43 @@ SELECT
         SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
         SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected,
         SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) AS Approved
-      FROM tenders
+      FROM jobs
     `);
   const [openTendersRows] = await db.query(
-      "SELECT * FROM tenders WHERE status IN ('Open', 'Draft', 'Closed', 'Rejected', 'Approved') ORDER BY closing_date ASC LIMIT 10"
+     `
+     SELECT 
+  t.*, 
+  j.status AS job_status
+FROM tenders t
+LEFT JOIN jobs j ON t.job_id = j.id
+WHERE j.status IN ('open', 'Draft', 'closed')
+ORDER BY t.closing_date ASC
+LIMIT 10;
+
+     `
     );
-    // Other totals
-    const [openJobsCountRows] = await db.query(
-      "SELECT COUNT(*) as total FROM tenders WHERE status IN ('open', 'Draft')"
+    // Get open jobs (open or draft tenders)
+  const [openJobsCountRows] = await db.query(
+     `
+     SELECT 
+  COUNT(*) AS total
+FROM tenders t
+LEFT JOIN jobs j ON t.job_id = j.id
+WHERE j.status IN ('open', 'Draft');
+
+     `
     );
-    const [closedJobsCountRows] = await db.query(
-      "SELECT COUNT(*) as total FROM tenders WHERE status = 'closed'"
+    // Get closed jobs (closed tenders)
+     const [closedJobsCountRows] = await db.query(
+    `
+    SELECT 
+  COUNT(*) AS total
+FROM tenders t
+LEFT JOIN jobs j ON t.job_id = j.id
+WHERE j.status = 'closed';
+    `
     );
+
 const [category] = await db.query("SELECT * FROM categories"); user = req.session.user || { person: "Guest" };
 
     // flash msgs
@@ -168,7 +224,7 @@ const [category] = await db.query("SELECT * FROM categories"); user = req.sessio
         closedJobs: closedJobsCountRows[0].total
       },
       openTenders:openTendersRows,
-      openJobs:currentListingRows,
+      openJob:currentListingRows,
       statusCounts: statusCounts[0],
       categoryStatusCounts, // <— send grouped data to frontend
       user,
@@ -214,66 +270,78 @@ const [openTendersRows] = await db.query(`
 `);
 // draft bids
 const [draftTendersRows] = await db.query(`
-  SELECT 
+ SELECT
     j.client,
     j.bid_title,
     j.closing_datetime,
+    -- Pick the first available description from tenders, RFPs, or RFQs
+    COALESCE(t.description, rfp.description, rfq.description) AS description,
     j.eligibility,
-    j.status,
-    c.category_no,
-    c.category_name,
-    c.price,
-    c.description,
-    u.file
-  FROM jobs j
-  JOIN categories c 
-    ON j.id = c.job_id
-  LEFT JOIN uploads u 
-    ON c.job_id = u.job_id 
-    AND c.category_name = u.category
-  WHERE j.status = 'draft'
-  ORDER BY j.closing_datetime ASC
+    j.status
+FROM jobs j
+-- Join tenders
+LEFT JOIN tenders t
+    ON t.job_id = j.id
+-- Join RFP submissions
+LEFT JOIN rfp_submissions rfp
+    ON rfp.job_id = j.id
+-- Join RFQs
+LEFT JOIN rfqs rfq
+    ON rfq.job_id = j.id
+WHERE j.status = 'draft'
+ORDER BY j.closing_datetime ASC;
 `);
 
 //current listing jobs
 const [currentListingRows] = await db.query(`
-SELECT 
-    j.id AS job_id,
+SELECT
     j.client,
-    j.reason,
     j.bid_title,
-    j.closing_datetime,
+    j.closing_datetime AS closing_date,
+    -- Pick the first available description from tenders, RFPs, or RFQs
+    COALESCE(t.description, rfp.description, rfq.description) AS description,
     j.eligibility,
-    j.status,
-    c.category_no,
-    c.category_name,
-    c.price,
-    c.description,
-    u.file
-  FROM jobs j
-  JOIN categories c 
-    ON j.id = c.job_id
-  LEFT JOIN uploads u 
-    ON c.job_id = u.job_id 
-    AND c.category_name = u.category
-  WHERE j.status IN ('approved','rejected')
-  ORDER BY j.closing_datetime ASC
+    j.status
+FROM jobs j
+-- Join tenders
+LEFT JOIN tenders t
+    ON t.job_id = j.id
+-- Join RFP submissions
+LEFT JOIN rfp_submissions rfp
+    ON rfp.job_id = j.id
+-- Join RFQs
+LEFT JOIN rfqs rfq
+    ON rfq.job_id = j.id
+WHERE j.status = 'approved'
+ORDER BY j.closing_datetime ASC;
 `);
-   
-
       
   // ✅ Count tenders per category and status
 const [categoryStatusCounts] = await db.query(`
-  SELECT 
-    category,
-    SUM(CASE WHEN status = 'Draft' THEN 1 ELSE 0 END) AS Draft,
-    SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) AS Open,
-    SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) AS Closed,
-    SUM(CASE WHEN status = 'Rejected' THEN 1 ELSE 0 END) AS Rejected,
-    SUM(CASE WHEN status = 'Approved' THEN 1 ELSE 0 END) AS Approved
-  FROM tenders
-  GROUP BY category
-  ORDER BY COUNT(id) DESC
+ SELECT
+  c.id                 AS category_id,
+  c.job_id,
+  c.category_no,
+  c.category_name,
+  c.price,
+  c.description,
+  c.date,
+
+  COUNT(j.id) AS jobs_count, -- 1 when job exists for this category, 0 if not
+
+  SUM(CASE WHEN LOWER(j.status) = 'draft'    THEN 1 ELSE 0 END) AS Draft,
+  SUM(CASE WHEN LOWER(j.status) = 'open'     THEN 1 ELSE 0 END) AS Open,
+  SUM(CASE WHEN LOWER(j.status) = 'closed'   THEN 1 ELSE 0 END) AS Closed,
+  SUM(CASE WHEN LOWER(j.status) = 'rejected' THEN 1 ELSE 0 END) AS Rejected,
+  SUM(CASE WHEN LOWER(j.status) = 'approved' THEN 1 ELSE 0 END) AS Approved
+
+FROM categories c
+LEFT JOIN jobs j
+  ON j.id = c.job_id
+
+GROUP BY c.id
+ORDER BY c.id;
+
 `);
 
 
@@ -302,7 +370,7 @@ const [categoryStatusCounts] = await db.query(`
     );
     // Get closed jobs (closed tenders)
      const [closedJobsCountRows] = await db.query(
-      "SELECT COUNT(*) as total FROM tenders WHERE status = 'closed'"
+      "SELECT COUNT(*) as total FROM jobs WHERE status = 'closed'"
     );
 
   const [category] = await db.query("SELECT * FROM categories");
@@ -770,6 +838,7 @@ exports.createRFQ = async (req, res) => {
       vat,
       total_price
     } = req.body;
+    console.log(req.body);
 
     const jobId = req.session.jobId;
     if (!jobId) return res.status(400).send("Job ID missing in session.");
@@ -791,8 +860,9 @@ exports.createRFQ = async (req, res) => {
     // Prepare rows for insertion
     const rows = item_description.map((desc, i) => [
       jobId,
-      specifications,
       title,
+      desc,
+      specifications,
       parseFloat(quantity[i]),
       parseFloat(unit_price[i]),
       parseFloat(vat[i] || 0),
@@ -803,7 +873,7 @@ exports.createRFQ = async (req, res) => {
 
     const insertSql = `
       INSERT INTO rfqs 
-        (job_id, specifications, title, quantity, unit_price, vat, total_price, delivery_timeline, payment_terms)
+        (job_id,title,item_description,description, quantity, unit_price, vat, total_price, delivery_timeline, payment_terms)
       VALUES ?
     `;
 
@@ -917,7 +987,7 @@ exports.createEOI = async (req, res) => {
 
     console.log("✅ EOI created successfully:", result);
     res.status(201).send("✅ EOI created successfully!");
-  
+    // or redirect: res.redirect("/rfqs");
 
   } catch (error) {
     console.error("❌ Error creating EOI:", error);
@@ -957,7 +1027,7 @@ exports.createRFIB = async (req, res) => {
 
     console.log("✅ RFI created successfully:", result);
     res.status(201).send("✅ RFI created successfully!");
-  
+    // or redirect: res.redirect("/rfqs");
 
   } catch (error) {
     console.error("❌ Error creating RFI:", error);
@@ -997,7 +1067,7 @@ exports.createRFIS = async (req, res) => {
 
     console.log("✅ RFI created successfully:", result);
     res.status(201).send("✅ RFI created successfully!");
-    
+    // or redirect: res.redirect("/rfqs");
 
   } catch (error) {
     console.error("❌ Error creating RFI:", error);
@@ -1008,47 +1078,78 @@ exports.createRFIS = async (req, res) => {
 // create tender
 exports.createTender = async (req, res) => {
   try {
-    const { category,code, title, type, closingDate, status, description } = req.body;
+    const { category, code, title, type, closingDate, description } = req.body;
 
-    console.log("Received body:", req.body);
+    console.log("📥 Received body:", req.body);
 
-    // 🧩 Basic validation
-    if (!category || !code || !title || !type || !closingDate || !status || !description) {
-      return res.status(400).send("❌ Missing required fields: code, title, type, closingDate, status, description");
+    // ✅ Get jobId from session
+    const jobId = req.session.jobId;
+
+    if (!jobId) {
+      return res.status(400).send("❌ Job ID missing in session. Create a job first.");
     }
 
-    // 🧩 Step 1: Check if tender already exists
-    const [existing] = await db.query("SELECT * FROM tenders WHERE code = ?", [code]);
+    // -------------------------
+    // 1. Basic validation
+    // -------------------------
+    if (!category || !code || !title || !type || !closingDate || !description) {
+      return res.status(400).send("❌ Missing required fields.");
+    }
+
+    // -------------------------
+    // 2. Check if tender exists
+    // -------------------------
+    const [existing] = await db.query(
+      "SELECT * FROM tenders WHERE code = ?",
+      [code]
+    );
 
     if (existing.length > 0) {
-      console.log("Tender already exists:", existing[0]);
-      return res.status(400).send("❌ A tender with this code already exists.");
+      console.log("⚠️ Tender already exists:", existing[0]);
+      return res.status(409).send("❌ A tender with this code already exists.");
     }
 
-    // 🧩 Step 2: Insert new tender
+    // -------------------------
+    // 3. Insert new tender + jobId
+    // -------------------------
     const insertSql = `
       INSERT INTO tenders
-      (category,code, title, type,closing_date, status,description)
-      VALUES (?, ?, ?, ?, ?, ?,?)
+      (job_id, category, code, title, type, closing_date, description)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await db.query(insertSql, [
+      jobId,
       category,
       code,
       title,
       type,
       closingDate,
-      status,
       description,
     ]);
 
-    console.log("✅ Tender created successfully:", result);
-    res.status(201).send("✅ Tender created successfully!");
-  
+    console.log("✅ Tender created successfully:", {
+      tenderId: result.insertId,
+      jobId,
+      code,
+      title
+    });
+
+    // -------------------------
+    // 4. (Optional) Store tender in session
+    // -------------------------
+    req.session.tenderId = result.insertId;
+    req.session.tenderCode = code;
+    req.session.tenderTitle = title;
+
+    // -------------------------
+    // 5. Redirect to RFQs page
+    // -------------------------
+    return res.redirect("/admin/tender");
 
   } catch (error) {
     console.error("❌ Error creating tender:", error);
-    res.status(500).send("Server error while creating tender.");
+    return res.status(500).send("Server error while creating tender.");
   }
 };
 
@@ -1083,7 +1184,7 @@ exports.createAlert = async (req, res) => {
 
     console.log("✅ You have successfully! subscribe for this alerts:", result);
     res.status(201).send("✅ You have successfully! subscribe for this alerts");
-   
+    // Optional redirect: res.redirect("/rfqs");
 
   } catch (error) {
     console.error("❌ Error creating Alert:", error);
@@ -1122,7 +1223,7 @@ exports.createNotification = async (req, res) => {
 
     console.log("✅ You have successfully! created a notification:", result);
     res.status(201).send("✅ You have successfully! created a notification");
-   
+    // Optional redirect: res.redirect("/rfqs");
 
   } catch (error) {
     console.error("❌ Error creating notification:", error);
@@ -1539,6 +1640,78 @@ exports.createNewJobRfp= async (req, res) => {
     res.status(500).send("Server error: " + err.message);
   }
 };
+
+//create new job tender
+exports.createNewJobTnd = async (req, res) => {
+  try {
+    const { client, bid_title, start_datetime, closing_datetime, eligibility } = req.body;
+
+    console.log("📥 Received form data:", req.body);
+
+    // -------------------------
+    // Validate required fields
+    // -------------------------
+    if (!client || !bid_title || !start_datetime || !closing_datetime || !eligibility) {
+      return res.status(400).send("All fields are required.");
+    }
+
+    // -------------------------
+    // Prevent duplicate jobs
+    // -------------------------
+    const [existingJob] = await db.query(
+      "SELECT * FROM jobs WHERE client = ? AND bid_title = ?",
+      [client, bid_title]
+    );
+
+    if (existingJob.length > 0) {
+      console.log("⚠️ Duplicate job found:", bid_title);
+      return res.status(409).send("A job with this title already exists for this client.");
+    }
+
+    // -------------------------
+    // Insert new job
+    // -------------------------
+    const insertQuery = `
+      INSERT INTO jobs (client, bid_title, start_datetime, closing_datetime, eligibility, status)
+      VALUES (?, ?, ?, ?, ?, 'draft')
+    `;
+
+    const [result] = await db.query(insertQuery, [
+      client,
+      bid_title,
+      start_datetime,
+      closing_datetime,
+      eligibility
+    ]);
+
+    const newJobId = result.insertId;
+
+    console.log(`✅ Job created successfully: ${bid_title} (ID: ${newJobId})`);
+
+    // -------------------------
+    // Store job details in session
+    // -------------------------
+    req.session.jobId = newJobId;
+    req.session.jobTitle = bid_title;
+    req.session.client = client;
+
+    console.log("🧠 Session updated:", {
+      jobId: req.session.jobId,
+      jobTitle: req.session.jobTitle,
+      client: req.session.client,
+    });
+
+    // -------------------------
+    // Redirect user
+    // -------------------------
+    return res.redirect("/admin/tender");
+
+  } catch (err) {
+    console.error("❌ Error creating job:", err);
+    return res.status(500).send("Server error: " + err.message);
+  }
+};
+
 
 // Configure multer for file upload
 const storage = multer.diskStorage({

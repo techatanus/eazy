@@ -209,7 +209,7 @@
           <tr>
 			  <td><%= rfq.client%></td>
           
-            <td><%= rfq.specifications %></td>
+            <td><%= rfq.description %></td>
             <td><%= rfq.unit_price ? 'KES ' + rfq.unit_price.toLocaleString() : '-' %></td>
             <td><%= rfq.total_price ? 'KES ' + rfq.total_price.toLocaleString() : '-' %></td>
             <td><%= rfq.delivery_timeline ? rfq.delivery_timeline.toISOString().split('T')[0] : '-' %></td>

@@ -412,9 +412,24 @@
     <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
       <i class="bi bi-bell-fill"></i>
     </div>
-    <div class="nav-icon" id="profileIcon" title="Profile">
-      <i class="bi bi-person-circle"></i>
-    </div>
+   <!-- 👤 Profile Dropdown -->
+<div class="dropdown">
+  <div class="nav-icon dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+    <i class="bi bi-person-circle"></i>
+  </div>
+  <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+    <li>
+      <a class="dropdown-item d-flex align-items-center" href="#">
+        <i class="bi bi-person me-2 text-success"></i> Profile
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center" href="/logout" id="logoutBtn">
+        <i class="bi bi-box-arrow-right me-2 text-danger"></i> Logout
+      </a>
+    </li>
+  </ul>
+</div>
   </div>
   
 </header>
