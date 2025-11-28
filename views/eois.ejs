@@ -335,12 +335,15 @@
 
   
     <!-- Sidebar -->
+   <!-- Sidebar -->
 <nav class="sidebar" id="sidebar">
   <div class="mb-3 ps-2 text-center">
     <!-- Replace text with logo -->
-    <a href="/admin/dashsup">
-      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
-    </a>
+  <a href="/admin/dashsup">
+  <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" 
+       style="max-width:200px; position:fixed; top:20px; left:20px; z-index:1000;">
+</a>
+
   </div>
 
   <!-- Dashboard -->
@@ -365,7 +368,7 @@
   <!-- Manage Users -->
   <div class="nav-section">
     <a href="#" class="nav-link" data-toggle="submenu" data-target="usersSub">
-      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">Manage Users</span></div>
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2">Manage Suplier</span></div>
       <i class="bi bi-plus-lg"></i>
     </a>
     <div id="usersSub" class="submenu">
@@ -567,8 +570,10 @@
 </nav>
 
 
-    <!-- Top Navbar (light green) -->
-   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+  <!-- Top Navbar (light green with rounded corners and padding) -->
+<header class="topbar bg-success" 
+        style="margin-top:20px; border-radius:15px; padding:10px 20px; height:10%;" 
+        id="topbar">
   <div class="d-flex align-items-center">
     <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
       <i class="bi bi-list"></i>
@@ -576,22 +581,34 @@
     <div class="brand"><span class="text-success"></span></div>
   </div>
 
-  <div class="nav-actions position-relative">
-    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
-      <i class="bi bi-envelope-fill"></i>
-    </div>
-    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
-      <i class="bi bi-chat-dots-fill"></i>
-    </div>
+  <div class="nav-actions position-relative d-flex align-items-center">
     <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
       <i class="bi bi-bell-fill"></i>
     </div>
-    <div class="nav-icon" id="profileIcon" title="Profile">
-      <i class="bi bi-person-circle"></i>
+
+    <!-- 👤 Profile Dropdown -->
+    <div class="dropdown ms-3">
+      <div class="nav-icon dropdown-toggle" id="profileDropdown" 
+           data-bs-toggle="dropdown" aria-expanded="false" 
+           style="cursor:pointer;">
+        <i class="bi bi-person-circle"></i>
+      </div>
+      <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+        <li>
+          <a class="dropdown-item d-flex align-items-center" href="/admin/sup_profile">
+            <i class="bi bi-person me-2 text-success"></i> Profile
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item d-flex align-items-center" href="/logout" id="logoutBtn">
+            <i class="bi bi-box-arrow-right me-2 text-danger"></i> Logout
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
-  
 </header>
+
 
 
   <div class="content">

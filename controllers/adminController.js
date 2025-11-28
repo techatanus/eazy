@@ -610,7 +610,7 @@ exports.loginUser = async (req, res) => {
 
     // 🧩 Retrieve reg_id from registration table
     const [regRows] = await db.query(
-      "SELECT id AS reg_id FROM registration WHERE email = ? ORDER BY id DESC LIMIT 1",
+      "SELECT id AS reg_id FROM suppliers WHERE email = ? ORDER BY id DESC LIMIT 1",
       [user.email]
     );
 
@@ -817,8 +817,17 @@ exports.create_category = async (req, res) => {
       "INSERT INTO categories (job_id, client, category_no, category_name, price, description) VALUES (?, ?, ?, ?, ?, ?)",
       [job_id, client, category_no, category_name, price, description]
     );
+        // ✅ Store category info in session
+    req.session.category = {
+      category_no,
+      category_name,
+      price,
+      description,
+      job_id,
+      client
+    };
 
-    res.redirect("/admin/preq");
+    res.redirect("/admin/preq",{category_name});
   } catch (err) {
     console.error("🔥 Error in create_category:", err);
     res.status(500).send("Database error while creating category.");
@@ -831,6 +840,7 @@ exports.createRFQ = async (req, res) => {
       title,
       specifications,
       delivery_timeline,
+      template,
       payment_terms,
       item_description,
       quantity,
@@ -868,12 +878,13 @@ exports.createRFQ = async (req, res) => {
       parseFloat(vat[i] || 0),
       parseFloat(total_price[i] || 0),
       delivery_timeline || null,
+      template || null,
       payment_terms || null
     ]);
 
     const insertSql = `
       INSERT INTO rfqs 
-        (job_id,title,item_description,description, quantity, unit_price, vat, total_price, delivery_timeline, payment_terms)
+        (job_id,title,item_description,description, quantity, unit_price, vat, total_price, delivery_timeline,template, payment_terms)
       VALUES ?
     `;
 

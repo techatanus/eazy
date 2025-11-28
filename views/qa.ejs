@@ -61,20 +61,20 @@
 <!-- Available Questionnaires -->
 <div class="card p-4 shadow-sm mb-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="section-title mb-0 text-success">Available Questionnaires</h5>
+    <h5 class="section-title mb-0 text-success">1. CLick The Tab below To Proceed to Questionnaire</h5>
     <p class="mb-0 text-end">
       <a href="/admin/dashsup" class="btn btn-sm btn-outline-secondary">Back to Dashboard</a>
     </p>
   </div>
 
   <% if (uploads && uploads.length > 0) { %>
-    <div class="d-flex flex-wrap gap-2">
+    <div class="d-flex flex-wrap gap-2" title="click to proceed to questionnaire">
       <% uploads.forEach(u => { %>
         <button class="btn btn-outline-primary loadQBtn text-success"
                 data-job="<%= u.job_id %>"
                 data-category="<%= u.category %>"
                 data-file="<%= u.file %>">
-          Answer Questionnaire - <%= u.category %>
+          <%= u.category %>
         </button>
       <% }) %>
     </div>
@@ -114,7 +114,7 @@
 <!-- JS Dependencies -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<!--script>
 const previewArea = document.getElementById("previewArea");
 const closeBtn = document.getElementById("closePreviewBtn");
 const questionnaireDiv = document.getElementById("questionnaire");
@@ -249,6 +249,226 @@ closeBtn.addEventListener("click", () => {
   previewArea.innerHTML = "";
   closeBtn.style.display = "none";
 });
+</script-->
+
+
+<!--script>
+// AJAX submission
+
+document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+    e.preventDefault(); // stop normal form submit
+
+    console.log("📨 AJAX Submit Triggered");
+
+    const formData = new FormData();
+
+    // Hidden fields
+    formData.append("job_id", document.getElementById("job_id").value);
+    formData.append("category", document.getElementById("category").value);
+    formData.append("file", document.getElementById("fileInput").value);
+
+    // Collect questionnaire fields
+    const fields = document.querySelectorAll("#questionnaire [name]");
+    fields.forEach(field => {
+        if (field.type === "file") {
+            formData.append(field.name, field.files[0] || null);
+        } else {
+            formData.append(field.name, field.value);
+        }
+    });
+
+    console.log("📦 FormData before sending:");
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ": ", pair[1]);
+    }
+
+    try {
+        const res = await fetch("/admin/submit_questionnaire", {
+            method: "POST",
+            body: formData
+        });
+
+        // If backend returns error text
+        const text = await res.text();
+        console.log("📥 Server Response:", text);
+
+        if (res.ok) {
+            alert("Questionnaire submitted successfully!");
+            window.location.href = "/admin/qas";
+        } else {
+            alert("Submission failed: " + text);
+        }
+
+    } catch (err) {
+        console.error("❌ AJAX ERROR:", err);
+        alert("Network error submitting questionnaire.");
+    }
+});
+</script-->
+<script>
+const previewArea = document.getElementById("previewArea");
+const closeBtn = document.getElementById("closePreviewBtn");
+const questionnaireDiv = document.getElementById("questionnaire");
+const jobIdInput = document.getElementById("job_id");
+const categoryInput = document.getElementById("category");
+const fileInputHidden = document.getElementById("fileInput");
+
+let rows = [];
+let questionnaireData = []; // NEW: store rows for DB insert
+
+// Load questionnaire
+document.querySelectorAll(".loadQBtn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const jobId = btn.dataset.job;
+    const category = btn.dataset.category;
+    const filePath = btn.dataset.file;
+
+    jobIdInput.value = jobId;
+    categoryInput.value = category;
+    fileInputHidden.value = filePath;
+
+    const response = await fetch(`/uploads/${filePath}`);
+    const blob = await response.blob();
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+      const contentRows = rows.slice(1); // skip header
+      questionnaireDiv.innerHTML = "";
+      questionnaireData = []; // reset
+
+      contentRows.forEach((row, index) => {
+        if (!row || row.length < 8) return;
+
+        let [
+          section,
+          questionId,
+          questionTextRaw,
+          answerType,
+          mandatory,
+          options,
+          weight,
+          attachmentRequired
+        ] = row.map(v => String(v || ""));
+
+        const cleanedText = questionTextRaw.trim();
+        const lowerText = cleanedText.toLowerCase();
+        const isRequired = mandatory.toLowerCase() === "y" ? "required" : "";
+
+        // Prepare object for DB insertion
+        questionnaireData.push({
+          job_id: jobId,
+          category: category,
+          question_index: index,
+          question_text: cleanedText,
+          answer_type: answerType,
+          mandatory: mandatory.toUpperCase() === "Y" ? "Y" : "N",
+          weight: weight || 0
+        });
+
+        // Create HTML field
+        let field = "";
+        if (lowerText.includes("trade references") || lowerText.includes("reference")) {
+          field = `
+            <div class="row g-2 mb-2">
+              <div class="col-md"><input type="text" name="orgName" class="form-control" placeholder="Organization Name" ${isRequired} /></div>
+              <div class="col-md"><input type="text" name="contactPerson" class="form-control" placeholder="Contact Person" ${isRequired} /></div>
+              <div class="col-md"><input type="text" name="designation" class="form-control" placeholder="Designation/Position" ${isRequired} /></div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md"><input type="tel" name="telephone" class="form-control" placeholder="Telephone Number" ${isRequired} /></div>
+              <div class="col-md"><input type="email" name="email" class="form-control" placeholder="Email Address" ${isRequired} /></div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md"><input type="text" name="goods" class="form-control" placeholder="Nature of Goods/Services Supplied" ${isRequired} /></div>
+              <div class="col-md"><input type="text" name="contractValue" class="form-control" placeholder="Contract Value (approx.)" ${isRequired} /></div>
+            </div>
+          `;
+        } else if (lowerText.includes("number of employees")) {
+          let optionsHtml = `<option value="">Select number of employees</option>`;
+          for (let i = 1; i <= 100; i++) optionsHtml += `<option value="${i}">${i}</option>`;
+          field = `<select name="q${index}" class="form-select mb-2" ${isRequired}>${optionsHtml}</select>`;
+        } else if (answerType.toLowerCase() === "yes/no") {
+          field = `<select name="q${index}" class="form-select mb-2" ${isRequired}>
+            <option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option></select>`;
+        } else if (answerType.toLowerCase() === "number" && options.trim() !== "") {
+          const optionItems = options.split(",").map(o => `<option value="${o.trim()}">${o.trim()}</option>`).join("");
+          field = `<select name="q${index}" class="form-select mb-2" ${isRequired}>${optionItems}</select>`;
+        } else if (attachmentRequired.toLowerCase() === "y") {
+          field = `<input type="file" name="attachment${index}" class="form-control mb-2" accept=".pdf" ${isRequired} />`;
+        } else {
+          field = `<textarea name="q${index}" class="form-control mb-2" ${isRequired}></textarea>`;
+        }
+
+        questionnaireDiv.innerHTML += `
+          <div class="quiz-card mb-3 p-3 border rounded">
+            <h6>${section} - ${questionId}</h6>
+            <p><strong>${cleanedText}</strong>${isRequired ? " *" : ""}</p>
+            ${field}
+          </div>
+        `;
+      });
+
+      closeBtn.style.display = "inline-block";
+      console.log("📊 DB-ready questionnaire data:", questionnaireData);
+    };
+
+    reader.readAsArrayBuffer(blob);
+  });
+});
+
+// Update title
+const questionnaireTitle = document.getElementById("questionnaireTitle");
+document.querySelectorAll(".loadQBtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const category = btn.dataset.category;
+    questionnaireTitle.textContent = `Questionnaire: ${category}`;
+  });
+});
+
+// Close preview
+closeBtn.addEventListener("click", () => {
+  questionnaireDiv.innerHTML = "";
+  previewArea.innerHTML = "";
+  closeBtn.style.display = "none";
+});
+
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("job_id", jobIdInput.value);
+  formData.append("category", categoryInput.value);
+  formData.append("file", fileInputHidden.value);
+
+  // Append answers
+  document.querySelectorAll("#questionnaire [name]").forEach(field => {
+    if (field.type === "file") formData.append(field.name, field.files[0] || null);
+    else formData.append(field.name, field.value);
+  });
+
+  // Append questionnaire metadata as JSON
+  formData.append("questionnaireData", JSON.stringify(questionnaireData));
+
+  try {
+    const res = await fetch("/admin/submit_questionnaire", { method: "POST", body: formData });
+    const text = await res.text();
+    if (res.ok) {
+      alert("✅ Questionnaire submitted successfully!");
+      window.location.href = "/admin/qas";
+    } else {
+      alert("❌ Submission failed: " + text);
+    }
+  } catch (err) {
+    console.error("❌ AJAX ERROR:", err);
+    alert("Network error submitting questionnaire.");
+  }
+});
+
 </script>
 
 

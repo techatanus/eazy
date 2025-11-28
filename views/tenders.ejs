@@ -217,9 +217,10 @@
 <nav class="sidebar" id="sidebar">
   <div class="mb-3 ps-2 text-center">
     <!-- Replace text with logo -->
-    <a href="/admin/dashsup">
-      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
-    </a>
+  <a href="/admin/dashsup">
+  <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" 
+       style="max-width:200px; position:fixed; top:20px; left:20px; z-index:1000;">
+</a>
   </div>
 
   <!-- Dashboard -->
@@ -447,7 +448,9 @@
 
 
     <!-- Top Navbar (light green) -->
-   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+<header class="topbar bg-success" 
+        style="margin-top:20px; border-radius:15px; padding:10px 20px; height:10%;" 
+        id="topbar">
   <div class="d-flex align-items-center">
     <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
       <i class="bi bi-list"></i>
@@ -455,21 +458,32 @@
     <div class="brand"><span class="text-success"></span></div>
   </div>
 
-  <div class="nav-actions position-relative">
-    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
-      <i class="bi bi-envelope-fill"></i>
-    </div>
-    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
-      <i class="bi bi-chat-dots-fill"></i>
-    </div>
+  <div class="nav-actions position-relative d-flex align-items-center">
     <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
       <i class="bi bi-bell-fill"></i>
     </div>
-    <div class="nav-icon" id="profileIcon" title="Profile">
-      <i class="bi bi-person-circle"></i>
+
+    <!-- 👤 Profile Dropdown -->
+    <div class="dropdown ms-3">
+      <div class="nav-icon dropdown-toggle" id="profileDropdown" 
+           data-bs-toggle="dropdown" aria-expanded="false" 
+           style="cursor:pointer;">
+        <i class="bi bi-person-circle"></i>
+      </div>
+      <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+        <li>
+          <a class="dropdown-item d-flex align-items-center" href="/admin/sup_profile">
+            <i class="bi bi-person me-2 text-success"></i> Profile
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item d-flex align-items-center" href="/logout" id="logoutBtn">
+            <i class="bi bi-box-arrow-right me-2 text-danger"></i> Logout
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
-  
 </header>
 
     <!-- MAIN CONTENT -->
@@ -543,7 +557,16 @@
 
         <td class="text-end">
           <button class="btn btn-sm btn-outline-secondary me-1" onclick="openViewModal(this)"><i class="bi bi-eye"></i> View</button>
-                  <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal(this)"><i class="bi bi-pencil-square"></i> Pay</button>
+<% if (tenders && tenders[0] && tenders[0].type && tenders[0].job_id) { %>
+<a 
+  class="btn btn-sm btn-outline-primary me-1"
+  href="/admin/template/<%= tenders[0].type.toLowerCase() %>/form/<%= tenders[0].job_id %>"
+>
+  <i class="bi bi-pencil-square"></i> Questionnaire
+</a>
+<% } %>
+
+
                 <!--   <button class="btn btn-sm btn-outline-success me-1" onclick="openQaModal(this)"><i class="bi bi-check2-square"></i>QA</button> -->
                   <!-- <a href="/deltend:id?=<%tender.code%>"><button class="btn btn-sm btn-outline-danger" onclick="deleteRfx(this)"><i class="bi bi-trash"></i></button></a> -->
         </td>

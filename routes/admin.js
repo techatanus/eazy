@@ -194,6 +194,7 @@ router.get('/tenders', async (req, res) => {
 FROM jobs j
 INNER JOIN tenders t
     ON t.job_id = j.id
+    WHERE j.que ='1'
 ORDER BY j.closing_datetime ASC;
 
     
@@ -213,6 +214,7 @@ ORDER BY j.closing_datetime ASC;
 router.get('/preq', async(req,res)=>{
     try {
       const user = req.session.user;
+      const client = req.session.client
       if(!user){
       return  res.redirect('/')
       }
@@ -220,7 +222,7 @@ router.get('/preq', async(req,res)=>{
     console.log("✅ Retrieved catego:",catego); // Debugging log
     const [test] = await db.query("SELECT * FROM clients");
 
-    res.render('preq', { catego,test });
+    res.render('preq', { catego,test, client });
   } catch (err) {
     console.error("❌ Error loading closed tenders:", err.message);
     res.status(500).send("Error loading tenders: " + err.message);
@@ -365,15 +367,14 @@ router.get('/rfqs',async(req,res)=>{
       
              const [jobs] = await db.query(`
               
-       SELECT 
-    c.category_name,
-    t.title,
-    c.description,
-    c.price
-  FROM categories c
-  INNER JOIN tenders t 
-    ON c.category_name = t.category
-  ORDER BY c.category_name ASC
+SELECT 
+    r.*,               -- all columns from rfqs
+     j.bid_title,
+    j.client
+FROM rfqs r
+INNER JOIN jobs j
+    ON r.job_id = j.id
+ORDER BY j.id ASC;
               
               `) ;
              console.log(jobs);
@@ -550,13 +551,47 @@ router.get('/qas', async (req, res) => {
     const user = req.session.user;
     if (!user) return res.redirect('/');
 
-    // Fetch uploaded questionnaires from DB
-    const [uploads] = await db.query("SELECT * FROM uploads");
+    // -----------------------------------------
+    // CAPTURE job parameter e.g. ?job=12/25
+    // -----------------------------------------
+    if (req.query.job) {
+      const parts = req.query.job.split("/");
 
-    // You can also fetch categories if needed
-    const [catego] = await db.query("SELECT DISTINCT category_name FROM categories");
+      // Expected => parts[0] = category_no, parts[1] = job_id
+      req.session.category_no = parts[0];
+      req.session.job_id = parts[1];
 
-    res.render('qa', { uploads, catego });
+      console.log("SESSION CATEGORY NO:", req.session.category_no);
+      console.log("SESSION JOB ID:", req.session.job_id);
+    }
+
+    const jobId = req.session.job_id;
+    const categoryNo = req.session.category_no;
+
+    // -----------------------------------------
+    // USE SESSION VALUES TO QUERY DB
+    // -----------------------------------------
+
+    // fetch uploads for this job
+    const [uploads] = await db.query(
+      "SELECT * FROM uploads WHERE job_id = ?",
+      [jobId]
+    );
+
+    // fetch categories for this job
+    const [catego] = await db.query(
+      "SELECT * FROM categories WHERE job_id = ?",
+      [jobId]
+    );
+
+    // Render page
+    res.render('qa', {
+      uploads,
+      catego,
+      jobId,
+      categoryNo
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).send("Server Error");
@@ -666,83 +701,129 @@ router.get('/archive_client',(req,res)=>{
 })
 
 // POST route for submitting questionnaire (NO MULTER)
-router.post("/submit_questionnaire", async (req, res) => {
+// POST route for submitting questionnaire (NO MULTER)
+router.post("/submit_questionnaire", upload.any(), async (req, res) => {
   try {
     console.log("🔥 POST /submit_questionnaire hit");
-    console.log("Form Body:", req.body);
+    console.log("Received body:", req.body);
+    console.log("Session:", req.session);
 
-    const supplierId = req.session.supplierId;
-    const jobId = req.body.job_id;
-    const category = req.body.category;
-
+    const supplierId = req.session.user?.reg_id;
     if (!supplierId) return res.status(401).send("Unauthorized supplier.");
+
+    const jobId = req.body.job_id;
+    const category = req.body.category; // must match questionnaires.category exactly
     if (!jobId || !category) return res.status(400).send("Invalid submission.");
+    
+    const data = JSON.parse(req.body.questionnaireData || "[]");
+
+    // ✅ Insert questionnaire if it doesn't already exist
+    for (const q of data) {
+      const [exists] = await db.query(
+        `SELECT id FROM questionnaires 
+         WHERE job_id = ? AND category = ? AND question_index = ?`,
+        [q.job_id, q.category, q.question_index]
+      );
+
+      if (exists.length === 0) {
+        await db.query(
+          `INSERT INTO questionnaires
+            (job_id, category, question_index, question_text, answer_type, mandatory, weight)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [q.job_id, q.category, q.question_index, q.question_text, q.answer_type, q.mandatory, q.weight]
+        );
+      }
+    }
 
     // Fetch questions for this job/category
     const [questions] = await db.query(
       `SELECT * FROM questionnaires 
-       WHERE job_id = ? AND category = ? 
+       WHERE job_id = ? AND category = ?
        ORDER BY question_index ASC`,
       [jobId, category]
     );
 
-    if (!questions.length)
-      return res.status(400).send("No questions found for this questionnaire.");
+    // ✅ Save trade references (avoid duplicates)
+    if (req.body.orgName && Array.isArray(req.body.orgName)) {
+      const len = req.body.orgName.length;
+      for (let i = 0; i < len; i++) {
+        const [exists] = await db.query(
+          `SELECT id FROM supplier_trade_references
+           WHERE supplier_id = ? AND job_id = ? AND category = ? AND org_name = ?`,
+          [supplierId, jobId, category, req.body.orgName[i]]
+        );
 
-    console.log("Loaded questions:", questions.length);
-
-    // ⛳ Detect if trade references appear in this questionnaire
-    const containsTradeRef = questions.some(q =>
-      q.question_text.toLowerCase().includes("trade reference")
-    );
-
-    // ⭐ Save Trade Reference block ONCE (if exists)
-    if (containsTradeRef) {
-      await db.query(
-        `INSERT INTO supplier_trade_references
-         (supplier_id, org_name, contact_person, designation, telephone, email, goods, contract_value)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          supplierId,
-          req.body.orgName || null,
-          req.body.contactPerson || null,
-          req.body.designation || null,
-          req.body.telephone || null,
-          req.body.email || null,
-          req.body.goods || null,
-          req.body.contractValue || null
-        ]
-      );
-
-      console.log("Saved trade reference block");
-    }
-
-    // ⭐ Loop through each question and save answer
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      const answer = req.body[`q${i}`];
-
-      // Mandatory check
-      if (q.mandatory === "Y" && (!answer || answer.trim() === "")) {
-        return res.status(400).send(`Mandatory Question Missing: ${q.question_text}`);
+        if (exists.length === 0) {
+          await db.query(
+            `INSERT INTO supplier_trade_references
+             (supplier_id, job_id, category, org_name, contact_person, designation, telephone, email, goods, contract_value)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              supplierId,
+              jobId,
+              category,
+              req.body.orgName[i],
+              req.body.contactPerson[i],
+              req.body.designation[i],
+              req.body.telephone[i],
+              req.body.email[i],
+              req.body.goods[i],
+              req.body.contractValue[i]
+            ]
+          );
+        }
       }
-
-      await db.query(
-        `INSERT INTO supplier_responses
-         (supplier_id, questionnaire_id, answer_text)
-         VALUES (?, ?, ?)`,
-        [supplierId, q.id, answer || null]
-      );
     }
 
-    console.log(`✅ Supplier ${supplierId} submitted questionnaire for Job ${jobId}`);
-    res.redirect("/admin/qas");
+ // ✅ Save questionnaire answers (avoid duplicates, handle files)
+for (let i = 0; i < questions.length; i++) {
+  const q = questions[i];
+
+  // 1️⃣ Check if a file was uploaded for this question
+  const fileField = `attachment${i}`;
+  let answer = req.body[`q${i}`] || ""; // default to empty string
+
+  if (req.files && req.files.length > 0) {
+    const fileObj = req.files.find(f => f.fieldname === fileField);
+    if (fileObj) {
+      answer = fileObj.filename; // save uploaded file name
+    }
+  }
+
+  // 2️⃣ Avoid duplicate entries
+  const [exists] = await db.query(
+    `SELECT id FROM supplier_responses 
+     WHERE supplier_id = ? AND questionnaire_id = ?`,
+    [supplierId, q.id]
+  );
+
+  // 3️⃣ Insert only if not already exists
+  if (exists.length === 0) {
+    await db.query(
+      `INSERT INTO supplier_responses (supplier_id, questionnaire_id, answer_text)
+       VALUES (?, ?, ?)`,
+      [supplierId, q.id, answer]
+    );
+  }
+}
+
+
+    console.log("✅ All answers saved (duplicates avoided)!");
+    res.send(`
+      <script>
+        alert("✅ Questionnaire submitted successfully!");
+        window.location.href = "/admin/dashsup";
+      </script>
+    `);
 
   } catch (err) {
-    console.error("❌ Error submitting questionnaire:", err);
+    console.error("❌ Error:", err);
     res.status(500).send("Server error while saving questionnaire.");
   }
 });
+
+
+
 
 // Utility function to load a template
 function loadTemplate(fileName) {
@@ -755,7 +836,7 @@ function loadTemplate(fileName) {
 }
 
 // Serve supplier form based on category
-router.get('/template/:category/form', (req, res) => {
+router.get('/template/:category/form/:job_id', (req, res) => {
   const category = req.params.category.toLowerCase();
 
   let templateFile;
@@ -781,7 +862,37 @@ router.get('/template/:category/form', (req, res) => {
   // Render EJS page
   res.render('rfpqa', { template });
 });
+router.get('/template/:template/form/:job_id', (req, res) => {
+  const templateType = req.params.template.toLowerCase(); // matches :template in URL
+  const jobId = req.params.job_id;
 
+  let templateFile;
+
+  switch (templateType) {
+    case 'goods':
+      templateFile = 'goods.json';
+      break;
+    case 'services':
+      templateFile = 'service.json';
+      break;
+    case 'works':
+      templateFile = 'works.json';
+      break;
+    default:
+      return res.status(400).send('Invalid template type');
+  }
+
+  const templates = loadTemplate(templateFile);
+  if (!template) {
+    return res.status(404).send('Template not found');
+  }
+
+  // Render EJS page with template + jobId
+  res.render('rfpqa', {
+    templates,
+    jobId
+  });
+});
 
 //que jobs
 router.post('/proceed/:jobId', async (req, res) => {
@@ -819,6 +930,62 @@ router.post('/proceed/:jobId', async (req, res) => {
     return res.json({ success: false, message: "Server error" });
   }
 });
+//submeet quotation
+router.post('/submit_jobs', async (req, res) => {
+  try {
+    const supplierId = req.session.user.reg_id;
+    const jobId = req.body.job_id;
+    const template = req.body.template;
+    const items = req.body.items;
+
+    if (!jobId || !template || !Array.isArray(items)) {
+      return res.status(400).json({ success: false, message: "Missing data" });
+    }
+
+    // Insert each item
+    for (const item of items) {
+      const item_description = item.item_description || "";
+      const desc = item.description || "";
+      const bid = item.bid_title || "";
+      const prc = parseFloat(item.unit_price) || 0;
+      const qty = parseFloat(item.quantity) || 0;
+      const total = parseFloat(item.total_price) || (prc * qty);
+      const comment = item.comments || "";
+
+      if (!prc || !qty) continue;
+
+      // Optional: check duplicates
+      const [exists] = await db.query(
+        `SELECT id FROM quotation_submissions
+         WHERE supplier_id = ? AND job_id = ? AND bid_title = ? AND description = ?`,
+        [supplierId, jobId, bid, desc]
+      );
+      if (exists.length > 0) continue;
+
+      await db.query(
+        `INSERT INTO quotation_submissions
+         (job_id, supplier_id, template, bid_title, description, item_description, price, quantity, total_price, comments)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [jobId, supplierId, template, bid, desc, item_description, prc, qty, total, comment]
+      );
+    }
+
+    // Instead of res.redirect, send JSON
+    res.json({
+      success: true,
+      redirect: `/admin/template/${template}/form/${jobId}`
+    });
+
+  } catch (err) {
+    console.error("Error in /submit_jobs:", err);
+    res.status(500).json({ success: false, message: "Error saving quotation" });
+  }
+});
+
+
+
+
+
 
 
 module.exports = router;

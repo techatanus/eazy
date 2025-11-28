@@ -339,15 +339,14 @@
   <div class="mb-3 ps-2 text-center">
     <!-- Replace text with logo -->
     <a href="/admin/dashsup">
-      <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" style="max-width:200px;">
-    </a>
+  <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" 
+       style="max-width:200px; position:fixed; top:20px; left:20px; z-index:1000;">
+</a>
   </div>
 
   <!-- Dashboard -->
   <div class="nav-section">
-    <a href="/admin/dashsup" class="nav-link">
-      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2">Dashboard -Supplier</span></div>
-    </a>
+
   </div>
 
   <!-- Permissions & Roles -->
@@ -568,7 +567,9 @@
 
 
     <!-- Top Navbar (light green) -->
-   <header class="topbar" id="topbar" style="background-color: #008000; height: 8%;">
+ <header class="topbar bg-success" 
+        style="margin-top:20px; border-radius:15px; padding:10px 20px; height:10%;" 
+        id="topbar">
   <div class="d-flex align-items-center">
     <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
       <i class="bi bi-list"></i>
@@ -576,35 +577,47 @@
     <div class="brand"><span class="text-success"></span></div>
   </div>
 
-  <div class="nav-actions position-relative">
-    <div class="nav-icon icon-badge" id="emailIcon" title="Email" data-count="5">
-      <i class="bi bi-envelope-fill"></i>
-    </div>
-    <div class="nav-icon icon-badge" id="smsIcon" title="SMS" data-count="4">
-      <i class="bi bi-chat-dots-fill"></i>
-    </div>
+  <div class="nav-actions position-relative d-flex align-items-center">
     <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
       <i class="bi bi-bell-fill"></i>
     </div>
-    <div class="nav-icon" id="profileIcon" title="Profile">
-      <i class="bi bi-person-circle"></i>
+
+    <!-- 👤 Profile Dropdown -->
+    <div class="dropdown ms-3">
+      <div class="nav-icon dropdown-toggle" id="profileDropdown" 
+           data-bs-toggle="dropdown" aria-expanded="false" 
+           style="cursor:pointer;">
+        <i class="bi bi-person-circle"></i>
+      </div>
+      <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+        <li>
+          <a class="dropdown-item d-flex align-items-center" href="/admin/sup_profile">
+            <i class="bi bi-person me-2 text-success"></i> Profile
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item d-flex align-items-center" href="/logout" id="logoutBtn">
+            <i class="bi bi-box-arrow-right me-2 text-danger"></i> Logout
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
-  
 </header>
+
 
  <!-- ✅ Main Content -->
 <div class="content">
   <h4 class="fw-bold  mb-3" style="color: #008000;"><i class="bi bi-cash-coin"></i> Requests for Quotation</h4>
 
 <div class="table-responsive">
-  <form id="quotationForm" action="/submit_jobs" method="POST">
+  <form id="quotationForm" action="/admin/submit_jobs" method="POST">
     <table class="table table-hover align-middle">
       <thead class="table-success">
         <tr>
           <th>#</th>
-          <th style="color:#008000;">Category</th>
-          <!-- <th style="color:#008000;">Job</th> -->
+          <th style="color:#008000;">Bid Title</th>
+          <th style="color:#008000;">Item</th>
           <th style="color:#008000;">Description</th>
           <th style="color:#008000;">Price</th>
           <th style="color:#008000;">Quantity</th>
@@ -618,11 +631,12 @@
             <tr>
               <td><%= index + 1 %></td>
               <td>
-                <input type="text" name="category[]" value="<%= job.title%>" readonly class="form-control-plaintext">
+                <input type="text" name="category[]" value="<%= job.bid_title%>" readonly class="form-control-plaintext">
               </td>
-              <!-- <td>
-                <input type="text" name="item[]" value="<%= job.title %>" readonly class="form-control-plaintext">
-              </td> -->
+                <td>
+                <input type="text" name="item_description[]" value="<%= job.item_description %>" readonly class="form-control-plaintext">
+              </td>
+           
               <td>
                 <input type="text" name="description[]" value="<%= job.description %>" readonly class="form-control-plaintext">
               </td>
@@ -638,6 +652,13 @@
               <td>
                 <textarea name="comments[]" class="comments dotted-input" rows="1"></textarea>
               </td>
+                 <td>
+               <input type="hidden" name="job_id" value="<%= job.job_id %>">
+              </td> 
+               <td>
+               <input type="hidden" name="template" value="<%= job.template %>">
+              </td> 
+            
             </tr>
           <% }) %>
         <% } else { %>
@@ -650,51 +671,17 @@
       <div>
         <input type="checkbox" id="vatCheckbox"> VAT Inclusive
       </div>
-      <div>
+      <!--div>
         <label for="totalAmount" class="fw-bold">Total Amount:</label>
         <input type="number" id="totalAmount" name="total_amount" readonly class="form-control-plaintext">
-      </div>
+      </div-->
     </div>
 
     <button type="submit" class="btn btn-success mt-3" style="width: 20%;">Submit Quotation</button>
   </form>
 </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const vatCheckbox = document.getElementById("vatCheckbox");
-    const totalAmountInput = document.getElementById("totalAmount");
-    const rows = document.querySelectorAll("#rfqList tr");
 
-    function calculateTotals() {
-      let grandTotal = 0;
-      rows.forEach(row => {
-        const priceInput = row.querySelector(".price");
-        const qtyInput = row.querySelector(".quantity");
-        const totalInput = row.querySelector(".total");
-
-        const price = parseFloat(priceInput.value) || 0;
-        const qty = parseFloat(qtyInput.value) || 0;
-        const total = price * qty;
-        totalInput.value = total.toFixed(2);
-
-        grandTotal += total;
-      });
-
-      // Apply VAT if checked (16%)
-      if (vatCheckbox.checked) {
-        grandTotal *= 1.16;
-      }
-
-      totalAmountInput.value = grandTotal.toFixed(2);
-    }
-
-    document.querySelectorAll(".quantity").forEach(input => {
-      input.addEventListener("input", calculateTotals);
-    });
-    vatCheckbox.addEventListener("change", calculateTotals);
-  });
-</script>
 
 <style>
   input.form-control-plaintext,
@@ -745,32 +732,36 @@
 
     function calculateTotals() {
       let grandTotal = 0;
+      const vatMultiplier = vatCheckbox.checked ? 1.16 : 1;
+
       rows.forEach(row => {
         const priceInput = row.querySelector(".price");
         const qtyInput = row.querySelector(".quantity");
         const totalInput = row.querySelector(".total");
 
-        const price = parseFloat(priceInput.value) || 0;
-        const qty = parseFloat(qtyInput.value) || 0;
-        const total = price * qty;
-        totalInput.value = total.toFixed(2);
+        const price = parseFloat(priceInput?.value) || 0;
+        const qty = parseFloat(qtyInput?.value) || 0;
 
-        grandTotal += total;
+        // row total (with or without VAT)
+        const rowTotal = price * qty * vatMultiplier;
+        totalInput.value = rowTotal.toFixed(2);
+
+        grandTotal += rowTotal;
       });
-
-      // If VAT checkbox is checked, add 16%
-      if (vatCheckbox.checked) {
-        grandTotal *= 1.16;
-      }
 
       totalAmountInput.value = grandTotal.toFixed(2);
     }
 
-    // Event listeners
-    document.querySelectorAll(".quantity").forEach(input => {
+    // Event listeners for row updates
+    document.querySelectorAll(".price, .quantity").forEach(input => {
       input.addEventListener("input", calculateTotals);
     });
+
+    // VAT toggle listener
     vatCheckbox.addEventListener("change", calculateTotals);
+
+    // Run on page load
+    calculateTotals();
   });
 </script>
 
@@ -1049,5 +1040,70 @@
     window.addEventListener('resize', closeAllFloating);
 
   </script> -->
+<script>
+document.getElementById("quotationForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const rows = Array.from(document.querySelectorAll("#rfqList tr"));
+  const items = [];
+  let jobId = null;
+  let template = null;
+
+  rows.forEach(row => {
+    const bidTitle = row.querySelector('input[name="category[]"]').value;
+    const item_description = row.querySelector('input[name="item_description[]"]').value;
+    const description = row.querySelector('input[name="description[]"]').value;
+    const price = row.querySelector('input[name="price[]"]').value;
+    const quantity = row.querySelector('input[name="quantity[]"]').value;
+    const total_price = row.querySelector('input[name="total_price[]"]').value;
+    const comments = row.querySelector('textarea[name="comments[]"]').value;
+    const row_job_id = row.querySelector('input[name="job_id"]').value;
+    const row_template = row.querySelector('input[name="template"]').value;
+
+    if (!jobId && row_job_id) jobId = row_job_id;
+    if (!template && row_template) template = row_template;
+
+    if (price && quantity) {
+      items.push({
+        bid_title: bidTitle,
+        description: description,
+        item_description: item_description,
+        unit_price: price,
+        quantity: quantity,
+        total_price: total_price,
+        comments: comments
+      });
+    }
+  });
+
+  if (!jobId || !template || items.length === 0) {
+    return alert("Please fill all required fields.");
+  }
+
+  try {
+    const res = await fetch("/admin/submit_jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ job_id: jobId, template: template, items: items })
+    });
+
+    const data = await res.json();
+    if (data.success && data.redirect) {
+      // Manual redirect
+      window.location.href = data.redirect;
+    } else {
+      alert(data.message || "Error submitting quotation");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Network error. Check console.");
+  }
+});
+</script>
+
+
+
 </body>
 </html>

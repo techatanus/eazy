@@ -125,7 +125,16 @@
                 <label class="form-label">Delivery Timeline</label>
                 <input type="date" name="delivery_timeline" class="form-control">
               </div>
-
+                   <!-- Template -->
+      <div class="col-12">
+        <label class="form-label">Select Template</label>
+        <select name="template" class="form-select" required>
+          <option value="">-- Select --</option>
+          <option value="goods">Goods</option>
+          <option value="service">Service</option>
+          <option value="works">Works</option>
+        </select>
+      </div>
               <div class="col-12">
                 <label class="form-label">Specifications</label>
                 <textarea class="form-control" name="specifications" rows="3" placeholder="Enter product/service specifications"></textarea>

@@ -352,10 +352,205 @@
 
   <div class="content">
        <!-- Sidebar (light) -->
-   <%- include('partials/sidebar') %>
+   <!-- Toggle Button -->
+<!-- <button id="sidebarToggle" class="btn btn-dark position-fixed top-0 start-0 m-2" style="z-index: 1050;">
+  <i class="bi bi-list"></i>
+</button> -->
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="mb-3 ps-2 text-center">
+    <!-- Replace text with logo -->
+  <a href="/admin/dashsup">
+  <img src="/images/bs.png" alt="eazyProcure Logo" class="img-fluid" 
+       style="max-width:200px; position:fixed; top:20px; left:20px; z-index:1000;">
+</a>
+  </div>
+  
+
+  <!-- Dashboard -->
+  <div class="nav-section">
+    <a href="/admin/dashboard" class="nav-link">
+      <div class="nav-left"><i class="bi bi-speedometer2" style="color: green;"></i><span class="ms-2 nav-text">Dashboard</span></div>
+    </a>
+  </div>
+
+  <!-- Manage Users -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="usersSub">
+      <div class="nav-left"><i class="bi bi-people-fill" style="color: green;"></i><span class="ms-2 nav-text">Manage Users</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="usersSub" class="submenu">
+      <a href="/admin/super"><i class="bi bi-person-badge me-2" style="color: green;"></i><span class="nav-text">Manage Admin</span></a>
+      <a href="/admin/client"><i class="bi bi-building me-2" style="color: green;"></i><span class="nav-text">Manage Client</span></a>
+      <a href="/admin/suplier"><i class="bi bi-truck me-2" style="color: green;"></i><span class="nav-text">Manage Suppliers</span></a>
+    </div>
+  </div>
+
+  <!-- Projects / Bids -->
+  <div class="nav-section">
+    <a href="#projectsSub" class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="projectsSub">
+      <div class="nav-left">
+        <i class="bi bi-shield-lock-fill" style="color: green;"></i>
+        <span class="ms-2 nav-text">Projects / Bids</span>
+      </div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+
+    <div class="collapse submenu" id="projectsSub">
+      <a href="/admin/preq" class="nav-link"><i class="bi bi-key-fill me-2" style="color: green;"></i><span class="nav-text">Supplier Prequalification</span></a>
+
+      <!-- RF(x) dropdown -->
+      <a href="#rolesSub" class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="rolesSub">
+        <span><i class="bi bi-award-fill me-2" style="color: green;"></i><span class="nav-text">Manage RF(x)</span></span>
+        <i class="bi bi-caret-down-fill ms-auto" style="color: green;"></i>
+      </a>
+
+      <div class="collapse submenu" id="rolesSub">
+        <a href="/admin/rfq"><i class="bi bi-person-badge me-2" style="color: green;"></i><span class="nav-text">RFQ</span></a>
+        <a href="/admin/rfp"><i class="bi bi-person-check me-2" style="color: green;"></i><span class="nav-text">RFP</span></a>
+        <a href="/admin/eoi"><i class="bi bi-person-x me-2" style="color: green;"></i><span class="nav-text">EOI</span></a>
+        <a href="/admin/rfi"><i class="bi bi-person-x me-2" style="color: green;"></i><span class="nav-text">RFI</span></a>
+      </div>
+
+      <a href="/admin/tender" class="nav-link"><i class="bi bi-briefcase me-2" style="color: green;"></i><span class="nav-text">Manage Tenders</span></a>
+      <a href="/admin/auction" class="nav-link"><i class="bi bi-layout-text-window-reverse me-2" style="color: green;"></i><span class="nav-text">Reverse Auction</span></a>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#alertModal">
+    <div class="nav-left"><i class="bi bi-bell-fill" style="color: green;"></i><span class="ms-2 nav-text">Alerts</span></div>
+  </a>
+
+  <!-- Message Management -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="msgSub">
+      <div class="nav-left"><i class="bi bi-chat-dots-fill" style="color: green;"></i><span class="ms-2 nav-text">Message Management</span></div>
+      <i class="bi bi-plus-lg"></i>
+    </a>
+    <div id="msgSub" class="submenu">
+      <a href="/admin/sms"><i class="bi bi-chat-left-text me-2" style="color: green;"></i><span class="nav-text">Message Board</span></a>
+    </div>
+  </div>
+
+  <!-- Audit Logs -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="auditSub">
+      <div class="nav-left"><i class="bi bi-journal-check" style="color: green;"></i><span class="ms-2 nav-text">Audit Logs</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="auditSub" class="submenu">
+      <a href="/admin/log"><i class="bi bi-list-check me-2" style="color: green;"></i><span class="nav-text">Action Logs</span></a>
+    </div>
+  </div>
+
+  <!-- Reports -->
+  <div class="nav-section">
+    <a href="#" class="nav-link" data-toggle="submenu" data-target="reportsSub">
+      <div class="nav-left"><i class="bi bi-graph-up-arrow" style="color: green;"></i><span class="ms-2 nav-text">Reports</span></div>
+      <i class="bi bi-plus-lg" style="color: green;"></i>
+    </a>
+    <div id="reportsSub" class="submenu">
+      <a href="/admin/reports"><i class="bi bi-check2-circle me-2" style="color: green;"></i><span class="nav-text">Reports</span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- Styles -->
+<!-- <style>
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: rgb(212, 218, 213);
+    color: #008000;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+    z-index: 1040;
+  }
+
+  .sidebar.closed {
+    width: 70px;
+  }
+
+  .sidebar .nav-link {
+    color: white;
+    display: block;
+    padding: 10px 15px;
+  }
+
+  .sidebar .nav-link:hover {
+    background: #333;
+  }
+
+  .sidebar.closed .nav-text {
+    display: none;
+  }
+
+  .sidebar.closed .sidebar-logo {
+    max-width: 50px !important;
+  }
+
+  .submenu {
+    padding-left: 20px;
+  }
+</style> -->
+
+<!-- Script -->
+<!-- <script>
+  const sidebar = document.getElementById('sidebar');
+  const toggleButton = document.getElementById('sidebarToggle');
+
+  toggleButton.addEventListener('click', () => {
+    sidebar.classList.toggle('closed');
+  });
+</script> -->
+
 
     <!-- Top Navbar (light green) -->
-     <%- include('partials/topbar') %>
+    <!-- Top Navbar (light green with rounded corners and padding) -->
+<header class="topbar bg-success" 
+        style="margin-top:20px; border-radius:15px; padding:10px 20px; height:10%;" 
+        id="topbar">
+  <div class="d-flex align-items-center">
+    <button class="btn btn-sm btn-light me-2 d-lg-none" id="hamburgerBtn">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="brand"><span class="text-success"></span></div>
+  </div>
+
+  <div class="nav-actions position-relative d-flex align-items-center">
+    <div class="nav-icon icon-badge" id="notifIcon" title="Notifications" data-count="2">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+
+    <!-- 👤 Profile Dropdown -->
+    <div class="dropdown ms-3">
+      <div class="nav-icon dropdown-toggle" id="profileDropdown" 
+           data-bs-toggle="dropdown" aria-expanded="false" 
+           style="cursor:pointer;">
+        <i class="bi bi-person-circle"></i>
+      </div>
+      <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+        <li>
+          <a class="dropdown-item d-flex align-items-center" href="#">
+            <i class="bi bi-person me-2 text-success"></i> Profile
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item d-flex align-items-center" href="/logout" id="logoutBtn">
+            <i class="bi bi-box-arrow-right me-2 text-danger"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+
 
 <!-- Main Navigation Tabs -->
 
@@ -461,17 +656,15 @@
 
                       <div class="mb-3">
             <label class="form-label">Client</label>
-            <select name="client" class="form-select" required>
-  <option value="">Select Client</option>
-    <% if (test && test.length > 0) { %>
-    <% test.forEach(tests => { %>
-      <option value="<%= tests.name %>"><%= tests.name %></option>
-    <% }) %>
-  <% } else { %>
-    <option disabled>No clients found</option>
-  <% } %>
+<input 
+  type="text" 
+  name="client" 
+  class="form-control" 
+  value="<%= typeof client !== 'undefined' ? client : '' %>" 
+  placeholder="Enter Client" 
+  required readonly
+>
 
-</select> 
           </div>
             <div class="mb-3">
               <label class="form-label">Category Number</label>
